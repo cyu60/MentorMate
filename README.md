@@ -1,8 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mentor Mate
+
+A Next.js application designed to streamline the process of collecting and managing mentor feedback for projects and hackathons.
+
+## Features
+
+- 🚀 Project submission system for participants
+- 📱 QR code generation for easy project access
+- 👥 Mentor registration and feedback system
+- 📊 Admin dashboard for overview and management
+- 🌙 Dark mode support
+- 🔔 Toast notifications for user feedback
+
+## Tech Stack
+
+- Next.js 15.0
+- TypeScript
+- Supabase (Backend & Database)
+- Tailwind CSS
+- Shadcn/UI Components
+- React Hook Form
+- Zod Validation
+
+## Prerequisites
+
+- Node.js 18+ 
+- npm/yarn/pnpm
+- Supabase account
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
 
 ```bash
 npm run dev
