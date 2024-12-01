@@ -14,7 +14,7 @@ export function Hero() {
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link href="/participant">
-          <Button size="lg" className="w-full sm:w-auto">
+          <Button size="lg" className="w-full sm:w-auto" variant="custom">
             I&apos;m a Participant
           </Button>
         </Link>
