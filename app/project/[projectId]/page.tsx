@@ -67,6 +67,8 @@ export default function ProjectFeedbackPage() {
         projectId={projectId}
         projectName={projectData.project_name}
         projectDescription={projectData.project_description}
+        projectLeadEmail={projectData.lead_email}
+        projectLeadName={projectData.lead_name}
       />
     </div>
   );

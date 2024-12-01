@@ -23,6 +23,8 @@ interface AISuggestions {
 interface FeedbackData {
   project_id: string;
   project_name: string;
+  project_email: string;
+  project_lead_name: string;
   project_description: string;
   mentor_id: string;
   mentor_name: string;
@@ -38,10 +40,14 @@ export default function FeedbackForm({
   projectId,
   projectName,
   projectDescription,
+  projectLeadEmail,
+  projectLeadName,
 }: {
   projectId: string;
   projectName: string;
   projectDescription: string;
+  projectLeadEmail: string;
+  projectLeadName: string;
 }) {
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,6 +117,8 @@ export default function FeedbackForm({
         project_id: projectId,
         project_name: projectName,
         project_description: projectDescription,
+        project_email: projectLeadEmail,
+        project_lead_name: projectLeadName,
         mentor_id: mentorId,
         mentor_name: mentorName,
         mentor_email: mentorEmail,
