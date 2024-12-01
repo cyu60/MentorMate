@@ -1,53 +1,78 @@
-import { supabase } from '@/lib/supabase'
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+"use client";
 
-export const revalidate = 0
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-async function getProjectData(projectId: string) {
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', projectId)
-    .single()
-
-  if (error) {
-    console.error('Error fetching project:', error)
-    return null
-  }
-
-  return data
+interface FeedbackItem {
+  id: string;
+  feedback_text: string;
+  mentor_name: string;
+  mentor_email: string;
 }
 
-async function getFeedback(projectId: string) {
-  const { data, error } = await supabase
-    .from('feedback')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching feedback:', error)
-    return []
-  }
-
-  return data
+interface ProjectData {
+  id: string;
+  project_name: string;
 }
 
-export default async function FeedbackPage({ params }: { params: { projectId: string } }) {
-  const projectData = await getProjectData(params.projectId)
-  const feedback = await getFeedback(params.projectId)
+export default function FeedbackPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!projectId) return;
+
+      // Fetch project data
+      const { data: projectData, error: projectError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (projectError) {
+        console.error("Error fetching project:", projectError);
+        notFound();
+        return;
+      }
+
+      setProjectData(projectData);
+
+      // Fetch feedback
+      const { data: feedbackData, error: feedbackError } = await supabase
+        .from("feedback")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false });
+
+      if (feedbackError) {
+        console.error("Error fetching feedback:", feedbackError);
+        return;
+      }
+
+      setFeedback(feedbackData);
+    };
+
+    fetchData();
+  }, [projectId]);
 
   if (!projectData) {
-    notFound()
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Feedback for {projectData.project_name}</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">
+        Feedback for {projectData.project_name}
+      </h1>
       <div className="mb-6">
-        <Link href={`/participant/dashboard/${params.projectId}`}>
+        <Link href={`/participant/dashboard/${projectId}`}>
           <Button variant="outline">Back to Project Details</Button>
         </Link>
       </div>
@@ -57,7 +82,9 @@ export default async function FeedbackPage({ params }: { params: { projectId: st
             {feedback.map((item) => (
               <li key={item.id} className="bg-white p-4 rounded-lg shadow">
                 <p className="text-gray-800">{item.feedback_text}</p>
-                <p className="text-sm text-gray-600 mt-2">- {item.mentor_name} ({item.mentor_email})</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  - {item.mentor_name} ({item.mentor_email})
+                </p>
               </li>
             ))}
           </ul>
@@ -66,6 +93,5 @@ export default async function FeedbackPage({ params }: { params: { projectId: st
         )}
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,72 +1,87 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 export default function MentorPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const router = useRouter()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if mentor details exist in localStorage
+    const mentorId = localStorage.getItem("mentorId");
+    const mentorName = localStorage.getItem("mentorName");
+    const mentorEmail = localStorage.getItem("mentorEmail");
+
+    if (mentorId && mentorName && mentorEmail) {
+      // If mentor details exist, redirect to scan page
+      router.push("/mentor/scan");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     try {
       const { data, error } = await supabase
-        .from('mentors')
+        .from("mentors")
         .insert({ name, email })
-        .select()
+        .select();
 
-      if (error) throw error
+      if (error) throw error;
 
-      localStorage.setItem('mentorId', data[0].id)
-      localStorage.setItem('mentorName', name)
-      localStorage.setItem('mentorEmail', email)
+      localStorage.setItem("mentorId", data[0].id);
+      localStorage.setItem("mentorName", name);
+      localStorage.setItem("mentorEmail", email);
 
-      router.push('/mentor/scan')
+      router.push("/mentor/scan");
     } catch (error) {
-      console.error('Error registering mentor:', error)
+      console.error("Error registering mentor:", error);
       toast({
-        title: 'Registration Failed',
-        description: 'There was an error registering. Please try again.',
-        variant: 'destructive',
-      })
+        title: "Registration Failed",
+        description: "There was an error registering. Please try again.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Mentor Registration</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">
+        Mentor Registration
+      </h1>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
         <div>
           <Label htmlFor="name">Name</Label>
-          <Input 
-            id="name" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
             required
           />
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input 
-            id="email" 
+          <Input
+            id="email"
             type="email"
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
           />
         </div>
-        <Button type="submit" className="w-full">Continue to Scan</Button>
+        <Button type="submit" className="w-full">
+          Continue to Scan
+        </Button>
       </form>
     </div>
-  )
+  );
 }
-
