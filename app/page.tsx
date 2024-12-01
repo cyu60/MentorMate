@@ -3,7 +3,7 @@ import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistratio
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto">
+    <div>
       <Hero />
       <ServiceWorkerRegistration />
     </div>
