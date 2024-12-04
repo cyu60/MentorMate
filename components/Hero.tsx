@@ -21,7 +21,7 @@ export function Hero() {
           particleColor="#4a90e2"
         /> */}
         <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-6">
-          Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-600">Mentor Mate</span>
+          Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400">Mentor Mate</span>
         </h1>
         <TextGenerateEffect
           words="Elevate your project feedback process with our intuitive platform. Connect project creators with mentors for valuable insights and improve outcomes across various domains."
