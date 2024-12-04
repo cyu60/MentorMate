@@ -8,7 +8,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 export function Hero() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-artistic">
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-blue-100/20 to-blue-900/40" />
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" />
       <BackgroundBeams />
       <div className="relative z-10 text-center px-4 max-w-4xl">
         {/* <SparklesCore
@@ -21,11 +21,11 @@ export function Hero() {
           particleColor="#4a90e2"
         /> */}
         <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-6">
-          Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400">Mentor Mate</span>
+          Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">Mentor Mate</span>
         </h1>
         <TextGenerateEffect
           words="Elevate your project feedback process with our intuitive platform. Connect project creators with mentors for valuable insights and improve outcomes across various domains."
-          className="text-md text-blue-100 mb-8 max-w-3xl mx-auto font-light"
+          className="text-lg text-blue-100 mb-8 max-w-3xl mx-auto font-light"
         />
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/participant">

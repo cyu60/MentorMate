@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ProjectSubmissionFormComponent } from '@/components/ProjectSubmissionForm'
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Loader2 } from 'lucide-react'
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
+import { motion } from "framer-motion"
 
 interface Project {
   id: string;
@@ -18,14 +20,13 @@ interface Project {
 export default function ParticipantPage() {
   const [existingProjects, setExistingProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'projects' | 'submit'>('projects') // Track the active tab
 
   useEffect(() => {
     const fetchProjects = async () => {
       setIsLoading(true)
-      // Simulate a delay to show the loading spinner
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Retrieve existing projects from local storage
       const projects: Project[] = []
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
@@ -42,41 +43,89 @@ export default function ParticipantPage() {
   }, [])
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Participant Dashboard</h1>
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/0">
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
+          {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
+            Participant Dashboard
+          {/* </span> */}
+        </h1>
+
+        {/* Navigation for Projects / Submit Project */}
+        <div className="flex justify-center gap-4">
+          <Button
+            onClick={() => setActiveTab('projects')}
+            className={`text-md py-2 px-4 rounded-full transition-all duration-300 ${activeTab === 'projects' ? 'bg-blue-900 text-white' : 'bg-transparent border-2 border-blue-300 text-black hover:bg-blue-500/30'}`}
+          >
+            View Projects
+          </Button>
+          <Button
+            onClick={() => setActiveTab('submit')}
+            className={`text-md py-2 px-4 rounded-full transition-all duration-300 ${activeTab === 'submit' ? 'bg-blue-900 text-white' : 'bg-transparent border-2 border-blue-300 text-black hover:bg-blue-500/30'}`}
+          >
+            Submit a Project
+          </Button>
         </div>
-      ) : (
-        <>
-          {existingProjects.length > 0 && (
-            <div className="mb-12">
-              <h2 className="text-2xl font-semibold mb-4">Your Projects</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {existingProjects.map((project) => (
-                  <Card key={project.id}>
-                    <CardHeader>
-                      <CardTitle>{project.project_name}</CardTitle>
-                      <CardDescription>{project.project_description.slice(0, 100)}...</CardDescription>
-                      <Link href={`/participant/dashboard/${project.id}`}>
-                        <Button className="mt-2">View Project</Button>
-                      </Link>
-                    </CardHeader>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          <div className="mt-12">
-            <h2 className="text-2xl font-semibold mb-4 text-center">Submit a New Project</h2>
-            <ProjectSubmissionFormComponent />
+
+        {/* Loading / Projects Section */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
           </div>
-        </>
-      )}
+        ) : (
+          <>
+            {activeTab === 'projects' && existingProjects.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-16"
+              >
+                <h2 className="text-xl font-semibold mt-6 mb-6 text-black">Your Projects</h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {existingProjects.map((project) => (
+                    <Card key={project.id} className="bg-white/10 backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300">
+                    <CardHeader>
+                      <CardTitle className="text-blue-900 text-2xl font-semibold">{project.project_name}</CardTitle>
+                      <CardDescription className="text-blue-200 text-sm">
+                        <TextGenerateEffect
+                          words={project.project_description.slice(0, 100) + '...'}
+                          className="text-lg font-light"  // Add your custom styles here
+                        />
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link href={`/participant/dashboard/${project.id}`}>
+                        <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                          View Project
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                  
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'submit' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-6"
+              >
+                {/* <h2 className="text-xl font-semibold mb-6 text-center text-black">Submit a New Project</h2> */}
+                <Card className="bg-white/10 backdrop-blur-md border-blue-200/20">
+                  <CardContent className="p-6">
+                    <ProjectSubmissionFormComponent />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
-
