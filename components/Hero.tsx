@@ -1,29 +1,46 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+// import { SparklesCore } from "@/components/ui/sparkles";
+// import "../styles/custom.css";
 
 export function Hero() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-b from-primary/20 to-background text-center px-4">
-      <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4">
-        Welcome to Mentor Mate
-      </h1>
-      <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-        Elevate your project feedback process with our intuitive platform.
-        Connect project creators with mentors for valuable insights and improve
-        outcomes across various domains.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link href="/participant">
-          <Button size="lg" className="w-full sm:w-auto" variant="custom">
-            I&apos;m a Participant
-          </Button>
-        </Link>
-        <Link href="/mentor">
-          <Button size="lg" variant="outline" className="w-full sm:w-auto">
-            I&apos;m a Mentor/Judge
-          </Button>
-        </Link>
+    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-artistic">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-blue-100/20 to-blue-900/40" />
+      <BackgroundBeams />
+      <div className="relative z-10 text-center px-4 max-w-4xl">
+        {/* <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full absolute"
+          particleColor="#4a90e2"
+        /> */}
+        <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-6">
+          Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-600">Mentor Mate</span>
+        </h1>
+        <TextGenerateEffect
+          words="Elevate your project feedback process with our intuitive platform. Connect project creators with mentors for valuable insights and improve outcomes across various domains."
+          className="text-md text-blue-100 mb-8 max-w-3xl mx-auto font-light"
+        />
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/participant">
+            <Button size="lg" className="w-full sm:w-auto button-gradient text-white font-semibold py-3 px-6 rounded-full shadow-lg">
+              I&apos;m a Participant
+            </Button>
+          </Link>
+          <Link href="/mentor">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300">
+              I&apos;m a Mentor/Judge
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
+
