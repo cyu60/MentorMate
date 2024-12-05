@@ -98,7 +98,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="container mx-auto p-10 bg-gradient-to-b min-h-screen from-white to-blue-100/80">
+    <div className="container m-0 p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
       <h1 className="text-3xl font-bold mb-8 text-center">
         Feedback for {projectData.project_name}
       </h1>
