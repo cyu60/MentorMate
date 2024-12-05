@@ -70,7 +70,7 @@ export default function ParticipantDashboard() {
           </span>
         </h1>
 
-        <div className="bg-white/10 backdrop-blur-md p-8 rounded-lg shadow-xl">
+        <div className="bg-white backdrop-blur-md p-8 rounded-lg shadow-xl">
           {/* Two-Column Layout */}
           <div className="flex flex-col md:flex-row items-start gap-8">
             {/* Left Column: QR Code and Scan Info */}
