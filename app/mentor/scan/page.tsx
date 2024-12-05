@@ -40,7 +40,7 @@ export default function MentorScanPage() {
           <Card className="bg-white backdrop-blur-md border-blue-200/20">
             <CardHeader>
               <CardTitle className="text-2xl font-semibold">QR Scanner</CardTitle>
-              <CardDescription className="text-blue-900"> Scan the project QR code to view details</CardDescription>
+              <CardDescription className="text-blue-900">Scan the project QR code to view details</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="aspect-square w-full bg-gray-100 rounded-lg overflow-hidden mb-4">
