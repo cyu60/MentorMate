@@ -72,7 +72,7 @@ export default function FeedbackPage() {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <div className="relative z-10 text-center">
-          <p className="text-2xl text-blue-100 font-light">Loading project data...</p>
+          <p className="text-2xl text-blue-100 font-light">Loading ...</p>
         </div>
       </div>
     );
