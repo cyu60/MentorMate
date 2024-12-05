@@ -5,7 +5,7 @@ export function SubmissionConfirmation({ projectName }: { projectName: string })
   const router = useRouter()
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen text-center space-y-6 p-6">
+    <div className="flex flex-col justify-center items-center min-h-screen text-center space-y-6">
       <h2 className="text-3xl font-bold text-blue-900">Feedback Submitted</h2>
       <p className="text-lg text-gray-700">
         Your feedback for <span className="font-semibold text-blue-700">{projectName}</span> has been received. Thank you for your contribution!
