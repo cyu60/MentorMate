@@ -43,7 +43,7 @@ export default function ParticipantPage() {
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/0">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
       <div className="relative z-10 container mx-auto px-4 py-12">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
@@ -84,13 +84,13 @@ export default function ParticipantPage() {
                 <h2 className="text-xl font-semibold mt-6 mb-6 text-black">Your Projects</h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {existingProjects.map((project) => (
-                    <Card key={project.id} className="bg-white/10 backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300">
+                    <Card key={project.id} className="bg-blue-100/70 backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300">
                     <CardHeader>
-                      <CardTitle className="text-blue-900 text-2xl font-semibold">{project.project_name}</CardTitle>
-                      <CardDescription className="text-blue-200 text-sm">
+                      <CardTitle className="text-blue-900 text-xl font-semibold">{project.project_name}</CardTitle>
+                      <CardDescription className="text-blue-100 text-sm">
                         <TextGenerateEffect
                           words={project.project_description.slice(0, 100) + '...'}
-                          className="text-lg font-light"  // Add your custom styles here
+                          className="text-md font-light" 
                         />
                       </CardDescription>
                     </CardHeader>
@@ -113,7 +113,7 @@ export default function ParticipantPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-6"
+                className="mt-6 ml-40 mr-40"
               >
                 {/* <h2 className="text-xl font-semibold mb-6 text-center text-black">Submit a New Project</h2> */}
                 <Card className="bg-white/10 backdrop-blur-md border-blue-200/20">
