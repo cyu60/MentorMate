@@ -84,7 +84,7 @@ export default function ParticipantPage() {
                 <h2 className="text-xl font-semibold mt-6 mb-6 text-black">Your Projects</h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {existingProjects.map((project) => (
-                    <Card key={project.id} className="bg-blue-100/70 backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300">
+                    <Card key={project.id} className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300">
                     <CardHeader>
                       <CardTitle className="text-blue-900 text-xl font-semibold">{project.project_name}</CardTitle>
                       <CardDescription className="text-blue-100 text-sm">
