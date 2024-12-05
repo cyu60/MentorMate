@@ -116,7 +116,7 @@ export default function ParticipantPage() {
                 className="mt-6 ml-40 mr-40"
               >
                 {/* <h2 className="text-xl font-semibold mb-6 text-center text-black">Submit a New Project</h2> */}
-                <Card className="bg-white/10 backdrop-blur-md border-blue-200/20">
+                <Card className="bg-white backdrop-blur-md border-blue-200/20">
                   <CardContent className="p-6">
                     <ProjectSubmissionFormComponent />
                   </CardContent>
