@@ -23,7 +23,7 @@ export function Hero() {
         <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-6">
           Welcome to{" "}
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-            Mentor Mates
+            Mentor Mate
           </span>
         </h1>
         <TextGenerateEffect
