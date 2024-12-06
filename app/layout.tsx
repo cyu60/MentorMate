@@ -27,8 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* <link rel="apple-touch-icon" href="/icon-192x192.png" /> */}
-        <link rel="apple-touch-icon" href="/mentormate.png" />
+        {/* Apple Touch Icon - Specify the correct size */}
+        <link rel="apple-touch-icon" href="/mentormate.png" sizes="180x180" />
+        {/* Add additional icon sizes for better compatibility */}
+        <link rel="apple-touch-icon" href="/mentormate-192x192.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/mentormate-512x512.png" sizes="512x512" />
       </head>
       <body className={inter.className}>
         {children}
