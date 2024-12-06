@@ -211,26 +211,25 @@ export default function FeedbackForm({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="w-full max-w-5xl mx-auto px-4"
     >
-      <Card className="bg-white backdrop-blur-md shadow-lg rounded-lg">
-        {/* Project Details */}
-        <CardHeader className="border-b border-blue-200 pb-4">
-          <CardTitle className="text-blue-900 text-2xl font-semibold">
+      {/* Project Details */}
+      <div className="bg-white shadow-lg rounded-lg">
+        <div className="border-b border-blue-200 pb-4 p-6">
+          <h2 className="text-blue-900 text-2xl font-semibold">
             {projectName}
-          </CardTitle>
-          <CardDescription className="text-black text-md">
-            {projectDescription}
-          </CardDescription>
-          <CardDescription className="text-black text-sm">
+          </h2>
+          <p className="text-black text-md">{projectDescription}</p>
+          <p className="text-black text-sm">
             <strong>Lead Name:</strong> {projectLeadName}
-          </CardDescription>
-          <CardDescription className="text-black text-sm">
+          </p>
+          <p className="text-black text-sm">
             <strong>Lead Email:</strong> {projectLeadEmail}
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
 
         {/* Feedback Section */}
-        <CardContent className="space-y-6 mt-4">
+        <div className="space-y-6 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
               <label
@@ -313,8 +312,8 @@ export default function FeedbackForm({
               </Button>
             )}
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Mentor Registration Modal */}
       <MentorRegistrationModal

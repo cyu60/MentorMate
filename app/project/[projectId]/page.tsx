@@ -42,39 +42,28 @@ export default function ProjectFeedbackPage() {
   }, [projectId]);
 
   if (!projectData) {
-    return 
+    return;
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
       <div className="relative z-10 text-center">
-        <p className="text-2xl text-blue-100 font-light">Loading project data...</p>
+        <p className="text-2xl text-blue-100 font-light">
+          Loading project data...
+        </p>
       </div>
-    </div>
+    </div>;
   }
 
   return (
-    <div className="container mx-auto min-h-screen min-w-full bg-gradient-to-b from-white to-blue-100/80 p-10">
-      <h1 className="text-3xl font-bold mb-8 text-center">Project Feedback</h1>
-      <div className="mb-6">
-        {/* <h2 className="text-xl font-semibold mb-2">Project Details</h2> */}
-        {/* <p>
-          <strong>Project Name:</strong> {projectData.project_name}
-        </p>
-        <p>
-          <strong>Lead Name:</strong> {projectData.lead_name}
-        </p>
-        <p>
-          <strong>Lead Email:</strong> {projectData.lead_email}
-        </p>
-        <p>
-          <strong>Description:</strong> {projectData.project_description}
-        </p> */}
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
+      <h1 className="text-3xl font-bold pt-10 text-center">Project Feedback</h1>
+      <div className="mt-8">
+        <FeedbackForm
+          projectId={projectId}
+          projectName={projectData.project_name}
+          projectDescription={projectData.project_description}
+          projectLeadEmail={projectData.lead_email}
+          projectLeadName={projectData.lead_name}
+        />
       </div>
-      <FeedbackForm
-        projectId={projectId}
-        projectName={projectData.project_name}
-        projectDescription={projectData.project_description}
-        projectLeadEmail={projectData.lead_email}
-        projectLeadName={projectData.lead_name}
-      />
     </div>
   );
 }
