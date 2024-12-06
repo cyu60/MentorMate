@@ -1,71 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { OnResultFunction, QrReader } from "react-qr-reader";
+import React, { useState } from "react";
+import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 
 export default function QRScanner() {
-  const [data, setData] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [showScanner, setShowScanner] = useState(true);
+  const router = useRouter();
+  const [scanError, setScanError] = useState<string | null>(null);
 
-  const handleScan = (result: { text: string } | null, error: Error | null) => {
-    if (result) {
-      setData(result.text);
-      setShowScanner(false);
-    }
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    if (detectedCodes.length > 0) {
+      try {
+        const rawValue = detectedCodes[0].rawValue;
+        // Extract the project ID from the URL
+        const projectId = rawValue.split("/").pop();
 
-    if (error) {
-      console.error(error);
+        if (!projectId) {
+          throw new Error("Invalid QR code format");
+        }
+
+        toast({
+          title: "QR Code Scanned",
+          description: "Redirecting to project page...",
+        });
+        router.push(`/project/${projectId}`);
+      } catch (error) {
+        console.error("Error parsing QR code:", error);
+        setScanError("Invalid QR code format. Please try scanning again.");
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the feedback to your backend
-    console.log("Feedback submitted:", feedback);
-    toast({
-      title: "Feedback Submitted",
-      description: "Your feedback has been submitted successfully.",
-    });
-    setFeedback("");
-    setShowScanner(true);
-    setData("");
+  const handleError = (error: unknown) => {
+    console.error(error);
+    setScanError("Failed to scan QR code. Please try again.");
+  };
+
+  const handleRetry = () => {
+    setScanError(null);
   };
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      {showScanner ? (
-        <div className="w-full max-w-md">
-          <QrReader
-            onResult={handleScan as OnResultFunction}
-            constraints={{ facingMode: "environment" }}
-            containerStyle={{ width: "100%" }}
-          />
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
-          <div>
-            <label
-              htmlFor="feedback"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Feedback for project: {data}
-            </label>
-            <Input
-              id="feedback"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Enter your feedback here"
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full">
-            Submit Feedback
+      <Scanner
+        onScan={handleScan}
+        onError={handleError}
+        constraints={{ facingMode: "environment" }}
+        styles={{ container: { width: "300px" }, video: { width: "100%" } }}
+        allowMultiple={false}
+        scanDelay={500}
+      />
+      {scanError && (
+        <div className="mt-2 text-center">
+          <p className="text-red-500">{scanError}</p>
+          <Button onClick={handleRetry} className="mt-2">
+            Try Again
           </Button>
-        </form>
+        </div>
       )}
     </div>
   );
