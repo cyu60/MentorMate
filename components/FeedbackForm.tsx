@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { MentorRegistrationModal } from "./MentorRegistrationModal";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 // import { SparklesCore } from "@/components/ui/sparkles";
 import { Loader2, Bot } from "lucide-react";

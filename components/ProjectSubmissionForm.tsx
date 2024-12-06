@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   projectName: z.string().min(2, {
@@ -59,36 +59,37 @@ export function ProjectSubmissionFormComponent() {
     setIsSubmitting(true);
     try {
       const { data, error } = await supabase
-        .from('projects')
+        .from("projects")
         .insert({
           project_name: values.projectName,
           lead_name: values.leadName,
           lead_email: values.leadEmail,
-          project_description: values.projectDescription
+          project_description: values.projectDescription,
         })
-        .select()
+        .select();
 
       if (error) throw error;
 
       // Store project data in local storage
-      localStorage.setItem(`project_${data[0].id}`, JSON.stringify(data[0]))
+      localStorage.setItem(`project_${data[0].id}`, JSON.stringify(data[0]));
 
       toast({
         title: "Project Submitted",
         description: "Your project has been submitted for feedback.",
       });
       form.reset();
-      
+
       // Trigger a re-render of the participant page
       router.refresh();
-      
+
       // Navigate to the project dashboard
       router.push(`/participant/dashboard/${data[0].id}`);
     } catch (error) {
-      console.error('Error submitting project:', error);
+      console.error("Error submitting project:", error);
       toast({
         title: "Error",
-        description: "There was an error submitting your project. Please try again.",
+        description:
+          "There was an error submitting your project. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -97,25 +98,34 @@ export function ProjectSubmissionFormComponent() {
   }
 
   return (
-    <div className="max-w-md w-full mx-auto space-y-6">
+    <div className="w-full max-w-md mx-auto px-4 sm:px-6 space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-3xl font-bold">Submit Your Project</h2>
-        <p className="text-gray-500 dark:text-gray-400">
+        <h2 className="text-2xl sm:text-3xl font-bold">Submit Your Project</h2>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Enter your project details for mentor feedback.
         </p>
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-6"
+        >
           <FormField
             control={form.control}
             name="projectName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Name</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Project Name
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter project name" {...field} />
+                  <Input
+                    placeholder="Enter project name"
+                    {...field}
+                    className="text-sm sm:text-base p-2 sm:p-3"
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
@@ -124,11 +134,17 @@ export function ProjectSubmissionFormComponent() {
             name="leadName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Lead Name</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Project Lead Name
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input
+                    placeholder="John Doe"
+                    {...field}
+                    className="text-sm sm:text-base p-2 sm:p-3"
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
@@ -137,15 +153,18 @@ export function ProjectSubmissionFormComponent() {
             name="leadEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Lead Email</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Project Lead Email
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="email"
                     placeholder="johndoe@example.com"
                     {...field}
+                    className="text-sm sm:text-base p-2 sm:p-3"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
@@ -154,23 +173,29 @@ export function ProjectSubmissionFormComponent() {
             name="projectDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Description</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Project Description
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Briefly describe your project..."
-                    className="resize-none"
+                    className="resize-none text-sm sm:text-base p-2 sm:p-3 min-h-[100px]"
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs sm:text-sm">
                   Provide a concise overview of your project (max 500
                   characters).
                 </FormDescription>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full text-sm sm:text-base py-2 sm:py-3"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -185,4 +210,3 @@ export function ProjectSubmissionFormComponent() {
     </div>
   );
 }
-
