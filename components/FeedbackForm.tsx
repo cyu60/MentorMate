@@ -13,6 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { motion } from "framer-motion";
+// import { SparklesCore } from "@/components/ui/sparkles";
+import { Loader2, Bot } from "lucide-react";
 
 interface AISuggestions {
   "more specific": string;
@@ -49,16 +52,14 @@ export default function FeedbackForm({
   projectLeadEmail: string;
   projectLeadName: string;
 }) {
-  const [feedback, setFeedback] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(
-    null
-  );
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [hasImprovedWithAI, setHasImprovedWithAI] = useState(false);
-  const [showSubmitButton, setShowSubmitButton] = useState(false);
+  const [feedback, setFeedback] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
+  const [hasImprovedWithAI, setHasImprovedWithAI] = useState<boolean>(false);
+  const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
 
   const improveWithAI = async () => {
     if (hasImprovedWithAI) return;
@@ -68,8 +69,7 @@ export default function FeedbackForm({
     localStorage.setItem("originalFeedback", feedback);
 
     try {
-      const url =
-        "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
+      const url = "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
       const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -90,8 +90,7 @@ export default function FeedbackForm({
   };
 
   const logFeedbackToMagicLoop = async (feedbackData: FeedbackData) => {
-    const url =
-      "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
+    const url = "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -113,7 +112,7 @@ export default function FeedbackForm({
       const originalFeedback =
         localStorage.getItem("originalFeedback") || feedback;
 
-      const feedbackData = {
+      const feedbackData: FeedbackData = {
         project_id: projectId,
         project_name: projectName,
         project_description: projectDescription,
@@ -204,71 +203,106 @@ export default function FeedbackForm({
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="feedback"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Your Feedback for {projectName}
-          </label>
-          <Textarea
-            id="feedback"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Enter your feedback here"
-            required
-            className="min-h-[100px]"
-          />
-        </div>
-        {!hasImprovedWithAI && (
-          <Button
-            type="button"
-            onClick={improveWithAI}
-            disabled={isGeneratingAI || feedback.length === 0}
-            className="w-full"
-          >
-            {isGeneratingAI ? "Improving..." : "Improve Feedback with AI"}
-          </Button>
-        )}
-        {aiSuggestions && (
-          <Card>
-            <CardHeader>
-              <CardTitle>AI-Enhanced Feedback Suggestions</CardTitle>
-              <CardDescription>
-                Consider these improvements for your feedback:
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Object.entries(aiSuggestions).map(([key, value]) => (
-                <div key={key}>
-                  <h3 className="font-semibold capitalize">{key}:</h3>
-                  <p>{value}</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSuggestionUse(value)}
-                    className="mt-2"
-                  >
-                    Use this suggestion
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-        {showSubmitButton && (
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit Feedback"}
-          </Button>
-        )}
-      </form>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="bg-white backdrop-blur-md border-blue-200/20 shadow-lg rounded-lg ">
+        {/* Project Details */}
+        <CardHeader className="border-b border-blue-200 pb-4">
+          <CardTitle className="text-blue-900 text-2xl font-semibold">{projectName}</CardTitle>
+          <CardDescription className="text-black text-md">{projectDescription}</CardDescription>
+          <CardDescription className="text-black text-sm">
+            <strong>Lead Name:</strong> {projectLeadName}
+          </CardDescription>
+          <CardDescription className="text-black text-sm">
+            <strong>Lead Email:</strong> {projectLeadEmail}
+          </CardDescription>
+        </CardHeader>
+
+        {/* Feedback Section */}
+        <CardContent className="space-y-6 mt-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
+              <label htmlFor="feedback" className="block text-sm font-medium text-blue-900 mb-2">
+                Leave Your Feedback
+              </label>
+              <Textarea
+                id="feedback"
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                placeholder="Enter your feedback here"
+                required
+                className="min-h-[100px] bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-md p-2"
+              />
+            </div>
+
+            {/* AI Improvement Button */}
+            {!hasImprovedWithAI && (
+              <Button
+                type="button"
+                onClick={improveWithAI}
+                disabled={isGeneratingAI || feedback.trim().length === 0}
+                className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {isGeneratingAI ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Improving...
+                  </>
+                ) : (
+                  <>
+                    {/* <SparklesCore className="mr-2 h-4 w-4" /> */}
+                    <Bot/>
+                    Improve Feedback with AI
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* AI Suggestions */}
+            {aiSuggestions && (
+              <Card className="bg-blue-50 border-blue-200 mt-4 p-4 rounded-lg">
+                <h3 className="text-blue-900 text-lg font-semibold mb-4">AI Suggestions:</h3>
+                <ul className="space-y-4">
+                  {Object.entries(aiSuggestions).map(([category, suggestion]) => (
+                    <li key={category} className="flex items-center justify-between">
+                      <div>
+                        <strong className="text-blue-900 capitalize">{category.replace(/_/g, " ")}:</strong>
+                        <p>{suggestion}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => handleSuggestionUse(suggestion)}
+                        className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full"
+                      >
+                        Apply
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+            {/* Final Feedback Submission Button */}
+            {showSubmitButton && !isSubmitting && (
+              <Button
+                type="submit"
+                className="w-full bg-green-700 hover:bg-green-900 text-white py-2 px-4 rounded-full shadow-lg mt-4"
+              >
+                Submit Feedback
+              </Button>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Mentor Registration Modal */}
       <MentorRegistrationModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
       />
-    </>
+    </motion.div>
   );
 }
