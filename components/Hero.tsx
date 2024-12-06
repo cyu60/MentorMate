@@ -49,7 +49,7 @@ export function Hero() {
             </Button>
           </Link>
         </div>
-        <div className="mt-16 text-center space-y-4">
+        <div className="mt-24 text-center space-y-4">
           <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
             Supported by:
           </p>

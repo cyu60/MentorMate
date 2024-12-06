@@ -88,7 +88,7 @@ export default function ParticipantPage() {
           </div>
         ) : (
           <>
-            {activeTab === "projects" && existingProjects.length > 0 && (
+            {activeTab === "projects" && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -98,35 +98,37 @@ export default function ParticipantPage() {
                 <h2 className="text-xl font-semibold mt-6 mb-6 text-black">
                   Your Projects
                 </h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {existingProjects.map((project) => (
-                    <Card
-                      key={project.id}
-                      className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300"
-                    >
-                      <CardHeader>
-                        <CardTitle className="text-blue-900 text-xl font-semibold">
-                          {project.project_name}
-                        </CardTitle>
-                        <CardDescription className="text-blue-100 text-sm">
-                          <TextGenerateEffect
-                            words={
-                              project.project_description.slice(0, 100) + "..."
-                            }
-                            className="text-md font-light"
-                          />
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Link href={`/participant/dashboard/${project.id}`}>
-                          <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                            View Project
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                {existingProjects.length > 0 ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {existingProjects.map((project) => (
+                      <Card
+                        key={project.id}
+                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300"
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-blue-900 text-xl font-semibold">
+                            {project.project_name}
+                          </CardTitle>
+                          <CardDescription className="text-blue-100 text-sm">
+                            <TextGenerateEffect
+                              words={project.project_description.slice(0, 100) + "..."}
+                              className="text-md font-light"
+                            />
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Link href={`/participant/dashboard/${project.id}`}>
+                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                              View Project
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 text-md font-bold"> No Project Submitted</p> 
+                )}
               </motion.div>
             )}
 
