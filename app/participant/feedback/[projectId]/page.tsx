@@ -88,7 +88,7 @@ export default function FeedbackPage() {
     );
   }
 
-  const fullUrl = `${window.location.origin}/project/${projectId}`;
+  // const fullUrl = `${window.location.origin}/project/${projectId}`;
 
   // Function to get initials from mentor's name
   const getInitials = (name: string) => {

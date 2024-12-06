@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { SparklesCore } from "@/components/ui/sparkles";
+// import { SparklesCore } from "@/components/ui/sparkles";
 import { Loader2, Bot } from "lucide-react";
 
 interface AISuggestions {
