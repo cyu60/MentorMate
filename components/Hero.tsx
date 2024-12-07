@@ -10,9 +10,9 @@ export function Hero() {
       <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" />
       <BackgroundBeams />
       <div className="relative z-10 text-center px-4 max-w-4xl">
-        <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
+        <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           {/* Welcome to  {" "} */}
-          <span className="flex items-center gap-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
+          <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
             <Image 
                 src="/mentormate.png" 
                 alt="Mentor Mate Logo" 
