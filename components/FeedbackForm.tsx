@@ -225,6 +225,19 @@ export default function FeedbackForm({
         {/* Feedback Section */}
         <div className="space-y-6 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="mb-6 text-gray-800">
+              <h3 className="font-medium text-xl mb-3">
+                Consider in your feedback:
+              </h3>
+              <ul className="list-decimal pl-6 space-y-2 text-lg">
+                <li>What should they do next to improve the project?</li>
+                <li>What could be better or work differently?</li>
+                <li>
+                  What works well, and are there similar projects to learn from?
+                </li>
+              </ul>
+            </div>
+
             <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
               <label
                 htmlFor="feedback"
