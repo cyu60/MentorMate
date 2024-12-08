@@ -1,59 +1,100 @@
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface MentorRegistrationModalProps {
-  isOpen: boolean
-  onClose: (mentorInfo?: { id: string; name: string; email: string }) => void
+  isOpen: boolean;
+  onClose: (mentorInfo?: { id: string; name: string; email: string }) => void;
 }
 
-export function MentorRegistrationModal({ isOpen, onClose }: MentorRegistrationModalProps) {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function MentorRegistrationModal({
+  isOpen,
+  onClose,
+}: MentorRegistrationModalProps) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase
-        .from('mentors')
-        .insert({ name, email })
-        .select()
+      // First, check if mentor exists
+      const { data: existingMentor, error: searchError } = await supabase
+        .from("mentors")
+        .select("*")
+        .eq("email", email)
+        .single();
 
-      if (error) throw error
-
-      if (data && data[0]) {
-        const mentorInfo = { id: data[0].id, name, email }
-        localStorage.setItem('mentorId', mentorInfo.id)
-        localStorage.setItem('mentorName', mentorInfo.name)
-        localStorage.setItem('mentorEmail', mentorInfo.email)
-
-        toast({
-          title: 'Registration Successful',
-          description: 'You have been registered as a mentor.',
-        })
-
-        onClose(mentorInfo)
-      } else {
-        throw new Error('No data returned from mentor registration')
+      if (searchError && searchError.code !== "PGRST116") {
+        // PGRST116 is "not found" error
+        throw searchError;
       }
+
+      let mentorInfo;
+
+      if (existingMentor) {
+        // Update existing mentor's name if different
+        if (existingMentor.name !== name) {
+          const { error: updateError } = await supabase
+            .from("mentors")
+            .update({ name })
+            .eq("id", existingMentor.id);
+
+          if (updateError) throw updateError;
+        }
+        mentorInfo = existingMentor;
+        toast({
+          title: "Welcome Back!",
+          description: "You have been logged in successfully.",
+        });
+      } else {
+        // Create new mentor
+        const { data: newMentor, error: insertError } = await supabase
+          .from("mentors")
+          .insert({ name, email })
+          .select();
+
+        if (insertError) throw insertError;
+        if (!newMentor?.[0])
+          throw new Error("No data returned from mentor registration");
+
+        mentorInfo = newMentor[0];
+        toast({
+          title: "Registration Successful",
+          description: "You have been registered as a mentor.",
+        });
+      }
+
+      // Store in localStorage
+      localStorage.setItem("mentorId", mentorInfo.id);
+      localStorage.setItem("mentorName", mentorInfo.name);
+      localStorage.setItem("mentorEmail", mentorInfo.email);
+
+      onClose(mentorInfo);
     } catch (error) {
-      console.error('Error registering mentor:', error)
+      console.error("Error in mentor registration:", error);
       toast({
-        title: 'Registration Failed',
-        description: 'There was an error registering. Please try again.',
-        variant: 'destructive',
-      })
+        title: "Registration Failed",
+        description: "There was an error registering. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
@@ -61,7 +102,7 @@ export function MentorRegistrationModal({ isOpen, onClose }: MentorRegistrationM
         <DialogHeader>
           <DialogTitle>Mentor Registration</DialogTitle>
           <DialogDescription>
-            Please register as a mentor to submit feedback.
+            Please enter your details to provide feedback.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,12 +129,11 @@ export function MentorRegistrationModal({ isOpen, onClose }: MentorRegistrationM
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Registering...' : 'Register'}
+              {isSubmitting ? "Processing..." : "Continue"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
