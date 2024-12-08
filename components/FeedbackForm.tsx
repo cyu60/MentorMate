@@ -178,10 +178,10 @@ export default function FeedbackForm({
     }
   };
 
-  const handleSuggestionUse = (suggestion: string) => {
-    setFeedback(suggestion);
-    setShowSubmitButton(true);
-  };
+  // const handleSuggestionUse = (suggestion: string) => {
+  //   setFeedback(suggestion);
+  //   setShowSubmitButton(true);
+  // };
 
   useEffect(() => {
     const pendingFeedback = localStorage.getItem("pendingFeedback");
@@ -295,13 +295,24 @@ export default function FeedbackForm({
                           </strong>
                           <p className="mt-1">{suggestion}</p>
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => handleSuggestionUse(suggestion)}
-                          className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full self-start"
-                        >
-                          Apply
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => setFeedback(suggestion)}
+                            className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full"
+                          >
+                            Replace
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              setFeedback((prev) => `${prev}\n\n${suggestion}`)
+                            }
+                            className="bg-green-700 text-white text-sm py-1 px-3 rounded-full"
+                          >
+                            Add Below
+                          </Button>
+                        </div>
                       </li>
                     )
                   )}
