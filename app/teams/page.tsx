@@ -37,9 +37,9 @@ const teamGroups: TeamGroup[] = [
 
 export default function TeamGrid() {
     return (
-        <div>
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
             <Navbar />
-            <h1 className="text-3xl font-bold text-center mb-8">Our Team</h1>
+            <h1 className="text-3xl font-bold text-center mb-5">Our Team</h1>
             
             <div className="container mx-auto">
                 {/* Project Director Section */}
