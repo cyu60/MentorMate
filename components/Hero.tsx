@@ -6,10 +6,10 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 export function Hero() {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-artistic">
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" />
-      <BackgroundBeams />
-      <div className="relative z-10 text-center px-4 max-w-4xl">
+    <div className="relative flex flex-col items-center justify-center overflow-hidden bg-artistic">
+      {/* <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" /> */}
+      {/* <BackgroundBeams /> */}
+      <div className="relative text-center py-16 max-w-4xl">
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           {/* Welcome to  {" "} */}
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
