@@ -9,7 +9,7 @@ export function Navbar() {
     const toggleMenu = () => setIsOpen(!isOpen);
 
     return (
-        <nav className="w-full bg-transparent text-blue-900 m-0.5">
+        <nav className="w-full bg-transparent text-blue-900">
             <div className="flex justify-between items-center p-8 max-w-7xl mx-auto">
                 {/* Logo */}
                 <Link href="/">
