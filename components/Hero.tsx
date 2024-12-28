@@ -13,12 +13,12 @@ export function Hero() {
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           {/* Welcome to  {" "} */}
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-            <Image 
+            {/* <Image 
                 src="/mentormate.png" 
                 alt="Mentor Mate Logo" 
                 width={50} 
                 height={50} 
-            />
+            /> */}
             Mentor Mate
           </span>
         </h1>
