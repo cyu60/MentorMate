@@ -9,31 +9,33 @@ export function Navbar() {
     const toggleMenu = () => setIsOpen(!isOpen);
 
     return (
-        <nav className="fixed top-0 left-0 w-full bg-transparent text-blue-900 z-20">
+        <nav className="w-full bg-transparent text-blue-900 m-0.5">
             <div className="flex justify-between items-center p-8 max-w-7xl mx-auto">
                 {/* Logo */}
-                <div className="flex items-center gap-2">
-                <img
-                    src="/mentormate.png"
-                    alt="Mentor Mate Logo"
-                    width={40}
-                    height={0}
-                    className="object-contain"
-                />
-                {/* <span className="text-2xl font-extrabold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-                    Mentor Mate
-                </span> */}
-                </div>
+                <Link href="/">
+                    <div className="flex items-center gap-2 cursor-pointer">
+                        <img
+                            src="/mentormate.png"
+                            alt="Mentor Mate Logo"
+                            width={40}
+                            height={0}
+                            className="object-contain"
+                        />
+                        {/* <span className="text-2xl font-extrabold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
+                            Mentor Mate
+                        </span> */}
+                    </div>
+                </Link>
 
                 {/* Menu items (right-aligned) */}
                 <div className="hidden sm:flex gap-6">
-                <Link href="#about" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
+                <Link href="/" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     About Us
                 </Link>
                 <Link href="/teams" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     Team
                 </Link>
-                <Link href="#contact" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
+                <Link href="/" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     Contact
                 </Link>
                 </div>
