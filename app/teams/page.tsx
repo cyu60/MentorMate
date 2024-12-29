@@ -70,7 +70,7 @@ export default function TeamGrid() {
             <Navbar />
             <div className="container mx-auto">
                 <motion.h1 
-                    className="text-4xl font-bold text-center text-blue-900"
+                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}

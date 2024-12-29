@@ -115,7 +115,7 @@ export default function MentorPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
-      <div className="relative z-10 container mx-auto p-10">
+      <div className="relative z-10 container mx-auto px-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           Mentor Registration
         </h1>
