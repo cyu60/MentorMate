@@ -20,24 +20,30 @@ type TeamGroup = {
 
 const projectDirector: ProjectDirector = {
     name: "Chinat Yu",
-    imageUrl: "/placeholder.svg?height=200&width=200",
+    imageUrl: "/img/Chinat.png",
     profileUrl: "https://www.linkedin.com/in/chinat-yu/"
 }
 
 const teamGroups: TeamGroup[] = [
     {
+        position: "Faculty Advisors",
+        members: [
+            { name: "Kristen Blair", imageUrl: "/img/Kristen.png", profileUrl: "https://profiles.stanford.edu/kristen-blair" },
+            { name: "Glenn Fajardo", imageUrl: "/img/Glenn.png", profileUrl: "https://dschool.stanford.edu/team-directory/glenn-fajardo" },
+        ]
+    },
+    {
         position: "Research Intern",
         members: [
-            { name: "Aurelia Sindhunirmala", imageUrl: "/placeholder.svg?height=200&width=200", profileUrl: "https://www.linkedin.com/in/aurelia-sindhunirmala/" },
+            { name: "Aurelia Sindhunirmala", imageUrl: "/img/Lia.png", profileUrl: "https://www.linkedin.com/in/aurelia-sindhunirmala/" },
             { name: "Matthew Law", imageUrl: "/placeholder.svg?height=200&width=200", profileUrl: "https://www.linkedin.com/in/matthew-law-0x251/" },
         ]
     },
-    // Add more positions and team members as needed
 ]
 
 export default function TeamGrid() {
     return (
-        <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-20">
             <Navbar />
             <h1 className="text-3xl font-bold text-center mb-5">Our Team</h1>
             
