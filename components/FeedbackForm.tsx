@@ -180,10 +180,10 @@ export default function FeedbackForm({
     }
   };
 
-  const handleSuggestionUse = (suggestion: string) => {
-    setFeedback(suggestion);
-    setShowSubmitButton(true);
-  };
+  // const handleSuggestionUse = (suggestion: string) => {
+  //   setFeedback(suggestion);
+  //   setShowSubmitButton(true);
+  // };
 
   useEffect(() => {
     const pendingFeedback = localStorage.getItem("pendingFeedback");
@@ -227,6 +227,19 @@ export default function FeedbackForm({
         {/* Feedback Section */}
         <div className="space-y-6 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="mb-6 text-gray-800">
+              <h3 className="font-medium text-xl mb-3">
+                Consider in your feedback:
+              </h3>
+              <ul className="list-decimal pl-6 space-y-2 text-lg">
+                <li>What should they do next to improve the project?</li>
+                <li>What could be better or work differently?</li>
+                <li>
+                  What works well, and are there similar projects to learn from?
+                </li>
+              </ul>
+            </div>
+
             <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
               <label
                 htmlFor="feedback"
@@ -284,13 +297,24 @@ export default function FeedbackForm({
                           </strong>
                           <p className="mt-1">{suggestion}</p>
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => handleSuggestionUse(suggestion)}
-                          className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full self-start"
-                        >
-                          Apply
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => setFeedback(suggestion)}
+                            className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full"
+                          >
+                            Replace
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              setFeedback((prev) => `${prev}\n\n${suggestion}`)
+                            }
+                            className="bg-green-700 text-white text-sm py-1 px-3 rounded-full"
+                          >
+                            Add Below
+                          </Button>
+                        </div>
                       </li>
                     )
                   )}
