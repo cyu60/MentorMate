@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image'
 import Link from 'next/link'
 import { Navbar } from "@/components/navbar"
@@ -37,70 +36,34 @@ const teamGroups: TeamGroup[] = [
         position: "Research Intern",
         members: [
             { name: "Aurelia Sindhunirmala", imageUrl: "/img/Lia.png", profileUrl: "https://www.linkedin.com/in/aurelia-sindhunirmala/" },
-            { name: "Matthew Law", imageUrl: "/placeholder.svg?height=200&width=200", profileUrl: "https://www.linkedin.com/in/matthew-law-0x251/" },
+            { name: "Matthew Law", imageUrl: "/img/Matthew.png", profileUrl: "https://www.linkedin.com/in/matthew-law-0x251/" },
         ]
     },
 ]
 
+const ProfileImage = ({ imageUrl, name }: { imageUrl: string, name: string }) => (
+    <motion.div 
+        className="relative w-40 h-40 mb-6 rounded-full overflow-hidden shadow-lg"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.2 }}
+    >
+        <Image
+            src={imageUrl}
+            alt={`${name}'s profile picture`}
+            fill
+            className="object-cover"
+        />
+    </motion.div>
+);
+
 export default function TeamGrid() {
-    const [activeSection, setActiveSection] = useState('');
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const sections = document.querySelectorAll('section');
-            let currentActiveSection = '';
-
-            sections.forEach((section) => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (window.pageYOffset >= sectionTop - 200 && window.pageYOffset < sectionTop + sectionHeight - 200) {
-                    currentActiveSection = section.id;
-                }
-            });
-
-            setActiveSection(currentActiveSection);
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     return (
         <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-50 to-white">
             <Navbar />
             <div className="container mx-auto">
-                <motion.h1 
-                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
+                <h1 className="mb-2 text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900">
                     Our Team
-                </motion.h1>
-                
-                {/* Table of Contents */}
-                <nav className="m-8">
-                    <ul className="flex flex-wrap justify-center gap-6">
-                        <li>
-                            <a 
-                                href="#project-director" 
-                                className={`text-lg font-medium transition-colors duration-200 ${activeSection === 'project-director' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-900'}`}
-                            >
-                                Project Director
-                            </a>
-                        </li>
-                        {teamGroups.map((group, index) => (
-                            <li key={index}>
-                                <a 
-                                    href={`#${group.position.toLowerCase().replace(/\s+/g, '-')}`} 
-                                    className={`text-lg font-medium transition-colors duration-200 ${activeSection === group.position.toLowerCase().replace(/\s+/g, '-') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-900'}`}
-                                >
-                                    {group.position}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+                </h1>
                 
                 {/* Project Director Section */}
                 <motion.section 
@@ -113,18 +76,7 @@ export default function TeamGrid() {
                     <h2 className="text-2xl font-semibold text-center mb-4 text-blue-800">Project Director</h2>
                     <div className="flex justify-center">
                         <div className="flex flex-col items-center">
-                            <motion.div 
-                                className="relative w-40 h-40 mb-6 rounded-full overflow-hidden shadow-lg"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <Image
-                                    src={projectDirector.imageUrl}
-                                    alt={`${projectDirector.name}'s profile picture`}
-                                    fill
-                                    className="object-cover"
-                                />
-                            </motion.div>
+                            <ProfileImage imageUrl={projectDirector.imageUrl} name={projectDirector.name} />
                             <Link href={projectDirector.profileUrl} target="_blank" rel="noopener noreferrer" className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200">
                                 {projectDirector.name}
                             </Link>
@@ -148,17 +100,11 @@ export default function TeamGrid() {
                                 <motion.div 
                                     key={i} 
                                     className="flex flex-col items-center"
-                                    whileHover={{ y: -5 }}
-                                    transition={{ duration: 0.2 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5 }}
                                 >
-                                    <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden shadow-lg">
-                                        <Image
-                                            src={member.imageUrl}
-                                            alt={`${member.name}'s profile picture`}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
+                                    <ProfileImage imageUrl={member.imageUrl} name={member.name} />
                                     <Link href={member.profileUrl} target="_blank" rel="noopener noreferrer" className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200">
                                         {member.name}
                                     </Link>
@@ -171,4 +117,3 @@ export default function TeamGrid() {
         </div>
     )
 }
-
