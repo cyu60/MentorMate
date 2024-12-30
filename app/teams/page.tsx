@@ -1,16 +1,15 @@
 "use client";
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { Navbar } from "@/components/navbar"
-import { motion } from 'framer-motion'
-import { Mail } from "lucide-react"
-
+import Image from 'next/image';
+import Link from 'next/link';
+import { Navbar } from "@/components/navbar"; 
+import { motion } from 'framer-motion';
+import { Mail } from "lucide-react"; 
 type TeamMember = {
     name: string;
     imageUrl: string;
     profileUrl: string;
-}
+};
 
 type ProjectDirector = TeamMember & {
     email: string; 
@@ -19,14 +18,14 @@ type ProjectDirector = TeamMember & {
 type TeamGroup = {
     position: string;
     members: TeamMember[];
-}
+};
 
 const projectDirector: ProjectDirector = {
     name: "Chinat Yu",
     imageUrl: "/img/Chinat.png",
     profileUrl: "https://www.linkedin.com/in/chinat-yu/",
     email: "chinat@stanford.edu"
-}
+};
 
 const teamGroups: TeamGroup[] = [
     {
@@ -43,7 +42,7 @@ const teamGroups: TeamGroup[] = [
             { name: "Matthew Law", imageUrl: "/img/Matthew.png", profileUrl: "https://www.linkedin.com/in/matthew-law-0x251/" },
         ]
     },
-]
+];
 
 const ProfileImage = ({ imageUrl, name }: { imageUrl: string, name: string }) => (
     <motion.div 
@@ -65,28 +64,34 @@ export default function TeamGrid() {
         <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-50 to-white">
             <Navbar />
             <div className="container mx-auto">
-                <h1 className="mb-2 text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900">
+                <h1 className="mb-8 text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900">
                     Our Team
                 </h1>
                 
-                {/* Project Director Section */}
                 <motion.section 
                     id="project-director" 
-                    className="mb-10"
+                    className="mb-12"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <h2 className="text-2xl font-semibold text-center mb-4 text-blue-800">Project Director</h2>
+                    <h2 className="text-2xl font-semibold text-center mb-6 text-blue-800">Project Director</h2>
                     <div className="flex justify-center">
                         <div className="flex flex-col items-center">
-                            <ProfileImage imageUrl={projectDirector.imageUrl} name={projectDirector.name} />
-                            <Link href={projectDirector.profileUrl} target="_blank" rel="noopener noreferrer" className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200">
+                            <Link href={projectDirector.profileUrl} target="_blank" rel="noopener noreferrer">
+                                <ProfileImage imageUrl={projectDirector.imageUrl} name={projectDirector.name} />
+                            </Link>
+                            <Link 
+                                href={projectDirector.profileUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200"
+                            >
                                 {projectDirector.name}
                             </Link>
                             <Link 
                                 href={`mailto:${projectDirector.email}`} 
-                                className="text-md text-blue-700 hover:text-blue-900 transition-colors duration-200 flex items-center"
+                                className="text-md text-blue-700 hover:text-blue-900 transition-colors duration-200 flex items-center mt-2"
                                 aria-label={`Email ${projectDirector.name}`}
                             >
                                 <Mail size={20} className="mr-2" />
@@ -96,17 +101,16 @@ export default function TeamGrid() {
                     </div>
                 </motion.section>
                 
-                {/* Other Team Members Sections */}
                 {teamGroups.map((group, index) => (
                     <motion.section 
                         key={index} 
                         id={group.position.toLowerCase().replace(/\s+/g, '-')} 
-                        className="mb-10"
+                        className="mb-12"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
-                        <h2 className="text-2xl font-semibold text-center mb-4 text-blue-800">{group.position}</h2>
+                        <h2 className="text-2xl font-semibold text-center mb-6 text-blue-800">{group.position}</h2>
                         <div className="flex flex-wrap justify-center gap-16">
                             {group.members.map((member, i) => (
                                 <motion.div 
@@ -116,8 +120,15 @@ export default function TeamGrid() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5 }}
                                 >
-                                    <ProfileImage imageUrl={member.imageUrl} name={member.name} />
-                                    <Link href={member.profileUrl} target="_blank" rel="noopener noreferrer" className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200">
+                                    <Link href={member.profileUrl} target="_blank" rel="noopener noreferrer">
+                                        <ProfileImage imageUrl={member.imageUrl} name={member.name} />
+                                    </Link>
+                                    <Link 
+                                        href={member.profileUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200"
+                                    >
                                         {member.name}
                                     </Link>
                                 </motion.div>
