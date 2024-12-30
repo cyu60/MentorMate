@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Navbar } from "@/components/navbar"
 import { motion } from 'framer-motion'
+import { Mail } from "lucide-react"
 
 type TeamMember = {
     name: string;
@@ -11,7 +12,9 @@ type TeamMember = {
     profileUrl: string;
 }
 
-type ProjectDirector = TeamMember;
+type ProjectDirector = TeamMember & {
+    email: string; 
+};
 
 type TeamGroup = {
     position: string;
@@ -21,7 +24,8 @@ type TeamGroup = {
 const projectDirector: ProjectDirector = {
     name: "Chinat Yu",
     imageUrl: "/img/Chinat.png",
-    profileUrl: "https://www.linkedin.com/in/chinat-yu/"
+    profileUrl: "https://www.linkedin.com/in/chinat-yu/",
+    email: "chinat@stanford.edu"
 }
 
 const teamGroups: TeamGroup[] = [
@@ -79,6 +83,14 @@ export default function TeamGrid() {
                             <ProfileImage imageUrl={projectDirector.imageUrl} name={projectDirector.name} />
                             <Link href={projectDirector.profileUrl} target="_blank" rel="noopener noreferrer" className="text-md font-medium text-black hover:text-blue-500 transition-colors duration-200">
                                 {projectDirector.name}
+                            </Link>
+                            <Link 
+                                href={`mailto:${projectDirector.email}`} 
+                                className="text-md text-blue-700 hover:text-blue-900 transition-colors duration-200 flex items-center"
+                                aria-label={`Email ${projectDirector.name}`}
+                            >
+                                <Mail size={20} className="mr-2" />
+                                {projectDirector.email}
                             </Link>
                         </div>
                     </div>
