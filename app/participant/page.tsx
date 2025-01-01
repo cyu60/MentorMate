@@ -14,6 +14,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
+import { Navbar } from "@/components/navbar";
 
 interface Project {
   id: string;
@@ -49,7 +50,9 @@ export default function ParticipantPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 p-10">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+      <Navbar />
+      <div className="px-28">
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
@@ -147,7 +150,8 @@ export default function ParticipantPage() {
               </motion.div>
             )}
           </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
