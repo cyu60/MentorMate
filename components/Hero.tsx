@@ -26,7 +26,7 @@ export function Hero() {
           words="Transform How Feedback is Given: MentorMates Helps You Foster Growth Through Generative AI-Powered Insights and Feedback."
           className="text-lg text-blue-100 mb-8 max-w-3xl mx-auto font-light"
         />
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
           <Link href="/participant">
             <Button
               size="lg"
