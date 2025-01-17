@@ -14,6 +14,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 interface Project {
   id: string;
@@ -27,6 +28,7 @@ export default function ParticipantPage() {
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects"); // Track the active tab
+  const [session, setSession] = useState<any>(null); // State to hold session data
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -45,7 +47,17 @@ export default function ParticipantPage() {
       setIsLoading(false);
     };
 
+    const fetchSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error fetching session:", error);
+      } else {
+        setSession(session); // Set the session data
+      }
+    };
+
     fetchProjects();
+    fetchSession(); // Fetch session data
   }, []);
 
   return (
@@ -141,7 +153,9 @@ export default function ParticipantPage() {
               >
                 <Card className="bg-white backdrop-blur-md border-blue-200/20">
                   <CardContent className="p-4 sm:p-6">
-                    <ProjectSubmissionFormComponent />
+                    <ProjectSubmissionFormComponent
+                      userEmail={session?.user?.email} // Pass user email from session
+                    />
                   </CardContent>
                 </Card>
               </motion.div>
