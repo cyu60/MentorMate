@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 
 export default function HomePage() {
   return (
-    <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" >
+    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100" >
       <Navbar />
       {/* <BackgroundBeams /> */}
       <Hero />

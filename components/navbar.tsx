@@ -29,13 +29,13 @@ export function Navbar() {
 
                 {/* Menu items (right-aligned) */}
                 <div className="hidden sm:flex gap-6">
-                <Link href="/" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
+                <Link href="/about" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     About Us
                 </Link>
                 <Link href="/teams" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     Team
                 </Link>
-                <Link href="/" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
+                <Link href="mailto:chinat@stanford.edu" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                     Contact
                 </Link>
                 </div>
