@@ -18,6 +18,7 @@ interface ProjectData {
   lead_name: string;
   lead_email: string;
   project_description: string;
+  teammates: string;
 }
 
 export default function ParticipantDashboard() {
@@ -72,6 +73,7 @@ export default function ParticipantDashboard() {
           lead_name: editedData.lead_name,
           lead_email: editedData.lead_email,
           project_description: editedData.project_description,
+          teammates: editedData.teammates,
         })
         .eq("id", projectId);
 
@@ -202,6 +204,12 @@ export default function ParticipantDashboard() {
                     {projectData.lead_email}
                   </span>
                 </div>
+                <div>
+                  <span className="font-bold text-gray-800">Teammates:</span>{" "}
+                  <span className="text-gray-700">
+                    {projectData.teammates}
+                  </span>
+                </div>
                 <div className="bg-blue-100/70 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">
                     Description
@@ -252,6 +260,20 @@ export default function ParticipantDashboard() {
                       setEditedData((prev) => ({
                         ...prev!,
                         lead_email: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Teammates
+                  </label>
+                  <Input
+                    value={editedData?.teammates}
+                    onChange={(e) =>
+                      setEditedData((prev) => ({
+                        ...prev!,
+                        teammates: e.target.value,
                       }))
                     }
                   />
