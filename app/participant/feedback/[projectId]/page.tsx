@@ -8,13 +8,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
-
-import { createClient } from '@supabase/supabase-js';
-
-
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-
 interface FeedbackItem {
   id: string;
   feedback_text: string;
@@ -33,22 +26,21 @@ export default function FeedbackPage() {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+/*
   useEffect(() => {
-    const runInsertFunction= () => {
-        try {
-          const { data, error } = await supabase.rpc('insert'); // Call the function
-          if (error) throw error;
-          console.log('public insert executed successfully:', data);
-        } catch (error) {
-          console.error('Error calling the supabase_rpc:', error.message);
-        }
-      };
-      runInsertFunction();
-      }, []); 
+    const runInsertFunction = async () => {
+      try {
+        const { data, error } = await supabase.rpc('insert'); // Call the function
+        if (error) throw error;
+        console.log('public insert executed successfully:', data);
+      } catch (error: any) {
+        console.error('Error calling the supabase_rpc:', error.message);
+      }
+    };
+    runInsertFunction();
+  }, []);
+*/
   useEffect(() => {    
-    
-   
 
     const fetchData = async () => {
       if (!projectId) return;

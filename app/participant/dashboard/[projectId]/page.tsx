@@ -66,6 +66,8 @@ export default function ParticipantDashboard() {
     if (!editedData) return;
 
     try {
+      const teammatesArray = editedData.teammates.split(',').map(name => name.trim());
+      
       const { error } = await supabase
         .from("projects")
         .update({
@@ -73,7 +75,7 @@ export default function ParticipantDashboard() {
           lead_name: editedData.lead_name,
           lead_email: editedData.lead_email,
           project_description: editedData.project_description,
-          teammates: editedData.teammates,
+          teammates: teammatesArray,
         })
         .eq("id", projectId);
 
@@ -86,7 +88,12 @@ export default function ParticipantDashboard() {
         description: "Project information updated successfully",
       });
     } catch (error) {
-      console.error("Error updating project:", error);
+      if (error instanceof Error) {
+        console.error("Error updating project:", error.message);
+        console.error(error.stack);
+      } else {
+        console.error("Error updating project:", error);
+      }
       toast({
         title: "Error",
         description: "Failed to update project information",

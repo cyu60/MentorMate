@@ -19,6 +19,11 @@ export function Hero() {
         console.error("Error fetching session:", error);
         return;
       }
+      if (!session) {
+        console.warn("No session found during fetch.");
+      } else {
+        console.log("Session fetched successfully:", session);
+      }
       setSession(session);
     };
 

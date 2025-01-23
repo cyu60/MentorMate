@@ -92,3 +92,47 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .tag-input-container {
+    position: relative;
+  }
+
+  .tag-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .tag-list {
+    margin-top: 10px;
+  }
+
+  .tag {
+    display: inline-block;
+    background-color: #d1e7fd;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .dropdown {
+    border: 1px solid #ccc;
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .dropdown li {
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .dropdown li:hover {
+    background-color: #f0f0f0;
+  }
+}

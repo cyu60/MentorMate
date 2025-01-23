@@ -99,7 +99,14 @@ export default function MentorPage() {
 
       router.push("/mentor/scan");
     } catch (error) {
-      console.error("Error registering mentor:", error);
+      if (error instanceof Error) {
+        console.error("Error registering mentor:", {
+          message: error.message,
+          stack: error.stack,
+        });
+      } else {
+        console.error("Error registering mentor:", error);
+      }
       toast({
         title: "Registration Failed",
         description: "There was an error registering. Please try again.",

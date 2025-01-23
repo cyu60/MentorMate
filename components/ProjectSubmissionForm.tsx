@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import UserSearch from "@/components/UserSearch"; // Correct import to match file casing
 import {
   Form,
   FormControl,
@@ -39,10 +40,10 @@ const formSchema = z.object({
     .max(500, {
       message: "Project description must not exceed 500 characters.",
     }),
-  teammates: z.string().optional(),
+  teammates: z.array(z.string()).optional(),
 });
 
-export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
+export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEmail: string; leadName: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -53,7 +54,7 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
       leadName: leadName || "",
       leadEmail: userEmail || "",
       projectDescription: "",
-      teammates: "",
+      teammates: [],
     },
   });
 
@@ -85,13 +86,8 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
     fetchUserDisplayNames();
   }, []);
 
-  const handleTeammatesChange = (value: string) => {
-    form.setValue("teammates", value);
-    const input = value.toLowerCase();
-    const filteredSuggestions = allUsers.filter((name) =>
-      name.toLowerCase().includes(input)
-    );
-    setSuggestions(filteredSuggestions);
+  const handleTeammatesChange = (tags: string[]) => {
+    form.setValue("teammates", tags); // Set the teammates directly as an array
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -234,15 +230,11 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
           <FormField
             control={form.control}
             name="teammates"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel className="text-sm sm:text-base">Teammates</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter teammate names, separated by commas"
-                    {...field}
-                    className="text-sm sm:text-base p-2 sm:p-3"
-                  />
+                  <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
                 </FormControl>
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
@@ -267,3 +259,4 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
     </div>
   );
 }
+
