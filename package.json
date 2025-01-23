@@ -38,6 +38,7 @@
     "react-hook-form": "^7.53.2",
     "react-qr-code": "^2.0.15",
     "react-textarea-autosize": "^8.5.5",
+    "supabase": "^2.6.8",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"

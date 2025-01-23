@@ -15,6 +15,7 @@ const supabase = createClient(
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true); 
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -35,7 +36,7 @@ export default function LoginPage() {
   const handleAuthChange = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      router.push('/participant'); // Redirect after login
+      router.push('/participant');  
     }
   };
 
@@ -43,13 +44,17 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:3000/auth/callback', // Adjust this as needed
+        redirectTo: 'http://localhost:3000/auth/callback', 
       },
     });
   
     if (error) {
       console.error("Error during sign-in:", error.message);
     }
+  };
+
+  const handleSignUpClick = () => {
+    setIsSignUp(true);
   };
 
   if (loading) {
@@ -59,7 +64,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">{isSignUp ? 'Sign Up' : 'Login'}</h2>
         <Auth
         supabaseClient={supabase}
         appearance={{
@@ -76,7 +81,19 @@ export default function LoginPage() {
           providers={['google', 'github']} 
           socialLayout="horizontal"
           onAuthChange={handleAuthChange}
+          view={isSignUp ? 'sign_up' : 'sign_in'}
         />
+        <div className="mt-4 text-center">
+          <p>
+            {isSignUp ? "Already have an account?" : "Don't have an account?"}{' '}
+            <button 
+              onClick={isSignUp ? () => setIsSignUp(false) : handleSignUpClick}
+              className="text-blue-500 hover:underline"
+            >
+              {isSignUp ? 'Login' : 'Sign up'}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

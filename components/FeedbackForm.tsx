@@ -39,12 +39,13 @@ export default function FeedbackForm({
   projectDescription,
   projectLeadEmail,
   projectLeadName,
-}: {
+
   projectId: string;
   projectName: string;
   projectDescription: string;
   projectLeadEmail: string;
   projectLeadName: string;
+
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

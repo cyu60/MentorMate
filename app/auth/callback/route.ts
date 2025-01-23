@@ -1,69 +1,121 @@
+
 import { NextResponse } from 'next/server';
-import { createSupabaseClient } from '../../utils/supabase/server'; // Relative path
+import { createSupabaseClient } from '../../utils/supabase/server'; 
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/'; // Use "next" param if available
+  const next = searchParams.get('next') ?? '/'; 
 
   if (code) {
     const supabase = createSupabaseClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const user = userData?.user; 
+    if (userError) {
+        console.error("Error getting user:", userError.message);
+        return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    }
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error) {
-      const { user } = supabase.auth.user(); // Get the user object
-      console.log("User:", user); // Log the user object
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (userError) {
+          console.error("Error getting user:", userError.message);
+          return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      }
+      console.log("User:", user); 
 
-      // Insert user email into the users table
-      const { data, error: insertError } = await supabase
-        .from('users') // Replace with your table name
-        .insert([{ id: user.id, email: user.email, created_at: new Date() }]); // Adjust the data structure as needed
+      if (user) {
+        const { data, error: insertError } = await supabase
+          .from('Users') 
+          .insert([{ id: user.id, email: user.email, created_at: new Date() }]);
+        
+        if (insertError) {
+          console.error("Error inserting user email:", insertError);
+          console.error("Error details:", insertError.details); 
+          return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${insertError.message}`);
+        } else {
+          console.log("User email inserted successfully:", data);
+        }
 
-      if (insertError) {
-        console.error("Error inserting user email:", insertError.message);
-      } else {
-        console.log("User email inserted successfully:", data);
+        const { data: rpcData, error: rpcError } = await supabase.rpc('insert'); 
+        if (rpcError) {
+          console.error('Error executing insert function:', rpcError.message);
+        } else {
+          console.log('RPC function executed successfully:', rpcData);
+        }
       }
 
       return NextResponse.redirect(`${origin}${next}`);
-    } else {
-      console.error("Error exchanging code for session:", error.message);
     }
   }
 
-  // Redirect to an error page if the code exchange fails
+
   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
 
 const handleGoogleSignIn = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const supabase = createSupabaseClient(); 
+  const { data: signInData, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: 'http://localhost:3000/auth/callback',
     },
   });
+  const session = signInData?.session ?? null;
 
   if (error) {
     console.error("Error during sign-in:", error.message);
   } else {
-    const { session } = data; // Get the session
-    console.log("Session:", session); // Log the session
+    console.log("Session:", session); 
 
-    // Insert user data into Supabase
+
     if (session) {
-      const insertUserData = async (userId) => {
+      const insertUserData = async (userId: string) => { 
         const { data, error } = await supabase
-          .from('Users') // Replace with your table name
-          .insert([{ UID: userId, created_at: new Date() }]); // Adjust the data structure as needed
+          .from('Users') 
+          .insert([{ UID: userId, created_at: new Date() }]); 
 
         if (error) {
           console.error("Error inserting data:", error.message);
         } else {
-          console.log("Data inserted successfully:", data);
+          console.log("Data inserted successfully:", data); 
         }
       };
 
-      insertUserData(session.user.id); // Pass the user ID or any relevant data
+      const { data: signUpData, error: signupError } = await supabase.auth.signUp({
+        email: 'newuser@example.com',
+        password: 'password123',
+        options: {
+          data: {
+            full_name: 'New User',
+          },
+        },
+      });
+      const user = signUpData?.user;
+      
+      if (user) {
+        console.log("User object found:", user);
+
+        if (user) {
+          console.log("User data before RPC call:", {
+            full_name: user.user_metadata?.full_name,
+            email: user.email,
+          });
+        } else {
+          console.log("User object is not defined.");
+        }
+        console.log("Attempting to sync user data..."); 
+        const { data, error } = await supabase.rpc('insert'); 
+        if (error) {
+          console.error('Error executing insert function:', error.message);
+        } else {
+          console.log('User synced successfully:', data);
+        }
+      } else {
+        console.log("No user object found."); 
+      }
     }
   }
 };

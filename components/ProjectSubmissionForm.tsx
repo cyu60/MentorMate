@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,9 +39,10 @@ const formSchema = z.object({
     .max(500, {
       message: "Project description must not exceed 500 characters.",
     }),
+  teammates: z.string().optional(),
 });
 
-export function ProjectSubmissionFormComponent() {
+export function ProjectSubmissionFormComponent({ userEmail, leadName }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -49,11 +50,49 @@ export function ProjectSubmissionFormComponent() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectName: "",
-      leadName: "",
-      leadEmail: "",
+      leadName: leadName || "",
+      leadEmail: userEmail || "",
       projectDescription: "",
+      teammates: "",
     },
   });
+
+  const [allUsers, setAllUsers] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUserDisplayNames = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("display_name");
+
+        if (error) {
+          console.error("Error fetching user display names:", error);
+          return;
+        }
+
+        if (data) {
+          const displayNames = data.map((user) => user["display_name"]);
+          console.log("Fetched display names:", displayNames);
+          setAllUsers(displayNames);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    };
+
+    fetchUserDisplayNames();
+  }, []);
+
+  const handleTeammatesChange = (value: string) => {
+    form.setValue("teammates", value);
+    const input = value.toLowerCase();
+    const filteredSuggestions = allUsers.filter((name) =>
+      name.toLowerCase().includes(input)
+    );
+    setSuggestions(filteredSuggestions);
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -65,6 +104,7 @@ export function ProjectSubmissionFormComponent() {
           lead_name: values.leadName,
           lead_email: values.leadEmail,
           project_description: values.projectDescription,
+          teammates: values.teammates,
         })
         .select();
 
@@ -128,10 +168,6 @@ export function ProjectSubmissionFormComponent() {
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
-            ////////////////////////////////////////
-
-
-            
           />
           <FormField
             control={form.control}
@@ -191,6 +227,23 @@ export function ProjectSubmissionFormComponent() {
                   Provide a concise overview of your project (max 500
                   characters).
                 </FormDescription>
+                <FormMessage className="text-xs sm:text-sm" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="teammates"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm sm:text-base">Teammates</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter teammate names, separated by commas"
+                    {...field}
+                    className="text-sm sm:text-base p-2 sm:p-3"
+                  />
+                </FormControl>
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
