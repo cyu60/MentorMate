@@ -65,44 +65,46 @@ export default function ParticipantDashboard() {
   };
 
   const handleSave = async () => {
-    if (!editedData) return;
-
-    try {
-      const teammatesArray = editedData.teammates.split(',').map(name => name.trim());
-      
-      const { error } = await supabase
-        .from("projects")
-        .update({
-          project_name: editedData.project_name,
-          lead_name: editedData.lead_name,
-          lead_email: editedData.lead_email,
-          project_description: editedData.project_description,
-          teammates: teammatesArray,
-        })
-        .eq("id", projectId);
-
-      if (error) throw error;
-
-      setProjectData(editedData);
-      setIsEditing(false);
-      toast({
-        title: "Success",
-        description: "Project information updated successfully",
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error updating project:", error.message);
-        console.error(error.stack);
-      } else {
-        console.error("Error updating project:", error);
+      if (!editedData) return;
+  
+      try {
+        // Ensure teammates is a string before splitting
+        const teammatesString = typeof editedData.teammates === 'string' ? editedData.teammates : '';
+        const teammatesArray = teammatesString.split(',').map(name => name.trim());
+        
+        const { error } = await supabase
+          .from("projects")
+          .update({
+            project_name: editedData.project_name,
+            lead_name: editedData.lead_name,
+            lead_email: editedData.lead_email,
+            project_description: editedData.project_description,
+            teammates: teammatesArray,
+          })
+          .eq("id", projectId);
+  
+        if (error) throw error;
+  
+        setProjectData(editedData);
+        setIsEditing(false);
+        toast({
+          title: "Success",
+          description: "Project information updated successfully",
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error updating project:", error.message);
+          console.error(error.stack);
+        } else {
+          console.error("Error updating project:", error);
+        }
+        toast({
+          title: "Error",
+          description: "Failed to update project information",
+          variant: "destructive",
+        });
       }
-      toast({
-        title: "Error",
-        description: "Failed to update project information",
-        variant: "destructive",
-      });
-    }
-  };
+    };
 
   if (isLoading) {
     return (
