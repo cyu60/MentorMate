@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { Navbar } from "@/components/navbar";
 
 interface Project {
   id: string;
@@ -77,7 +78,7 @@ export default function ParticipantPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 p-10">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
       <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
         <Button
           size="lg"
@@ -92,6 +93,7 @@ export default function ParticipantPage() {
           </div>
         )}
       </div>
+      <Navbar />
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
@@ -137,11 +139,11 @@ export default function ParticipantPage() {
                 transition={{ duration: 0.5 }}
                 className="mb-16"
               >
-                <h2 className="text-xl font-semibold mt-6 mb-6 text-black">
+                <h2 className="text-xl font-semibold mt-6 mb-6 text-black px-20">
                   Your Projects
                 </h2>
                 {existingProjects.length > 0 ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-20">
                     {existingProjects.map((project) => (
                       <Card
                         key={project.id}
@@ -192,8 +194,8 @@ export default function ParticipantPage() {
               </motion.div>
             )}
           </>
-        )}
+          )}
+        </div>
       </div>
-    </div>
   );
 }

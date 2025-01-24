@@ -134,7 +134,7 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
   }
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 sm:px-6 space-y-6">
+    <div className="w-full max-w-md mx-auto sm:px-6 space-y-6">
       <div className="space-y-2 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold">Submit Your Project</h2>
         <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">

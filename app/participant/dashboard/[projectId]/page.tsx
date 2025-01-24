@@ -11,6 +11,8 @@ import { ChevronLeft, Edit2, X } from "lucide-react"; // Added Edit2 and X icons
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Navbar } from "@/components/navbar";
+
 
 interface ProjectData {
   id: string;
@@ -105,6 +107,7 @@ export default function ParticipantDashboard() {
   if (isLoading) {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+        <Navbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
             Loading project data...

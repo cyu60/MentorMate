@@ -1,8 +1,8 @@
 "use client"
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { BackgroundBeams } from "@/components/ui/background-beams";
+// import { BackgroundBeams } from "@/components/ui/background-beams";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -58,9 +58,9 @@ export function Hero() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-artistic">
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" />
-      <BackgroundBeams />
+    <div className="relative flex flex-col items-center justify-center overflow-hidden bg-artistic">
+      {/* <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" /> */}
+      {/* <BackgroundBeams /> */}
       <div className="absolute top-4 right-4 z-20">
         {session ? (
           <Button
@@ -80,15 +80,15 @@ export function Hero() {
           </Button>
         )}
       </div>
-      <div className="relative z-10 text-center px-4 max-w-4xl">
+      <div className="relative text-center py-16 max-w-4xl">
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-            <Image 
+            {/* <Image 
                 src="/mentormate.png" 
                 alt="Mentor Mate Logo" 
                 width={50} 
                 height={50} 
-            />
+            /> */}
             Mentor Mate
           </span>
         </h1>
