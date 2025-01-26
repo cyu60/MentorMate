@@ -7,8 +7,8 @@ SELECT id, raw_user_meta_data->>'full_name' AS full_name, email
 FROM auth.users
 
 CREATE TABLE public.user_profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
+  uid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users (uid) ON DELETE CASCADE,
   display_name TEXT,
   email TEXT,
   created_at TIMESTAMP DEFAULT NOW()

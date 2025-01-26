@@ -35,7 +35,7 @@ export default function MentorPage() {
       const mentorEmail = localStorage.getItem("mentorEmail");
 
       if (mentorId && mentorName && mentorEmail) {
-        router.push("/mentor/scan");
+        router.push("/login");
       }
       setIsLoading(false);
     };
@@ -99,7 +99,7 @@ export default function MentorPage() {
       localStorage.setItem("mentorName", mentorData.name);
       localStorage.setItem("mentorEmail", mentorData.email);
 
-      router.push("/mentor/scan");
+      router.push("/login");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error registering mentor:", {

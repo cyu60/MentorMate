@@ -25,6 +25,27 @@ export function Hero() {
         console.log("Session fetched successfully:", session);
       }
       setSession(session);
+      
+      if (session) {
+        const { email, user_metadata, id: uid } = session.user;
+        const display_name = user_metadata?.name || (email ? email.split('@')[0] : 'user');
+        try {
+          const { error } = await supabase
+            .from('user_profiles')
+            .insert({
+              display_name: display_name,
+              email: email,
+              uid: uid
+            });
+          if (error) {
+            console.error("Error inserting user profile:", error);
+          } else {
+            console.log("User profile created successfully.");
+          }
+        } catch (err) {
+          console.error("Unexpected error:", err);
+        }
+      }
     };
 
     fetchSession();

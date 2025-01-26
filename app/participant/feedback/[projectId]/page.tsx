@@ -30,7 +30,7 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(true);
 /*
   useEffect(() => {
-    const runInsertFunction = async () => {
+    const runInsertFunction = async () =>
       try {
         const { data, error } = await supabase.rpc('insert'); // Call the function
         if (error) throw error;

@@ -28,8 +28,20 @@ export async function GET(request: Request) {
 
       if (user) {
         const { data, error: insertError } = await supabase
-          .from('Users') 
+          .from('Users')
           .insert([{ id: user.id, email: user.email, created_at: new Date() }]);
+
+        // Insert into user_profiles table
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert([{ id: user.id, username: user.user_metadata?.full_name, email: user.email }]);
+
+        if (profileError) {
+          console.error("Error inserting user profile:", profileError);
+          return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${profileError.message}`);
+        } else {
+          console.log("User profile inserted successfully");
+        }
         
         if (insertError) {
           console.error("Error inserting user email:", insertError);
@@ -63,26 +75,34 @@ const handleGoogleSignIn = async () => {
       redirectTo: 'http://localhost:3000/auth/callback',
     },
   });
-  const session = signInData?.session ?? null;
+  const { url } = signInData;
+  if (url) {
+    console.log("Redirect URL:", url);
+  }
 
   if (error) {
     console.error("Error during sign-in:", error.message);
   } else {
-    console.log("Session:", session); 
+    console.log("Sign-in successful");
 
 
-    if (session) {
-      const insertUserData = async (userId: string) => { 
-        const { data, error } = await supabase
-          .from('Users') 
-          .insert([{ UID: userId, created_at: new Date() }]); 
+    if (error) {
+  console.error("Error during sign-in:", error.message);
+} else {
+  console.log("Sign-in successful");
 
-        if (error) {
-          console.error("Error inserting data:", error.message);
-        } else {
-          console.log("Data inserted successfully:", data); 
-        }
-      };
+  const insertUserData = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('Users')
+      .insert([{ UID: userId, created_at: new Date() }]);
+
+    if (error) {
+      console.error("Error inserting data:", error.message);
+    } else {
+      console.log("Data inserted successfully:", data);
+    }
+  };
+}
 
       const { data: signUpData, error: signupError } = await supabase.auth.signUp({
         email: 'newuser@example.com',

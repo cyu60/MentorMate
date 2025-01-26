@@ -12,9 +12,9 @@ import { Loader2, Bot } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 
 interface AISuggestions {
-  "more encouraging": string;
-  "more goal-oriented": string;
-  "more substantive": string;
+  "more specific": string;
+  "more actionable": string;
+  "more positive": string;
 }
 
 interface FeedbackData {
@@ -28,9 +28,9 @@ interface FeedbackData {
   mentor_email: string;
   original_feedback: string;
   final_feedback: string;
-  encouraging_ai_suggestion: string;
-  goal_oriented_ai_suggestion: string;
-  substantive_ai_suggestion: string;
+  specific_ai_suggestion: string;
+  positive_ai_suggestion: string;
+  actionable_ai_suggestion: string;
 }
 
 export default function FeedbackForm({
@@ -39,13 +39,12 @@ export default function FeedbackForm({
   projectDescription,
   projectLeadEmail,
   projectLeadName,
-
+}: {
   projectId: string;
   projectName: string;
   projectDescription: string;
   projectLeadEmail: string;
   projectLeadName: string;
-
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -67,7 +66,7 @@ export default function FeedbackForm({
 
     try {
       const url =
-        "https://magicloops.dev/api/loop/bdfcbc26-8a99-4ea0-9bed-f3a53c9e2ff1/run";
+        "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
       const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -78,7 +77,6 @@ export default function FeedbackForm({
       const responseJson = await response.json();
       setAiSuggestions(responseJson);
       setHasImprovedWithAI(true);
-    
     } catch (error) {
       console.error("Error generating AI suggestions:", error);
       alert("Failed to generate AI suggestions. Please try again.");
@@ -86,12 +84,11 @@ export default function FeedbackForm({
       setIsGeneratingAI(false);
       setShowSubmitButton(true);
     }
-   
   };
 
   const logFeedbackToMagicLoop = async (feedbackData: FeedbackData) => {
     const url =
-      "https://magicloops.dev/api/loop/0779eaa1-4221-4c54-ae73-9da68adde36c/run";
+      "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -124,9 +121,9 @@ export default function FeedbackForm({
         mentor_email: mentorEmail,
         original_feedback: originalFeedback,
         final_feedback: feedback,
-        encouraging_ai_suggestion: aiSuggestions?.["more encouraging"] || "",
-        goal_oriented_ai_suggestion: aiSuggestions?.["more goal-oriented"] || "",
-        substantive_ai_suggestion: aiSuggestions?.["more substantive"] || "",
+        specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
+        positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
+        actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
       };
 
       // Submit to Supabase
@@ -192,9 +189,9 @@ export default function FeedbackForm({
       const parsedFeedback = JSON.parse(pendingFeedback);
       setFeedback(parsedFeedback.final_feedback);
       setAiSuggestions({
-        "more encouraging": parsedFeedback.encouraging_ai_suggestion,
-        "more goal-oriented": parsedFeedback.goal_oriented_ai_suggestion,
-        "more substantive": parsedFeedback.substantive_ai_suggestion,
+        "more specific": parsedFeedback.specific_ai_suggestion,
+        "more positive": parsedFeedback.positive_ai_suggestion,
+        "more actionable": parsedFeedback.actionable_ai_suggestion,
       });
     }
   }, []);

@@ -1,8 +1,8 @@
 CREATE OR REPLACE FUNCTION insert()
 RETURNS void AS $$
 BEGIN
-  INSERT INTO public.user_profiles (display_name, email)
-  SELECT raw_user_meta_data->>'full_name', email
+  INSERT INTO public.user_profiles (display_name, email, uid)
+  SELECT raw_user_meta_data->>'full_name', email, id
   FROM auth.users
   WHERE raw_user_meta_data->>'full_name' IS NOT NULL
   ON CONFLICT (email) DO UPDATE
