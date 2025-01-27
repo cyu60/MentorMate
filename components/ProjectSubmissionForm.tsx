@@ -43,7 +43,7 @@ const formSchema = z.object({
   teammates: z.array(z.string()).optional(),
 });
 
-export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEmail: string; leadName: string }) {
+export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEmail?: string; leadName?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -59,7 +59,6 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
   });
 
   const [allUsers, setAllUsers] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchUserDisplayNames = async () => {

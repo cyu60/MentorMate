@@ -1,5 +1,4 @@
 "use client"
-import Link from "next/link";
 // import Image from "next/image";
 import { Button } from "@/components/ui/button";
 // import { BackgroundBeams } from "@/components/ui/background-beams";
@@ -7,10 +6,11 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 
 export function Hero() {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -135,8 +135,8 @@ export function Hero() {
             className="w-full sm:w-auto button-gradient text-white font-semibold py-3 px-6 rounded-full shadow-lg"
             onClick={handleParticipantClick}
           >
-            I'm a Participant
-          </Button>
+            I&apos;m a Participant
+            </Button>
           <Button
             size="lg"
             variant="outline"
@@ -154,7 +154,7 @@ export function Hero() {
               }
             }}
           >
-            I'm a Mentor/Judge
+            I&apos;m a Mentor/Judge
           </Button>
         </div>
       </div>

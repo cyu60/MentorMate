@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
 import { Button } from "@/components/ui/button";
+import { Session } from "@supabase/supabase-js";
 import {
   Card,
   CardHeader,
@@ -31,7 +32,7 @@ export default function ParticipantPage() {
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects"); // Track the active tab
-  const [session, setSession] = useState<any>(null); // State to hold session data
+  const [session, setSession] = useState<Session | null>(null); // State to hold session data
 
   useEffect(() => {
     const fetchProjects = async () => {

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/FeedbackForm";
+import type { Session } from "@supabase/supabase-js";
 
 interface ProjectData {
   id: string;
@@ -18,7 +19,7 @@ export default function ProjectFeedbackPage() {
   const params = useParams();
   const projectId = params.projectId as string;
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -75,8 +76,8 @@ export default function ProjectFeedbackPage() {
             projectDescription={projectData.project_description}
             projectLeadEmail={projectData.lead_email}
             projectLeadName={projectData.lead_name}
-            userName={session.user.user_metadata.full_name}
-            userEmail={session.user.email}
+            userName={session?.user?.user_metadata?.full_name}
+            userEmail={session?.user?.email}
           />
         )}
       </div>

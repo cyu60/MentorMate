@@ -43,13 +43,6 @@ export default function MentorLoginPage() {
     };
   }, [router]);
 
-  const handleAuthChange = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      router.push('/mentor');
-    }
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }

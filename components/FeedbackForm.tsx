@@ -44,6 +44,8 @@ export default function FeedbackForm({
   projectDescription: string;
   projectLeadEmail: string;
   projectLeadName: string;
+  userName?: string;
+  userEmail?: string;
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

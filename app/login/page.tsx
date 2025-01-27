@@ -33,26 +33,6 @@ export default function LoginPage() {
     checkSession();
   }, [router]);
 
-  const handleAuthChange = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      router.push('/participant');  
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: 'http://localhost:3000/auth/callback', 
-      },
-    });
-  
-    if (error) {
-      console.error("Error during sign-in:", error.message);
-    }
-  };
-
   const handleSignUpClick = () => {
     setIsSignUp(true);
   };
@@ -78,9 +58,8 @@ export default function LoginPage() {
             },
           },
         }}
-          providers={['google', 'github']} 
+          providers={['google', 'github']}
           socialLayout="horizontal"
-          onAuthChange={handleAuthChange}
           view={isSignUp ? 'sign_up' : 'sign_in'}
         />
         <div className="mt-4 text-center">

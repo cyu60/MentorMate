@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -15,7 +16,7 @@ import { motion } from "framer-motion";
 
 export default function MentorPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const router = useRouter();
 
   useEffect(() => {
