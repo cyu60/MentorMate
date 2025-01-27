@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/app/utils/supabase/client";
-import { Session, AuthChangeEvent } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+import { MentorRegistrationModal } from "./MentorRegistrationModal";
+import { SubmissionConfirmation } from "./SubmissionConfirmation";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
+// import { SparklesCore } from "@/components/ui/sparkles";
 import { Loader2, Bot } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
-import { SubmissionConfirmation } from "./SubmissionConfirmation";
 
 interface AISuggestions {
   "more specific": string;
@@ -44,44 +45,28 @@ export default function FeedbackForm({
   projectDescription: string;
   projectLeadEmail: string;
   projectLeadName: string;
-  userName?: string;
-  userEmail?: string;
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(
+    null
+  );
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
   const [hasImprovedWithAI, setHasImprovedWithAI] = useState<boolean>(false);
   const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
-  const [session, setSession] = useState<Session | null>(null);
-  const [supabaseClient] = useState(() => createClient());
-
-  useEffect(() => {
-    console.log("Initializing Supabase session");
-    supabaseClient.auth.getSession().then(({ data: { session: currentSession } }: { data: { session: Session | null } }) => {
-      console.log("Got session:", currentSession);
-      setSession(currentSession);
-    });
-
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      console.log("Auth state changed:", session);
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabaseClient]);
 
   const improveWithAI = async () => {
     if (hasImprovedWithAI) return;
     setIsGeneratingAI(true);
 
+    // Save the original feedback to local storage
     localStorage.setItem("originalFeedback", feedback);
 
     try {
-      const url = "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
+      const url =
+        "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
       const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -102,7 +87,8 @@ export default function FeedbackForm({
   };
 
   const logFeedbackToMagicLoop = async (feedbackData: FeedbackData) => {
-    const url = "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
+    const url =
+      "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -115,21 +101,14 @@ export default function FeedbackForm({
     }
   };
 
-  const submitFeedback = async () => {
-    if (!session?.user) {
-      console.error("No user session found");
-      return;
-    }
-
-    if (!session.user.email) {
-      alert("Unable to submit feedback: Your account is missing an email address. Please log out and sign in again with a provider that includes your email (e.g., Google).");
-      setIsSubmitting(false);
-      return;
-    }
-
+  const submitFeedback = async (
+    mentorId: string,
+    mentorName: string,
+    mentorEmail: string
+  ) => {
     try {
-      console.log("Starting feedback submission with session:", session.user);
-      const originalFeedback = localStorage.getItem("originalFeedback") || feedback;
+      const originalFeedback =
+        localStorage.getItem("originalFeedback") || feedback;
 
       const feedbackData: FeedbackData = {
         project_id: projectId,
@@ -137,9 +116,9 @@ export default function FeedbackForm({
         project_description: projectDescription,
         project_email: projectLeadEmail,
         project_lead_name: projectLeadName,
-        mentor_id: session.user.id,
-        mentor_name: session.user.user_metadata?.full_name || 'Unknown',
-        mentor_email: session.user.email || '',
+        mentor_id: mentorId,
+        mentor_name: mentorName,
+        mentor_email: mentorEmail,
         original_feedback: originalFeedback,
         final_feedback: feedback,
         specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
@@ -147,40 +126,16 @@ export default function FeedbackForm({
         actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
       };
 
-      // First get the project UUID
-      const { data: projectData, error: projectError } = await supabaseClient
-        .from("projects")
-        .select("id")
-        .eq("id", projectId)
-        .single();
-
-      if (projectError) {
-        console.error("Project lookup error:", projectError);
-        throw projectError;
-      }
-
-      console.log("Found project:", projectData);
-
-      // Then submit feedback with the project UUID and let Supabase handle id generation
-      const { data, error } = await supabaseClient.from("feedback").insert([{
-        project_id: projectData.id,
-        mentor_id: session.user.id,
-        mentor_name: session.user.user_metadata?.full_name || 'Unknown',
-        mentor_email: session.user.email,
+      // Submit to Supabase
+      const { error } = await supabase.from("feedback").insert({
+        project_id: projectId,
+        mentor_id: mentorId,
+        mentor_name: mentorName,
+        mentor_email: mentorEmail,
         feedback_text: feedback,
-      }]);
+      });
 
-      if (error) {
-        console.error("Supabase error:", error);
-        console.error("Error details:", {
-          code: error.code,
-          message: error.message,
-          details: error.details
-        });
-        throw error;
-      }
-
-      console.log("Feedback submitted successfully:", data);
+      if (error) throw error;
 
       // Log to Magic Loop API
       await logFeedbackToMagicLoop(feedbackData);
@@ -188,22 +143,45 @@ export default function FeedbackForm({
       setIsSubmitted(true);
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      alert(`Error submitting feedback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert("There was an error submitting your feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
-      localStorage.removeItem("originalFeedback");
+      localStorage.removeItem("originalFeedback"); // Clear the original feedback from local storage
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user) {
-      alert("Please log in to submit feedback.");
+    setIsSubmitting(true);
+
+    const mentorId = localStorage.getItem("mentorId");
+    const mentorName = localStorage.getItem("mentorName");
+    const mentorEmail = localStorage.getItem("mentorEmail");
+
+    if (!mentorId || !mentorName || !mentorEmail) {
+      setIsModalOpen(true);
+      setIsSubmitting(false);
       return;
     }
-    setIsSubmitting(true);
-    await submitFeedback();
+
+    await submitFeedback(mentorId, mentorName, mentorEmail);
   };
+
+  const handleModalClose = (mentorInfo?: {
+    id: string;
+    name: string;
+    email: string;
+  }) => {
+    setIsModalOpen(false);
+    if (mentorInfo) {
+      submitFeedback(mentorInfo.id, mentorInfo.name, mentorInfo.email);
+    }
+  };
+
+  // const handleSuggestionUse = (suggestion: string) => {
+  //   setFeedback(suggestion);
+  //   setShowSubmitButton(true);
+  // };
 
   useEffect(() => {
     const pendingFeedback = localStorage.getItem("pendingFeedback");
@@ -217,14 +195,6 @@ export default function FeedbackForm({
       });
     }
   }, []);
-
-  if (!session) {
-    return (
-      <div className="text-center p-4">
-        <p>Please log in to submit feedback.</p>
-      </div>
-    );
-  }
 
   if (isSubmitted) {
     return <SubmissionConfirmation projectName={projectName} />;
@@ -301,6 +271,7 @@ export default function FeedbackForm({
                   </>
                 ) : (
                   <>
+                    {/* <SparklesCore className="mr-2 h-4 w-4" /> */}
                     <Bot />
                     Improve Feedback with AI
                   </>
@@ -308,7 +279,7 @@ export default function FeedbackForm({
               </Button>
             )}
 
-            {/* AI Suggestions */}
+            {/* Updated AI Suggestions */}
             {aiSuggestions && (
               <Card className="bg-blue-50 border-blue-200 mt-4 p-4 rounded-lg">
                 <h3 className="text-blue-900 text-lg font-semibold mb-4">
@@ -349,7 +320,7 @@ export default function FeedbackForm({
               </Card>
             )}
 
-            {/* Submit Button */}
+            {/* Final Feedback Submission Button */}
             {showSubmitButton && !isSubmitting && (
               <Button
                 type="submit"
@@ -361,6 +332,12 @@ export default function FeedbackForm({
           </form>
         </div>
       </div>
+
+      {/* Mentor Registration Modal */}
+      <MentorRegistrationModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
     </motion.div>
   );
 }

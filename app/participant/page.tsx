@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
 import { Button } from "@/components/ui/button";
-import { Session } from "@supabase/supabase-js";
 import {
   Card,
   CardHeader,
@@ -16,7 +14,6 @@ import {
 import { Loader2 } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 
 interface Project {
@@ -28,11 +25,9 @@ interface Project {
 }
 
 export default function ParticipantPage() {
-  const router = useRouter();
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects"); // Track the active tab
-  const [session, setSession] = useState<Session | null>(null); // State to hold session data
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -51,49 +46,11 @@ export default function ParticipantPage() {
       setIsLoading(false);
     };
 
-    const fetchSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Error fetching session:", error);
-        return;
-      }
-      if (!session) {
-        router.push("/"); 
-      } else {
-        setSession(session); 
-      }
-    };
-
     fetchProjects();
-    fetchSession(); 
-  }, [router]);
-
-  const handleSignOutClick = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    } else {
-      setSession(null);
-      router.push("/");
-    }
-  };
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
-        <Button
-          size="lg"
-          className="bg-red-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-700 transition-all duration-300 mb-2"
-          onClick={handleSignOutClick}
-        >
-          Sign Out
-        </Button>
-        {session && (
-          <div className="text-sm text-gray-700">
-            Logged in as: {session.user.email}
-          </div>
-        )}
-      </div>
       <Navbar />
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
@@ -186,10 +143,7 @@ export default function ParticipantPage() {
               >
                 <Card className="bg-white backdrop-blur-md border-blue-200/20">
                   <CardContent className="p-4 sm:p-6">
-                    <ProjectSubmissionFormComponent
-                      userEmail={session?.user?.email} // Pass user email from session
-                      leadName={session?.user?.user_metadata?.full_name} // Pass user display name from session
-                    />
+                    <ProjectSubmissionFormComponent />
                   </CardContent>
                 </Card>
               </motion.div>
