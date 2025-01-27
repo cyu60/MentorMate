@@ -119,6 +119,12 @@ export default function FeedbackForm({
       return;
     }
 
+    if (!session.user.email) {
+      alert("Unable to submit feedback: Your account is missing an email address. Please log out and sign in again with a provider that includes your email (e.g., Google).");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       console.log("Starting feedback submission with session:", session.user);
       const originalFeedback = localStorage.getItem("originalFeedback") || feedback;
@@ -158,6 +164,7 @@ export default function FeedbackForm({
         project_id: projectData.id,
         mentor_id: session.user.id,
         mentor_name: session.user.user_metadata?.full_name || 'Unknown',
+        mentor_email: session.user.email,
         feedback_text: feedback,
       }]);
 

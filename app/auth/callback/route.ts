@@ -40,12 +40,17 @@ export async function GET(request: Request) {
     }
 
     if (!existingMentor) {
+      if (!user.email) {
+        console.error("No email found for user:", user.id);
+        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=missing_email`);
+      }
+
       const { error: mentorError } = await supabase
         .from('mentors')
         .insert({
           id: user.id,
           email: user.email,
-          name: user.user_metadata?.full_name || user.email?.split('@')[0],
+          name: user.user_metadata?.full_name || user.email.split('@')[0],
           updated_at: new Date().toISOString()
         });
 
