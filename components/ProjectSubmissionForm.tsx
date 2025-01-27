@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import UserSearch from "@/components/UserSearch"; // Correct import to match file casing
 import {
   Form,
   FormControl,
@@ -39,9 +40,10 @@ const formSchema = z.object({
     .max(500, {
       message: "Project description must not exceed 500 characters.",
     }),
+  teammates: z.array(z.string()).optional(),
 });
 
-export function ProjectSubmissionFormComponent() {
+export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEmail?: string; leadName?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -49,11 +51,43 @@ export function ProjectSubmissionFormComponent() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectName: "",
-      leadName: "",
-      leadEmail: "",
+      leadName: leadName || "",
+      leadEmail: userEmail || "",
       projectDescription: "",
+      teammates: [],
     },
   });
+
+  const [allUsers, setAllUsers] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUserDisplayNames = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("display_name");
+
+        if (error) {
+          console.error("Error fetching user display names:", error);
+          return;
+        }
+
+        if (data) {
+          const displayNames = data.map((user) => user["display_name"]);
+          console.log("Fetched display names:", displayNames);
+          setAllUsers(displayNames);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    };
+
+    fetchUserDisplayNames();
+  }, []);
+
+  const handleTeammatesChange = (tags: string[]) => {
+    form.setValue("teammates", tags); // Set the teammates directly as an array
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -65,10 +99,14 @@ export function ProjectSubmissionFormComponent() {
           lead_name: values.leadName,
           lead_email: values.leadEmail,
           project_description: values.projectDescription,
+          teammates: values.teammates,
         })
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Project creation error:", error);
+        throw error;
+      }
 
       // Store project data in local storage
       localStorage.setItem(`project_${data[0].id}`, JSON.stringify(data[0]));
@@ -191,6 +229,19 @@ export function ProjectSubmissionFormComponent() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="teammates"
+            render={() => (
+              <FormItem>
+                <FormLabel className="text-sm sm:text-base">Teammates</FormLabel>
+                <FormControl>
+                  <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
+                </FormControl>
+                <FormMessage className="text-xs sm:text-sm" />
+              </FormItem>
+            )}
+          />
           <Button
             type="submit"
             className="w-full text-sm sm:text-base py-2 sm:py-3"
@@ -210,3 +261,4 @@ export function ProjectSubmissionFormComponent() {
     </div>
   );
 }
+
