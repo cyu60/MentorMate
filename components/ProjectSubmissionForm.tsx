@@ -104,7 +104,10 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
         })
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Project creation error:", error);
+        throw error;
+      }
 
       // Store project data in local storage
       localStorage.setItem(`project_${data[0].id}`, JSON.stringify(data[0]));

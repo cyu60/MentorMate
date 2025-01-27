@@ -30,17 +30,29 @@ export function Hero() {
         const { email, user_metadata, id: uid } = session.user;
         const display_name = user_metadata?.name || (email ? email.split('@')[0] : 'user');
         try {
-          const { error } = await supabase
+          // First check if user exists
+          const { data: existingUser } = await supabase
             .from('user_profiles')
-            .insert({
-              display_name: display_name,
-              email: email,
-              uid: uid
-            });
-          if (error) {
-            console.error("Error inserting user profile:", error);
+            .select()
+            .eq('email', email)
+            .single();
+
+          // Only insert if user doesn't exist
+          if (!existingUser) {
+            const { error } = await supabase
+              .from('user_profiles')
+              .insert({
+                display_name: display_name,
+                email: email,
+                uid: uid
+              });
+            if (error) {
+              console.error("Error inserting user profile:", error);
+            } else {
+              console.log("User profile created successfully.");
+            }
           } else {
-            console.log("User profile created successfully.");
+            console.log("User profile already exists.");
           }
         } catch (err) {
           console.error("Unexpected error:", err);
@@ -125,15 +137,25 @@ export function Hero() {
           >
             I'm a Participant
           </Button>
-          <Link href="/mentor">
-            <Button
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
-            >
-              I'm a Mentor/Judge
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
+            onClick={async () => {
+              const { data: { session }, error } = await supabase.auth.getSession();
+              if (error) {
+                console.error("Error checking session:", error);
+                return;
+              }
+              if (!session) {
+                router.push("/mentor/login");
+              } else {
+                router.push("/mentor");
+              }
+            }}
+          >
+            I'm a Mentor/Judge
+          </Button>
         </div>
       </div>
     </div>
