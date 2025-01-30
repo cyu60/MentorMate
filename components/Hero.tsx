@@ -1,5 +1,5 @@
 import Link from "next/link";
-// import Image from "next/image";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 // import { BackgroundBeams } from "@/components/ui/background-beams";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -7,7 +7,6 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 export function Hero() {
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden bg-artistic">
-      {/* <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-blue-100" /> */}
       {/* <BackgroundBeams /> */}
       <div className="relative text-center py-16 max-w-4xl">
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
@@ -26,7 +25,7 @@ export function Hero() {
           words="Transform How Feedback is Given: MentorMates Helps You Foster Growth Through Generative AI-Powered Insights and Feedback."
           className="text-lg text-blue-100 mb-8 max-w-3xl mx-auto font-light"
         />
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
           <Link href="/participant">
             <Button
               size="lg"
@@ -49,7 +48,7 @@ export function Hero() {
           <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
             Supported by:
           </p>
-          <img
+          <Image
             src="https://clinicalmindai.stanford.edu/sites/g/files/sbiybj31566/files/styles/responsive_large/public/media/image/motif_text-stanford_accelerator_for_learning_rgb_1_1.png.webp?itok=b--D-kMe"
             alt="Stanford Accelerator for Learning"
             className="max-w-[200px] h-auto mx-auto opacity-90 hover:opacity-100 transition-opacity duration-300"
