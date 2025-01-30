@@ -20,7 +20,6 @@ interface ProjectData {
   lead_name: string;
   lead_email: string;
   project_description: string;
-  teammates: string;
 }
 
 export default function ParticipantDashboard() {
@@ -65,46 +64,36 @@ export default function ParticipantDashboard() {
   };
 
   const handleSave = async () => {
-      if (!editedData) return;
-  
-      try {
-        // Ensure teammates is a string before splitting
-        const teammatesString = typeof editedData.teammates === 'string' ? editedData.teammates : '';
-        const teammatesArray = teammatesString.split(',').map(name => name.trim());
-        
-        const { error } = await supabase
-          .from("projects")
-          .update({
-            project_name: editedData.project_name,
-            lead_name: editedData.lead_name,
-            lead_email: editedData.lead_email,
-            project_description: editedData.project_description,
-            teammates: teammatesArray,
-          })
-          .eq("id", projectId);
-  
-        if (error) throw error;
-  
-        setProjectData(editedData);
-        setIsEditing(false);
-        toast({
-          title: "Success",
-          description: "Project information updated successfully",
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error updating project:", error.message);
-          console.error(error.stack);
-        } else {
-          console.error("Error updating project:", error);
-        }
-        toast({
-          title: "Error",
-          description: "Failed to update project information",
-          variant: "destructive",
-        });
-      }
-    };
+    if (!editedData) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          project_name: editedData.project_name,
+          lead_name: editedData.lead_name,
+          lead_email: editedData.lead_email,
+          project_description: editedData.project_description,
+        })
+        .eq("id", projectId);
+
+      if (error) throw error;
+
+      setProjectData(editedData);
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Project information updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update project information",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -216,12 +205,6 @@ export default function ParticipantDashboard() {
                     {projectData.lead_email}
                   </span>
                 </div>
-                <div>
-                  <span className="font-bold text-gray-800">Teammates:</span>{" "}
-                  <span className="text-gray-700">
-                    {projectData.teammates}
-                  </span>
-                </div>
                 <div className="bg-blue-100/70 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">
                     Description
@@ -278,20 +261,6 @@ export default function ParticipantDashboard() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Teammates
-                  </label>
-                  <Input
-                    value={editedData?.teammates}
-                    onChange={(e) =>
-                      setEditedData((prev) => ({
-                        ...prev!,
-                        teammates: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
                   <Textarea
@@ -327,4 +296,3 @@ export default function ParticipantDashboard() {
     </div>
   );
 }
-
