@@ -48,7 +48,7 @@ export function Hero() {
           <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
             Supported by:
           </p>
-          <Image
+          <img
             src="https://clinicalmindai.stanford.edu/sites/g/files/sbiybj31566/files/styles/responsive_large/public/media/image/motif_text-stanford_accelerator_for_learning_rgb_1_1.png.webp?itok=b--D-kMe"
             alt="Stanford Accelerator for Learning"
             className="max-w-[200px] h-auto mx-auto opacity-90 hover:opacity-100 transition-opacity duration-300"
