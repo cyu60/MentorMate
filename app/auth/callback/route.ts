@@ -2,12 +2,15 @@ import { NextResponse } from 'next/server';
 import { createSupabaseClient } from '../../utils/supabase/server';
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const referer = request.headers.get('referer') || '';
+  
+  // Use environment variable for base URL, fallback to request origin
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
   const supabase = createSupabaseClient();
@@ -15,13 +18,13 @@ export async function GET(request: Request) {
   
   if (error) {
     console.error("Error exchanging code for session:", error);
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData?.user) {
     console.error("Error getting user:", userError);
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
   const user = userData.user;
@@ -36,13 +39,13 @@ export async function GET(request: Request) {
 
     if (mentorCheckError && mentorCheckError.code !== 'PGRST116') {
       console.error("Error checking mentor:", mentorCheckError);
-      return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
     }
 
     if (!existingMentor) {
       if (!user.email) {
         console.error("No email found for user:", user.id);
-        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=missing_email`);
+        return NextResponse.redirect(`${baseUrl}/auth/auth-code-error?error=missing_email`);
       }
 
       const { error: mentorError } = await supabase
@@ -56,11 +59,11 @@ export async function GET(request: Request) {
 
       if (mentorError) {
         console.error("Error creating mentor:", mentorError);
-        return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+        return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
       }
     }
 
-    return NextResponse.redirect(`${origin}/mentor`);
+    return NextResponse.redirect(`${baseUrl}/mentor`);
   } else {
     const { error: profileError } = await supabase
       .from('user_profiles')
@@ -73,9 +76,9 @@ export async function GET(request: Request) {
 
     if (profileError) {
       console.error("Error upserting user profile:", profileError);
-      return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
     }
 
-    return NextResponse.redirect(`${origin}/participant`);
+    return NextResponse.redirect(`${baseUrl}/participant`);
   }
 }
