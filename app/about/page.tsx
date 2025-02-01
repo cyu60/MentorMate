@@ -36,11 +36,12 @@ const AboutPage: React.FC = () => {
                         <p>Thank you for choosing MentorMate. We look forward to working with you!</p>
                         </div>
                         <div className="mt-8">
-                        <Link href="/">
-                            <a className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300">
-                                Get Started
-                                <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
-                            </a>
+                        <Link
+                            href="/"
+                            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
+                        >
+                            Get Started
+                            <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
                         </Link>
                         </div>
                     </div>
