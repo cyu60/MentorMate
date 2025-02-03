@@ -93,7 +93,7 @@ export function Hero() {
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden bg-artistic">
       {/* <BackgroundBeams /> */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* <div className="absolute top-4 right-4 z-20">
         {session ? (
           <Button
             size="lg"
@@ -108,10 +108,10 @@ export function Hero() {
             className="bg-black text-white font-semibold py-2 px-4 rounded-full hover:bg-gray-800 transition-all duration-300"
             onClick={handleLoginClick}
           >
-            Sign Up/Login
+            Log In 
           </Button>
         )}
-      </div>
+      </div> */}
       <div className="relative text-center py-16 max-w-4xl">
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">

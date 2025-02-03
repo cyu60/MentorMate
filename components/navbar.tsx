@@ -2,12 +2,95 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 
 export function Navbar() {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
-
     const toggleMenu = () => setIsOpen(!isOpen);
+    const [session, setSession] = useState<Session | null>(null);
+
+    useEffect(() => {
+    const fetchSession = async () => {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+        console.error("Error fetching session:", error);
+        return;
+        }
+        if (!session) {
+        console.warn("No session found during fetch.");
+        } else {
+        console.log("Session fetched successfully:", session);
+        }
+        setSession(session);
+        
+        if (session) {
+        const { email, user_metadata, id: uid } = session.user;
+        const display_name = user_metadata?.name || (email ? email.split('@')[0] : 'user');
+        try {
+            // First check if user exists
+            const { data: existingUser } = await supabase
+            .from('user_profiles')
+            .select()
+            .eq('email', email)
+            .single();
+
+            // Only insert if user doesn't exist
+            if (!existingUser) {
+            const { error } = await supabase
+                .from('user_profiles')
+                .insert({
+                display_name: display_name,
+                email: email,
+                uid: uid
+                });
+            if (error) {
+                console.error("Error inserting user profile:", error);
+            } else {
+                console.log("User profile created successfully.");
+            }
+            } else {
+            console.log("User profile already exists.");
+            }
+        } catch (err) {
+            console.error("Unexpected error:", err);
+        }
+        }
+    };
+
+    fetchSession();
+    }, []);
+
+    const handleLoginClick = () => {
+    router.push("/login");
+    };
+
+    const handleSignOutClick = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("Error signing out:", error);
+    } else {
+        setSession(null);
+        router.push("/");
+    }
+    };
+
+    const handleParticipantClick = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+        console.error("Error checking session:", error);
+        return;
+    }
+    if (!session) {
+        router.push("/login");
+    } else {
+        router.push("/participant");
+    }
+    };
 
     return (
         <nav className="w-full bg-transparent text-blue-900">
@@ -26,7 +109,7 @@ export function Navbar() {
                 </Link>
 
                 {/* Menu items */}
-                <div className="hidden sm:flex gap-6">
+                <div className="inline-flex items-center gap-6">
                     <Link href="/about" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                         About Us
                     </Link>
@@ -36,6 +119,24 @@ export function Navbar() {
                     <Link href="mailto:chinat@stanford.edu" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                         Contact
                     </Link>
+
+                    {session ? (
+                        <Button
+                            size="default"
+                            className="bg-red-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-700 transition-all duration-300"
+                            onClick={handleSignOutClick}
+                        >
+                            Sign Out
+                        </Button>
+                        ) : (
+                        <Button
+                            size="default"
+                            className="bg-blue-900 py-2 px-4 text-white font-semibold rounded-md hover:bg-blue-300 hover:text-black transition-all duration-300"
+                            onClick={handleLoginClick}
+                        >
+                            Log In 
+                        </Button>
+                    )}
                 </div>
 
                 {/* Mobile menu toggle */}
