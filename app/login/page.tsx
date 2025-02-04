@@ -1,5 +1,6 @@
 "use client";
 
+import { Navbar } from "@/components/navbar";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { createClient } from "@supabase/supabase-js";
@@ -45,8 +46,8 @@ export default function LoginPage() {
 
   return (
     <>
-
       <div className="flex min-h-screen flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-blue-100/80 items-center">
+        <Navbar />
         {/* Header Section */}
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <img
