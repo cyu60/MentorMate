@@ -10,6 +10,7 @@ import { Loader2, Bot } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
 
+
 interface AISuggestions {
   "more specific": string;
   "more actionable": string;

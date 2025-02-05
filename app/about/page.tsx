@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 
 const AboutPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 "> 
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 ">
             <Navbar />
             <div className="flex items-center justify-center p-4">
                 <div className="max-w-3xl w-full bg-white rounded-lg shadow-xl overflow-hidden">

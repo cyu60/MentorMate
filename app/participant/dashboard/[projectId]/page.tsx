@@ -7,11 +7,12 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X } from "lucide-react"; // Added Edit2 and X icons
+import { ChevronLeft, Edit2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/navbar";
+import UserSearch from "../../../../components/UserSearch";
 
 
 interface ProjectData {
@@ -20,7 +21,7 @@ interface ProjectData {
   lead_name: string;
   lead_email: string;
   project_description: string;
-  teammates: string;
+  teammates: string[];
 }
 
 export default function ParticipantDashboard() {
@@ -29,6 +30,30 @@ export default function ParticipantDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+
+  // Fetch available users
+  useEffect(() => {
+    console.log('Fetching users...');
+    const fetchUsers = async () => {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('display_name');
+      
+      if (error) {
+        console.error('Error fetching users:', error);
+        return;
+      }
+
+      if (data) {
+        const displayNames = data.map(user => user.display_name);
+        console.log('Available users:', displayNames);
+        setAvailableUsers(displayNames);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -68,10 +93,6 @@ export default function ParticipantDashboard() {
       if (!editedData) return;
   
       try {
-        // Ensure teammates is a string before splitting
-        const teammatesString = typeof editedData.teammates === 'string' ? editedData.teammates : '';
-        const teammatesArray = teammatesString.split(',').map(name => name.trim());
-        
         const { error } = await supabase
           .from("projects")
           .update({
@@ -79,7 +100,7 @@ export default function ParticipantDashboard() {
             lead_name: editedData.lead_name,
             lead_email: editedData.lead_email,
             project_description: editedData.project_description,
-            teammates: teammatesArray,
+            teammates: editedData.teammates,
           })
           .eq("id", projectId);
   
@@ -218,9 +239,16 @@ export default function ParticipantDashboard() {
                 </div>
                 <div>
                   <span className="font-bold text-gray-800">Teammates:</span>{" "}
-                  <span className="text-gray-700">
-                    {projectData.teammates}
-                  </span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {projectData.teammates.map((teammate, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+                      >
+                        {teammate}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div className="bg-blue-100/70 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">
@@ -280,12 +308,14 @@ export default function ParticipantDashboard() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Teammates
                   </label>
-                  <Input
-                    value={editedData?.teammates}
-                    onChange={(e) =>
+                  {/* Debug info */}
+                  <UserSearch
+                    allTags={availableUsers}
+                    initialTags={editedData?.teammates || []}
+                    onTagsChange={(teammates) =>
                       setEditedData((prev) => ({
                         ...prev!,
-                        teammates: e.target.value,
+                        teammates: teammates,
                       }))
                     }
                   />
