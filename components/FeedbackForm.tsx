@@ -256,10 +256,10 @@ export default function FeedbackForm({
         <div className="space-y-6 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="mb-6 text-gray-800">
-              <h3 className="font-medium text-xl mb-3">
+              <h3 className="font-medium text-md mb-3">
                 Consider in your feedback:
               </h3>
-              <ul className="list-decimal pl-6 space-y-2 text-lg">
+              <ul className="list-decimal pl-6 space-y-2 text-sm">
                 <li>What should they do next to improve the project?</li>
                 <li>What could be better or work differently?</li>
                 <li>

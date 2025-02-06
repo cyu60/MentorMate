@@ -75,7 +75,7 @@ export default function MentorPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
+      {/* <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
         <Button
           size="lg"
           className="bg-red-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-700 transition-all duration-300 mb-2"
@@ -88,7 +88,7 @@ export default function MentorPage() {
             Logged in as: {session.user.email}
           </div>
         )}
-      </div>
+      </div> */}
       <Navbar />
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
