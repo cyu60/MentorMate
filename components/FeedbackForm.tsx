@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { Loader2, Bot } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/footer";
 
 interface AISuggestions {
   "more specific": string;
