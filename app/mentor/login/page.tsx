@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
@@ -87,7 +88,7 @@ export default function MentorLoginPage() {
       <div className="pb-20 flex min-h-screen overflow-auto flex-col justify-center bg-gradient-to-b from-white to-blue-100/80 items-center">
         <Navbar />
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <img
+          <Image
             alt="MentorMate"
             src="/mentormate.png"
             className="mx-auto h-10 w-auto"

@@ -23,11 +23,10 @@ const AboutPage: React.FC = () => {
             <div className="space-y-4 text-center">
                 {/* <h2 className="text-3xl font-bold text-gray-900">Welcome to MentorMate</h2> */}
                 <p className="text-lg text-gray-700">
-                    We are dedicated to providing the best mentorship and guidance to help you achieve your goals. Our team of
-                    experienced mentors is here to support you every step of the way.
+                    We are dedicated to providing the best mentorship and guidance to help you achieve your goals. Our team of experienced mentors is here to support you every step of the way.
                 </p>
                 <p className="text-lg text-gray-700">
-                    Whether you're looking to improve your skills, advance your career, or simply learn something new, we've got
+                    Whether you&apos;re looking to improve your skills, advance your career, or simply learn something new, we&apos;ve got
                     you covered.
                 </p>
                 <div>

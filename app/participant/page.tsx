@@ -69,16 +69,6 @@ export default function ParticipantPage() {
     fetchSession(); 
   }, [router]);
 
-  const handleSignOutClick = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    } else {
-      setSession(null);
-      router.push("/");
-    }
-  };
-
   return (
     <div className="relative min-h-screen flex flex-col bg-gradient-to-b from-white to-blue-100/80">
       {/* <div className="absolute top-4 right-4 z-20 flex flex-col items-end">

@@ -77,19 +77,6 @@ export function Navbar() {
         }
     };
 
-    const handleParticipantClick = async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-            console.error("Error checking session:", error);
-            return;
-        }
-        if (!session) {
-            router.push("/login");
-        } else {
-            router.push("/participant");
-        }
-    };
-
     return (
         <nav className="w-full bg-transparent text-blue-900">
             <div className="flex justify-between items-center p-8 max-w-7xl mx-auto">
@@ -103,11 +90,6 @@ export function Navbar() {
                             height={40}
                             className="object-contain"
                         />
-                        {/* <h2 className="text-4xl sm:text-2xl md:text-3xl font-extrabold flex items-center">
-                            <span className="flex items-center bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-                                Mentor Mate
-                            </span>
-                        </h2> */}
                     </div>
                 </Link>
 
