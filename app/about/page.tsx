@@ -1,53 +1,101 @@
 import type React from "react"
 import Link from "next/link"
-// import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import { Navbar } from "@/components/navbar";
+import { ArrowRight, Users, Lightbulb, Target } from "lucide-react"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
 
 const AboutPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 "> 
-            <Navbar />
-            <div className="flex items-center justify-center p-4">
-                <div className="max-w-3xl w-full bg-white rounded-lg shadow-xl overflow-hidden">
-                    <div className="md:flex">
-                    <div className="md:flex-shrink-0">
-                        {/* <Image
-                            className="h-48 w-full object-cover md:w-48"
-                            src="/mentormate.png"
-                            alt="MentorMate"
-                            width={192}
-                            height={192}
-                        /> */}
-                    </div>
-                    <div className="p-8">
-                        <div className="uppercase tracking-wide text-sm text-blue-700 font-semibold">About Us</div>
-                        <h1 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                        Welcome to MentorMate
-                        </h1>
-                        <p className="mt-4 max-w-2xl text-xl text-gray-700">
-                        We are dedicated to providing the best mentorship and guidance to help you achieve your goals.
-                        </p>
-                        <div className="mt-6 prose prose-indigo prose-lg text-gray-700 mx-auto">
-                        <p>
-                            Our team of experienced mentors is here to support you every step of the way. Whether you&apos;re looking to
-                            improve your skills, advance your career, or simply learn something new, we&apos;ve got you covered.
-                        </p>
-                        <p>Thank you for choosing MentorMate. We look forward to working with you!</p>
-                        </div>
-                        <div className="mt-8">
-                        <Link
-                            href="/"
-                            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300"
-                        >
-                            Get Started
-                            <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
-                        </Link>
-                        </div>
-                    </div>
-                    </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-2">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="text-center mb-10">
+            <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                About{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">MentorMate</span>
+            </h1>
+            {/* <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                Empowering individuals through personalized mentorship and guidance.
+            </p> */}
+            </div>
+
+            <div className="space-y-4 text-center">
+            {/* <h2 className="text-3xl font-bold text-gray-900">Welcome to MentorMate</h2> */}
+            <p className="text-lg text-gray-700">
+                We are dedicated to providing the best mentorship and guidance to help you achieve your goals. Our team of
+                experienced mentors is here to support you every step of the way.
+            </p>
+            <p className="text-lg text-gray-700">
+                Whether you're looking to improve your skills, advance your career, or simply learn something new, we've got
+                you covered.
+            </p>
+            <div>
+                <Link
+                href="/login"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
+                >
+                Get Started
+                <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
+                </Link>
+            </div>
+            </div>
+
+            <div className="mt-16 grid gap-8 md:grid-cols-3">
+            {[
+                {
+                icon: Users,
+                title: "Expert Mentors",
+                description: "Our mentors are industry professionals with years of experience.",
+                },
+                {
+                icon: Lightbulb,
+                title: "Personalized Guidance",
+                description: "Tailored advice and support to meet your unique needs and goals.",
+                },
+                {
+                icon: Target,
+                title: "Goal-Oriented Approach",
+                description: "We help you set and achieve meaningful personal and professional goals.",
+                },
+            ].map((item, index) => (
+                <div key={index} className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-900 mb-4 mx-auto">
+                    <item.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
+                </div>
+            ))}
+            </div>
+
+            <div className="mt-16 bg-blue-900 rounded-2xl shadow-xl overflow-hidden">
+            <div className="py-12 px-4 sm:px-6 lg:py-16 lg:px-8 text-center">
+                <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                <span className="block">Ready to start your journey?</span>
+                <span className="block text-blue-200">Join MentorMate today.</span>
+                </h2>
+                <div className="mt-8 flex justify-center">
+                <div className="inline-flex rounded-md shadow">
+                    <Link
+                    href="/sign-up"
+                    className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-900 bg-white hover:bg-blue-50 transition-colors duration-300"
+                    >
+                    Sign Up
+                    </Link>
+                </div>
+                <div className="ml-3 inline-flex rounded-md shadow">
+                    <Link
+                    href="/learn-more"
+                    className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-blue-400 transition-colors duration-300"
+                    >
+                    Learn More
+                    </Link>
+                </div>
                 </div>
             </div>
+            </div>
+        </div>
+        <Footer />
         </div>
     )
 }
