@@ -3,8 +3,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Navbar } from "@/components/navbar"; 
+import { Footer } from "@/components/footer"
 import { motion } from 'framer-motion';
 import { Mail } from "lucide-react"; 
+
 type TeamMember = {
     name: string;
     imageUrl: string;
@@ -137,6 +139,8 @@ export default function TeamGrid() {
                     </motion.section>
                 ))}
             </div>
+
+            <Footer />
         </div>
     )
 }
