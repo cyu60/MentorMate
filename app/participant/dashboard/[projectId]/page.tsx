@@ -7,11 +7,12 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X } from "lucide-react"; // Added Edit2 and X icons
+import { ChevronLeft, Edit2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 
 interface ProjectData {
@@ -324,6 +325,8 @@ export default function ParticipantDashboard() {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

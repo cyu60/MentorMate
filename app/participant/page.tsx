@@ -18,6 +18,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 interface Project {
   id: string;
@@ -79,8 +80,8 @@ export default function ParticipantPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
+    <div className="relative min-h-screen flex flex-col bg-gradient-to-b from-white to-blue-100/80">
+      {/* <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
         <Button
           size="lg"
           className="bg-red-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-700 transition-all duration-300 mb-2"
@@ -93,13 +94,11 @@ export default function ParticipantPage() {
             Logged in as: {session.user.email}
           </div>
         )}
-      </div>
+      </div> */}
       <Navbar />
-      <div className="relative z-10 container mx-auto">
+      <div className="relative z-10 container mx-auto flex-grow">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
-          {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
           Participant Dashboard
-          {/* </span> */}
         </h1>
 
         {/* Navigation for Projects / Submit Project */}
@@ -148,7 +147,7 @@ export default function ParticipantPage() {
                     {existingProjects.map((project) => (
                       <Card
                         key={project.id}
-                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300"
+                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-gray-100 transition-all duration-300"
                       >
                         <CardHeader>
                           <CardTitle className="text-blue-900 text-xl font-semibold">
@@ -195,8 +194,9 @@ export default function ParticipantPage() {
               </motion.div>
             )}
           </>
-          )}
-        </div>
+        )}
       </div>
+      <Footer />
+    </div>
   );
 }
