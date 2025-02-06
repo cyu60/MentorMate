@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Loader2, Bot } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
+import { Footer } from "@/components/Footer";
 
 interface AISuggestions {
   "more specific": string;
@@ -235,10 +236,10 @@ export default function FeedbackForm({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-5xl mx-auto px-4"
+      className="w-full mx-auto px-4"
     >
       {/* Project Details */}
-      <div className="bg-white shadow-lg rounded-lg">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg">
         <div className="border-b border-blue-200 pb-4 p-6">
           <h2 className="text-blue-900 text-2xl font-semibold">
             {projectName}
@@ -361,6 +362,7 @@ export default function FeedbackForm({
           </form>
         </div>
       </div>
+      <Footer />
     </motion.div>
   );
 }
