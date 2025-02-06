@@ -15,81 +15,79 @@ export function Navbar() {
     const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
-    const fetchSession = async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-        console.error("Error fetching session:", error);
-        return;
-        }
-        if (!session) {
-        console.warn("No session found during fetch.");
-        } else {
-        console.log("Session fetched successfully:", session);
-        }
-        setSession(session);
-        
-        if (session) {
-        const { email, user_metadata, id: uid } = session.user;
-        const display_name = user_metadata?.name || (email ? email.split('@')[0] : 'user');
-        try {
-            // First check if user exists
-            const { data: existingUser } = await supabase
-            .from('user_profiles')
-            .select()
-            .eq('email', email)
-            .single();
-
-            // Only insert if user doesn't exist
-            if (!existingUser) {
-            const { error } = await supabase
-                .from('user_profiles')
-                .insert({
-                display_name: display_name,
-                email: email,
-                uid: uid
-                });
+        const fetchSession = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
             if (error) {
-                console.error("Error inserting user profile:", error);
-            } else {
-                console.log("User profile created successfully.");
+                console.error("Error fetching session:", error);
+                return;
             }
+            if (!session) {
+                console.warn("No session found during fetch.");
             } else {
-            console.log("User profile already exists.");
+                console.log("Session fetched successfully:", session);
             }
-        } catch (err) {
-            console.error("Unexpected error:", err);
-        }
-        }
-    };
+            setSession(session);
 
-    fetchSession();
+            if (session) {
+                const { email, user_metadata, id: uid } = session.user;
+                const display_name = user_metadata?.name || (email ? email.split('@')[0] : 'user');
+                try {
+                    const { data: existingUser } = await supabase
+                        .from('user_profiles')
+                        .select()
+                        .eq('email', email)
+                        .single();
+
+                    if (!existingUser) {
+                        const { error } = await supabase
+                            .from('user_profiles')
+                            .insert({
+                                display_name: display_name,
+                                email: email,
+                                uid: uid
+                            });
+                        if (error) {
+                            console.error("Error inserting user profile:", error);
+                        } else {
+                            console.log("User profile created successfully.");
+                        }
+                    } else {
+                        console.log("User profile already exists.");
+                    }
+                } catch (err) {
+                    console.error("Unexpected error:", err);
+                }
+            }
+        };
+
+        fetchSession();
     }, []);
 
     const handleLoginClick = () => {
-    router.push("/login");
+        router.push("/login");
     };
 
     const handleSignOutClick = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error("Error signing out:", error);
-    } else {
-        setSession(null);
-        router.push("/");
-    }
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Error signing out:", error);
+        } else {
+            setSession(null);
+            router.push("/");
+        }
     };
 
     const handleParticipantClick = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) {
-        console.error("Error checking session:", error);
-        return;
-    }
-    if (!session) {
-        router.push("/login");
-    } else {
-        router.push("/participant");
-    }
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+            console.error("Error checking session:", error);
+            return;
+        }
+        if (!session) {
+            router.push("/login");
+        } else {
+            router.push("/participant");
+        }
     };
 
     return (
@@ -97,7 +95,7 @@ export function Navbar() {
             <div className="flex justify-between items-center p-8 max-w-7xl mx-auto">
                 {/* Logo */}
                 <Link href="/">
-                    <div className="flex items-center gap-2 cursor-pointer">
+                    <div className="inline-flex items-center cursor-pointer">
                         <Image
                             src="/mentormate.png"
                             alt="Mentor Mate Logo"
@@ -105,11 +103,16 @@ export function Navbar() {
                             height={40}
                             className="object-contain"
                         />
+                        {/* <h2 className="text-4xl sm:text-2xl md:text-3xl font-extrabold flex items-center">
+                            <span className="flex items-center bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
+                                Mentor Mate
+                            </span>
+                        </h2> */}
                     </div>
                 </Link>
 
-                {/* Menu items */}
-                <div className="inline-flex items-center gap-6">
+                {/* Centered Menu items */}
+                <div className="flex-1 flex justify-center items-center space-x-6">
                     <Link href="/about" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                         About Us
                     </Link>
@@ -119,7 +122,10 @@ export function Navbar() {
                     <Link href="mailto:chinat@stanford.edu" className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300">
                         Contact
                     </Link>
+                </div>
 
+                {/* Log In/Sign Out Button */}
+                <div>
                     {session ? (
                         <Button
                             size="default"
@@ -128,7 +134,7 @@ export function Navbar() {
                         >
                             Sign Out
                         </Button>
-                        ) : (
+                    ) : (
                         <Button
                             size="default"
                             className="bg-blue-900 py-2 px-4 text-white font-semibold rounded-md hover:bg-blue-300 hover:text-black transition-all duration-300"
