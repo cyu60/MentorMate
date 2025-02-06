@@ -100,7 +100,7 @@ export default function MentorLoginPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             {error && (
-              <div className="mb-4 text-center text-sm text-red-600">
+              <div className="mb-4 text-center text-sm text-red-900">
                 {error}
               </div>
             )}
