@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 // import { BackgroundBeams } from "@/components/ui/background-beams";
 
 
@@ -11,6 +12,7 @@ export default function HomePage() {
       {/* <BackgroundBeams /> */}
       <Hero />
       <ServiceWorkerRegistration />
+      <Footer />
     </div>
   );
 }

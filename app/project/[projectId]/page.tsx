@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/FeedbackForm";
 import type { Session } from "@supabase/supabase-js";
+import { Navbar } from "@/components/navbar";
 
 interface ProjectData {
   id: string;
@@ -67,7 +68,8 @@ export default function ProjectFeedbackPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
-      <h1 className="text-3xl font-bold pt-10 text-center">Project Feedback</h1>
+      <Navbar />
+      <h1 className="text-3xl font-bold text-center">Project Feedback</h1>
       <div className="mt-8">
         {session && (
           <FeedbackForm

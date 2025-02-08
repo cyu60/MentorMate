@@ -18,6 +18,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 interface Project {
   id: string;
@@ -31,8 +32,8 @@ export default function ParticipantPage() {
   const router = useRouter();
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects"); // Track the active tab
-  const [session, setSession] = useState<Session | null>(null); // State to hold session data
+  const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects");
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -68,38 +69,13 @@ export default function ParticipantPage() {
     fetchSession(); 
   }, [router]);
 
-  const handleSignOutClick = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    } else {
-      setSession(null);
-      router.push("/");
-    }
-  };
-
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      <div className="absolute top-4 right-4 z-20 flex flex-col items-end">
-        <Button
-          size="lg"
-          className="bg-red-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-700 transition-all duration-300 mb-2"
-          onClick={handleSignOutClick}
-        >
-          Sign Out
-        </Button>
-        {session && (
-          <div className="text-sm text-gray-700">
-            Logged in as: {session.user.email}
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
-      <div className="relative z-10 container mx-auto">
+      <div className="flex flex-col flex-grow">
+        <main className="container mx-auto mt-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
-          {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-400"> */}
           Participant Dashboard
-          {/* </span> */}
         </h1>
 
         {/* Navigation for Projects / Submit Project */}
@@ -148,7 +124,7 @@ export default function ParticipantPage() {
                     {existingProjects.map((project) => (
                       <Card
                         key={project.id}
-                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300"
+                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-gray-100 transition-all duration-300"
                       >
                         <CardHeader>
                           <CardTitle className="text-blue-900 text-xl font-semibold">
@@ -172,7 +148,7 @@ export default function ParticipantPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-gray-500 text-md font-bold"> No Project Submitted</p> 
+                  <p className="text-center text-gray-500 text-md font-bold">No Project Submitted</p> 
                 )}
               </motion.div>
             )}
@@ -187,16 +163,18 @@ export default function ParticipantPage() {
                 <Card className="bg-white backdrop-blur-md border-blue-200/20">
                   <CardContent className="p-4 sm:p-6">
                     <ProjectSubmissionFormComponent
-                      userEmail={session?.user?.email} // Pass user email from session
-                      leadName={session?.user?.user_metadata?.full_name} // Pass user display name from session
+                      userEmail={session?.user?.email}
+                      leadName={session?.user?.user_metadata?.full_name}
                     />
                   </CardContent>
                 </Card>
               </motion.div>
             )}
           </>
-          )}
-        </div>
-      </div>
+        )}
+       </main>
+     </div>
+     <Footer />
+   </div>
   );
 }
