@@ -6,10 +6,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 export default function MentorPage() {
@@ -18,16 +15,19 @@ export default function MentorPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
         console.error("Error checking session:", error);
-        router.push('/');
+        router.push("/");
         return;
       }
 
       if (!session) {
-        router.push('/mentor/login');
+        router.push("/mentor/login");
         return;
       }
 
@@ -47,6 +47,8 @@ export default function MentorPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+      {/* Sign Out Button & Session Info */}
+=======
       <Navbar />
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
@@ -61,7 +63,7 @@ export default function MentorPage() {
           <Card className="bg-white backdrop-blur-md border-blue-200/20">
             <CardContent className="p-4 sm:p-6">
               <Button
-                onClick={() => router.push('/mentor/scan')}
+                onClick={() => router.push("/mentor/scan")}
                 className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Continue to Scan

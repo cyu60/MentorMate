@@ -9,9 +9,9 @@ import { supabase } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
 export function Navbar() {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [session, setSession] = useState<Session | null>(null);
-    const router = useRouter();
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -135,8 +135,8 @@ export function Navbar() {
                 )}
             </nav>
             {session && (
-                <div className="max-w-7xl mx-auto px-8 -mt-4 mb-4 flex justify-end">
-                    <div className="text-sm text-gray-700">
+                <div className="max-w-7xl mx-auto px-8 mb-4 flex justify-end">
+                    <div className="text-sm text-gray-700 mt-2">
                         Logged in as: {session.user.email}
                     </div>
                 </div>

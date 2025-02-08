@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -9,7 +10,10 @@ export function Hero() {
   const router = useRouter();
 
   const handleParticipantClick = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
     if (error) {
       console.error("Error checking session:", error);
       return;

@@ -18,6 +18,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 interface Project {
   id: string;
@@ -69,9 +70,10 @@ export default function ParticipantPage() {
   }, [router]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
-      <div className="relative z-10 container mx-auto">
+      <div className="flex flex-col flex-grow">
+        <main className="container mx-auto mt-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           Participant Dashboard
         </h1>
@@ -122,7 +124,7 @@ export default function ParticipantPage() {
                     {existingProjects.map((project) => (
                       <Card
                         key={project.id}
-                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-white/20 transition-all duration-300"
+                        className="bg-white backdrop-blur-md border-blue-200/20 hover:bg-gray-100 transition-all duration-300"
                       >
                         <CardHeader>
                           <CardTitle className="text-blue-900 text-xl font-semibold">
@@ -170,7 +172,9 @@ export default function ParticipantPage() {
             )}
           </>
         )}
-      </div>
-    </div>
+       </main>
+     </div>
+     <Footer />
+   </div>
   );
 }
