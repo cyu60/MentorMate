@@ -1,17 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#3b82f6",
+};
+
 export const metadata: Metadata = {
   title: "Mentor Mate",
   description:
     "Streamline your project feedback process with our intuitive platform.",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
