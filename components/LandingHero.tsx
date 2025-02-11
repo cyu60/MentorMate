@@ -31,7 +31,7 @@ export function LandingHero() {
             ?
           </p>
           <TextGenerateEffect
-            words="Elevate your project with smart, actionable feedback that drives real learning."
+            words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
             className="text-2xl text-blue-100 max-w-3xl mx-auto font-light"
           />
           <div>
