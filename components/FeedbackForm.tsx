@@ -11,7 +11,6 @@ import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
 import { Footer } from "@/components/footer";
 
-
 interface AISuggestions {
   "more specific": string;
   "more actionable": string;
@@ -52,7 +51,9 @@ export default function FeedbackForm({
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(
+    null
+  );
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
   const [hasImprovedWithAI, setHasImprovedWithAI] = useState<boolean>(false);
   const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
@@ -61,17 +62,27 @@ export default function FeedbackForm({
 
   useEffect(() => {
     console.log("Initializing Supabase session");
-    supabaseClient.auth.getSession().then(({ data: { session: currentSession } }: { data: { session: Session | null } }) => {
-      console.log("Got session:", currentSession);
-      setSession(currentSession);
-    });
+    supabaseClient.auth
+      .getSession()
+      .then(
+        ({
+          data: { session: currentSession },
+        }: {
+          data: { session: Session | null };
+        }) => {
+          console.log("Got session:", currentSession);
+          setSession(currentSession);
+        }
+      );
 
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      console.log("Auth state changed:", session);
-      setSession(session);
-    });
+    } = supabaseClient.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        console.log("Auth state changed:", session);
+        setSession(session);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, [supabaseClient]);
@@ -83,7 +94,8 @@ export default function FeedbackForm({
     localStorage.setItem("originalFeedback", feedback);
 
     try {
-      const url = "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
+      const url =
+        "https://magicloops.dev/api/loop/b59e7eb1-4d27-4fa7-8411-543646f3ee2f/run";
       const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -104,7 +116,8 @@ export default function FeedbackForm({
   };
 
   const logFeedbackToMagicLoop = async (feedbackData: FeedbackData) => {
-    const url = "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
+    const url =
+      "https://magicloops.dev/api/loop/d72bea64-246a-4c95-98d1-d7a9b90da991/run";
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -124,14 +137,17 @@ export default function FeedbackForm({
     }
 
     if (!session.user.email) {
-      alert("Unable to submit feedback: Your account is missing an email address. Please log out and sign in again with a provider that includes your email (e.g., Google).");
+      alert(
+        "Unable to submit feedback: Your account is missing an email address. Please log out and sign in again with a provider that includes your email (e.g., Google)."
+      );
       setIsSubmitting(false);
       return;
     }
 
     try {
       console.log("Starting feedback submission with session:", session.user);
-      const originalFeedback = localStorage.getItem("originalFeedback") || feedback;
+      const originalFeedback =
+        localStorage.getItem("originalFeedback") || feedback;
 
       const feedbackData: FeedbackData = {
         project_id: projectId,
@@ -140,8 +156,8 @@ export default function FeedbackForm({
         project_email: projectLeadEmail,
         project_lead_name: projectLeadName,
         mentor_id: session.user.id,
-        mentor_name: session.user.user_metadata?.full_name || 'Unknown',
-        mentor_email: session.user.email || '',
+        mentor_name: session.user.user_metadata?.full_name || "Unknown",
+        mentor_email: session.user.email || "",
         original_feedback: originalFeedback,
         final_feedback: feedback,
         specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
@@ -164,20 +180,22 @@ export default function FeedbackForm({
       console.log("Found project:", projectData);
 
       // Then submit feedback with the project UUID and let Supabase handle id generation
-      const { data, error } = await supabaseClient.from("feedback").insert([{
-        project_id: projectData.id,
-        mentor_id: session.user.id,
-        mentor_name: session.user.user_metadata?.full_name || 'Unknown',
-        mentor_email: session.user.email,
-        feedback_text: feedback,
-      }]);
+      const { data, error } = await supabaseClient.from("feedback").insert([
+        {
+          project_id: projectData.id,
+          mentor_id: session.user.id,
+          mentor_name: session.user.user_metadata?.full_name || "Unknown",
+          mentor_email: session.user.email,
+          feedback_text: feedback,
+        },
+      ]);
 
       if (error) {
         console.error("Supabase error:", error);
         console.error("Error details:", {
           code: error.code,
           message: error.message,
-          details: error.details
+          details: error.details,
         });
         throw error;
       }
@@ -190,7 +208,11 @@ export default function FeedbackForm({
       setIsSubmitted(true);
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      alert(`Error submitting feedback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Error submitting feedback: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsSubmitting(false);
       localStorage.removeItem("originalFeedback");
@@ -206,19 +228,6 @@ export default function FeedbackForm({
     setIsSubmitting(true);
     await submitFeedback();
   };
-
-  useEffect(() => {
-    const pendingFeedback = localStorage.getItem("pendingFeedback");
-    if (pendingFeedback) {
-      const parsedFeedback = JSON.parse(pendingFeedback);
-      setFeedback(parsedFeedback.final_feedback);
-      setAiSuggestions({
-        "more specific": parsedFeedback.specific_ai_suggestion,
-        "more positive": parsedFeedback.positive_ai_suggestion,
-        "more actionable": parsedFeedback.actionable_ai_suggestion,
-      });
-    }
-  }, []);
 
   if (!session) {
     return (

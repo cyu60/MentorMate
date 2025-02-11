@@ -43,7 +43,13 @@ const formSchema = z.object({
   teammates: z.array(z.string()).optional(),
 });
 
-export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEmail?: string; leadName?: string }) {
+export function ProjectSubmissionFormComponent({
+  userEmail,
+  leadName,
+}: {
+  userEmail?: string;
+  leadName?: string;
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -107,9 +113,6 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
         console.error("Project creation error:", error);
         throw error;
       }
-
-      // Store project data in local storage
-      localStorage.setItem(`project_${data[0].id}`, JSON.stringify(data[0]));
 
       toast({
         title: "Project Submitted",
@@ -234,9 +237,14 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
             name="teammates"
             render={() => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">Teammates</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Teammates
+                </FormLabel>
                 <FormControl>
-                  <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
+                  <UserSearch
+                    allTags={allUsers}
+                    onTagsChange={handleTeammatesChange}
+                  />
                 </FormControl>
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
@@ -261,4 +269,3 @@ export function ProjectSubmissionFormComponent({ userEmail, leadName }: { userEm
     </div>
   );
 }
-
