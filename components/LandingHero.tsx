@@ -14,10 +14,9 @@ export function LandingHero() {
             Mentor Mate
           </span>
         </h1>
-        <div className="space-y-4 text-center">
-          <p className="text-2xl italic font-medium text-gray-800 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Tired of not getting enough feedback or receiving generic comments
-            at{" "}
+        <div className="space-y-8 text-center">
+          <p className="text-xl italic font-medium text-gray-800 max-w-3xl mx-auto leading-relaxed">
+            Need better feedback than generic comments for your{" "}
             <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
               hackathons
             </span>
@@ -25,15 +24,15 @@ export function LandingHero() {
             <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
               projects
             </span>
-            , or{" "}
+            , and{" "}
             <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
               presentations
             </span>
             ?
           </p>
           <TextGenerateEffect
-            words="Elevate your project with smart, actionable feedback that drives real progress."
-            className="text-lg text-blue-100 mb-8 max-w-3xl mx-auto font-light"
+            words="Elevate your project with smart, actionable feedback that drives real learning."
+            className="text-2xl text-blue-100 max-w-3xl mx-auto font-light"
           />
           <div>
             <Link
@@ -91,7 +90,7 @@ export function LandingHero() {
             />
           </div>
           <p className="text-md text-gray-600 max-w-2xl mx-auto">
-            MentorMate is built at Stanford Graduate School of Education and
+            Mentor Mate is built at Stanford Graduate School of Education and
             supported by the Stanford Accelerator for Learning—backed by the
             latest advances in learning sciences and pedagogy.
           </p>
