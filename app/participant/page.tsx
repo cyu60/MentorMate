@@ -65,6 +65,7 @@ export default function ParticipantPage() {
         .from("projects")
         .select("*")
         // Fetch only the projects tied to the logged-in user.
+        // TODO: Fetch all projects for the user, not just the lead email.
         .eq("lead_email", session.user.email)
         .order("created_at", { ascending: false });
       if (error) {
