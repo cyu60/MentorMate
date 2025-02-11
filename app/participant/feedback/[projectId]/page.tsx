@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 
-
 interface FeedbackItem {
   id: string;
   feedback_text: string;
@@ -28,7 +27,7 @@ export default function FeedbackPage() {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-/*
+  /*
   useEffect(() => {
     const runInsertFunction = async () =>
       try {
@@ -42,8 +41,7 @@ export default function FeedbackPage() {
     runInsertFunction();
   }, []);
 */
-  useEffect(() => {    
-
+  useEffect(() => {
     const fetchData = async () => {
       if (!projectId) return;
 
@@ -98,7 +96,9 @@ export default function FeedbackPage() {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <div className="relative z-10 text-center">
-          <p className="text-2xl text-blue-100 font-light">Project not found.</p>
+          <p className="text-2xl text-blue-100 font-light">
+            Project not found.
+          </p>
         </div>
       </div>
     );
@@ -122,7 +122,7 @@ export default function FeedbackPage() {
       <div className="mb-6">
         <Link href={`/participant/dashboard/${projectId}`}>
           <Button className="button-gradient text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center">
-            <ChevronLeft/>
+            <ChevronLeft />
             Project Details
           </Button>
         </Link>
@@ -144,8 +144,12 @@ export default function FeedbackPage() {
                 {/* Comment Content */}
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="font-semibold text-gray-800">{item.mentor_name}</span>
-                    <span className="text-sm text-gray-500">({item.mentor_email})</span>
+                    <span className="font-semibold text-gray-800">
+                      {item.mentor_name}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      ({item.mentor_email})
+                    </span>
                   </div>
                   <p className="mt-2 text-gray-700">{item.feedback_text}</p>
                 </div>
