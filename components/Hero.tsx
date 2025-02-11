@@ -10,6 +10,7 @@ export function Hero() {
   const router = useRouter();
 
   const handleParticipantClick = async () => {
+    localStorage.setItem('redirectToParticipant', 'true');
     const {
       data: { session },
       error,
@@ -22,6 +23,7 @@ export function Hero() {
       router.push("/login");
     } else {
       router.push("/participant");
+      localStorage.removeItem('redirectToParticipant'); // Clean up immediately if we can redirect right away
     }
   };
 
@@ -52,6 +54,7 @@ export function Hero() {
               variant="outline"
               className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
               onClick={async () => {
+                localStorage.setItem('redirectToMentor', 'true');
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
                   console.error("Error checking session:", error);
@@ -61,6 +64,7 @@ export function Hero() {
                   router.push("/mentor/login");
                 } else {
                   router.push("/mentor");
+                  localStorage.removeItem('redirectToMentor'); // Clean up immediately if we can redirect right away
                 }
               }}
             >

@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSelection, setShowSelection] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -31,6 +32,12 @@ export default function HomePage() {
     checkSession();
   }, []);
 
+  useEffect(() => {
+    // Check if we came from the "Get Started" button
+    const params = new URLSearchParams(window.location.search);
+    setShowSelection(params.get('selection') === 'true');
+  }, []);
+
   if (isLoading) {
     return null; // or a loading spinner if preferred
   }
@@ -39,7 +46,7 @@ export default function HomePage() {
     <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100">
       <Navbar />
       {/* <BackgroundBeams /> */}
-      {isLoggedIn ? <Hero /> : <LandingHero />}
+      {isLoggedIn || showSelection ? <Hero /> : <LandingHero />}
       <ServiceWorkerRegistration />
       <Footer />
     </div>

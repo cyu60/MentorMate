@@ -37,6 +37,10 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
+        const shouldRedirect = localStorage.getItem('redirectToParticipant');
+        if (shouldRedirect) {
+          localStorage.removeItem('redirectToParticipant');
+        }
         router.push("/participant");
       }
     };
@@ -71,6 +75,10 @@ function LoginContent() {
         setError(error.message);
         setLoading(false);
         return;
+      }
+      const shouldRedirect = localStorage.getItem('redirectToParticipant');
+      if (shouldRedirect) {
+        localStorage.removeItem('redirectToParticipant');
       }
       router.push("/participant");
     }
