@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import UserSearch from "../../../../components/UserSearch";
+import UserSearch from "../../../../../components/UserSearch";
 
 interface ProjectData {
   id: string;
