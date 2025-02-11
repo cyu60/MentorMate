@@ -7,14 +7,13 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X } from "lucide-react";
+import { ChevronLeft, Edit2, X, Download, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import UserSearch from "../../../../components/UserSearch";
-
 
 interface ProjectData {
   id: string;
@@ -35,20 +34,20 @@ export default function ParticipantDashboard() {
 
   // Fetch available users
   useEffect(() => {
-    console.log('Fetching users...');
+    console.log("Fetching users...");
     const fetchUsers = async () => {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('display_name');
-      
+        .from("user_profiles")
+        .select("display_name");
+
       if (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
         return;
       }
 
       if (data) {
-        const displayNames = data.map(user => user.display_name);
-        console.log('Available users:', displayNames);
+        const displayNames = data.map((user) => user.display_name);
+        console.log("Available users:", displayNames);
         setAvailableUsers(displayNames);
       }
     };
@@ -91,42 +90,145 @@ export default function ParticipantDashboard() {
   };
 
   const handleSave = async () => {
-      if (!editedData) return;
-  
-      try {
-        const { error } = await supabase
-          .from("projects")
-          .update({
-            project_name: editedData.project_name,
-            lead_name: editedData.lead_name,
-            lead_email: editedData.lead_email,
-            project_description: editedData.project_description,
-            teammates: editedData.teammates,
-          })
-          .eq("id", projectId);
-  
-        if (error) throw error;
-  
-        setProjectData(editedData);
-        setIsEditing(false);
-        toast({
-          title: "Success",
-          description: "Project information updated successfully",
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error updating project:", error.message);
-          console.error(error.stack);
-        } else {
-          console.error("Error updating project:", error);
-        }
-        toast({
-          title: "Error",
-          description: "Failed to update project information",
-          variant: "destructive",
-        });
+    if (!editedData) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          project_name: editedData.project_name,
+          lead_name: editedData.lead_name,
+          lead_email: editedData.lead_email,
+          project_description: editedData.project_description,
+          teammates: editedData.teammates,
+        })
+        .eq("id", projectId);
+
+      if (error) throw error;
+
+      setProjectData(editedData);
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Project information updated successfully",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error updating project:", error.message);
+        console.error(error.stack);
+      } else {
+        console.error("Error updating project:", error);
       }
-    };
+      toast({
+        title: "Error",
+        description: "Failed to update project information",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyQR = async () => {
+    try {
+      const svg = document.querySelector("#project-qr-code");
+      if (!svg) throw new Error("QR Code SVG not found");
+
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      canvas.width = svg.clientWidth;
+      canvas.height = svg.clientHeight;
+
+      // Convert SVG to a data URL
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Create an image from the SVG
+      const img = new Image();
+      img.src = svgUrl;
+
+      await new Promise((resolve) => {
+        img.onload = () => {
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0);
+          URL.revokeObjectURL(svgUrl);
+          resolve(null);
+        };
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const blob = await (await fetch(dataUrl)).blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+
+      toast({
+        title: "Success",
+        description: "QR Code copied to clipboard",
+      });
+    } catch (error) {
+      console.error("Error copying QR Code:", error);
+      toast({
+        title: "Error",
+        description: "Failed to copy QR Code",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadQR = async () => {
+    try {
+      const svg = document.querySelector("#project-qr-code");
+      if (!svg) throw new Error("QR Code SVG not found");
+
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      canvas.width = svg.clientWidth;
+      canvas.height = svg.clientHeight;
+
+      // Convert SVG to a data URL
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Create an image from the SVG
+      const img = new Image();
+      img.src = svgUrl;
+
+      await new Promise((resolve) => {
+        img.onload = () => {
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0);
+          URL.revokeObjectURL(svgUrl);
+          resolve(null);
+        };
+      });
+
+      // Create sanitized filename from project name
+      const sanitizedProjectName = projectData?.project_name
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]/g, "-") // Replace non-alphanumeric chars with hyphens
+        .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+
+      const link = document.createElement("a");
+      link.download = `${sanitizedProjectName}-feedback-qr-code.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (error) {
+      console.error("Error downloading QR Code:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download QR Code",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -180,12 +282,30 @@ export default function ParticipantDashboard() {
           <div className="flex flex-col md:flex-row items-start gap-8">
             <div className="flex flex-col items-center md:items-start">
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <QRCode value={fullUrl} size={200} />
+                <QRCode value={fullUrl} size={200} id="project-qr-code" />
               </div>
-              <div className="mt-4 text-center md:text-left">
-                <p className="text-sm text-gray-700">
+              <div className="mt-4 space-y-2 w-full">
+                <p className="text-sm text-gray-700 text-center md:text-left">
                   Scan this QR code to provide feedback
                 </p>
+                <div className="flex gap-2 justify-center md:justify-start">
+                  <Button
+                    onClick={handleCopyQR}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy
+                  </Button>
+                  <Button
+                    onClick={handleDownloadQR}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -225,14 +345,18 @@ export default function ParticipantDashboard() {
               {!isEditing ? (
                 <div className="space-y-2">
                   <div>
-                    <span className="font-bold text-gray-800">Project Name:</span>{" "}
+                    <span className="font-bold text-gray-800">
+                      Project Name:
+                    </span>{" "}
                     <span className="text-gray-700">
                       {projectData.project_name}
                     </span>
                   </div>
                   <div>
                     <span className="font-bold text-gray-800">Lead Name:</span>{" "}
-                    <span className="text-gray-700">{projectData.lead_name}</span>
+                    <span className="text-gray-700">
+                      {projectData.lead_name}
+                    </span>
                   </div>
                   <div>
                     <span className="font-bold text-gray-800">Lead Email:</span>{" "}
@@ -244,29 +368,42 @@ export default function ParticipantDashboard() {
                     <span className="font-bold text-gray-800">Teammates:</span>{" "}
                     <div className="flex flex-wrap gap-2 mt-1">
                       {projectData.teammates.map((teammate, index) => {
-                        const colors = ['blue', 'deepskyblue', 'royalblue', 'teal'];
+                        const colors = [
+                          "blue",
+                          "deepskyblue",
+                          "royalblue",
+                          "teal",
+                        ];
                         const color = colors[index % colors.length];
-                        let className = '';
-                        
+                        let className = "";
+
                         switch (color) {
-                          case 'deepskyblue':
-                            className = "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
+                          case "deepskyblue":
+                            className =
+                              "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
                             break;
-                          case 'blue':
-                            className = "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
+                          case "blue":
+                            className =
+                              "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
                             break;
-                          case 'teal':
-                            className = "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
+                          case "teal":
+                            className =
+                              "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
                             break;
-                          case 'royalblue':
-                            className = "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
+                          case "royalblue":
+                            className =
+                              "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
                             break;
                           default:
-                            className = "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
+                            className =
+                              "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
                         }
-                        
+
                         return (
-                          <span key={`${teammate}-${index}`} className={className}>
+                          <span
+                            key={`${teammate}-${index}`}
+                            className={className}
+                          >
                             {teammate}
                           </span>
                         );
@@ -382,4 +519,3 @@ export default function ParticipantDashboard() {
     </div>
   );
 }
-
