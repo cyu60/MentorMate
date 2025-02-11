@@ -2,11 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+
+// Web Speech API types
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  readonly length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  readonly length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onend: () => void;
+  onerror: (event: { error: string }) => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
 import { createClient } from "@/app/utils/supabase/client";
 import { Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Loader2, Bot } from "lucide-react";
+import { Loader2, Bot, Mic, MicOff } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
 import { Footer } from "@/components/footer";
@@ -59,6 +95,70 @@ export default function FeedbackForm({
   const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
   const [session, setSession] = useState<Session | null>(null);
   const [supabaseClient] = useState(() => createClient());
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [currentTranscript, setCurrentTranscript] = useState<string>("");
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      type SpeechRecognitionWindow = {
+        SpeechRecognition?: new () => SpeechRecognition;
+        webkitSpeechRecognition?: new () => SpeechRecognition;
+      };
+
+      const SpeechRecognitionConstructor = (
+        (window as SpeechRecognitionWindow).SpeechRecognition ||
+        (window as SpeechRecognitionWindow).webkitSpeechRecognition
+      ) as new () => SpeechRecognition;
+
+      if (SpeechRecognitionConstructor) {
+        const recognition = new SpeechRecognitionConstructor();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+          const lastResult = event.results[event.results.length - 1];
+          const transcript = (lastResult[0] as SpeechRecognitionAlternative).transcript;
+          
+          if (lastResult.isFinal) {
+            setFeedback(prev => {
+              const newText = transcript.trim();
+              return prev ? `${prev} ${newText}` : newText;
+            });
+            setCurrentTranscript("");
+          } else {
+            setCurrentTranscript(transcript);
+          }
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+          setCurrentTranscript("");
+        };
+
+        recognition.onerror = (event: { error: string }) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          setCurrentTranscript("");
+        };
+
+        setRecognition(recognition);
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognition) return;
+    
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+    } else {
+      recognition.start();
+      setIsListening(true);
+    }
+  };
 
   useEffect(() => {
     console.log("Initializing Supabase session");
@@ -286,15 +386,43 @@ export default function FeedbackForm({
               >
                 Leave Your Feedback
               </label>
-              <TextareaAutosize
-                id="feedback"
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Enter your feedback here"
-                required
-                minRows={4}
-                className="w-full bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-md p-2"
-              />
+              <div className="relative">
+                <TextareaAutosize
+                  id="feedback"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Enter your feedback here"
+                  required
+                  minRows={4}
+                  className="w-full bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-md p-2 pr-32"
+                />
+                <Button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`absolute right-2 top-2 p-2 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-2 z-10 shadow-sm border border-blue-100 ${
+                    isListening ? 'bg-blue-100' : 'bg-blue-50'
+                  }`}
+                  title={isListening ? "Stop recording" : "Start voice input"}
+                >
+                  <span className="text-sm">
+                    {isListening ? (
+                      <span className="text-red-500 animate-pulse">Listening...</span>
+                    ) : (
+                      <span className="text-blue-500">Voice input</span>
+                    )}
+                  </span>
+                  {isListening ? (
+                    <MicOff className="h-5 w-5 text-red-500" />
+                  ) : (
+                    <Mic className="h-5 w-5 text-blue-500" />
+                  )}
+                </Button>
+              </div>
+              {currentTranscript && (
+                <div className="mt-2 text-sm text-gray-500 italic">
+                  Processing: {currentTranscript}
+                </div>
+              )}
             </div>
 
             {/* AI Improvement Button */}
