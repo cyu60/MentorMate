@@ -67,6 +67,7 @@ interface FeedbackData {
   specific_ai_suggestion: string;
   positive_ai_suggestion: string;
   actionable_ai_suggestion: string;
+  modifier_field: string[];
 }
 
 export default function FeedbackForm({
@@ -98,6 +99,12 @@ export default function FeedbackForm({
   const [isListening, setIsListening] = useState<boolean>(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
+  const [usedSuggestions, setUsedSuggestions] = useState<Set<string>>(new Set(['original']));
+  
+  // Log usedSuggestions changes
+  useEffect(() => {
+    console.log("usedSuggestions updated:", Array.from(usedSuggestions));
+  }, [usedSuggestions]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -249,6 +256,94 @@ export default function FeedbackForm({
       const originalFeedback =
         localStorage.getItem("originalFeedback") || feedback;
 
+      // Common words to filter out
+      const commonWords = new Set([
+        'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
+        'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
+        'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
+        'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
+        'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
+        'project', 'could', 'can', 'just', 'should', 'now', 'work', 'like', 'any',
+        'also', 'into', 'only', 'see', 'use', 'way', 'than', 'find', 'day', 'more',
+        'your', 'such', 'make', 'want', 'look', 'these', 'know', 'because', 'good',
+        'people', 'year', 'take', 'well', 'some', 'when', 'then', 'other', 'how',
+        'our', 'two', 'more', 'time', 'very'
+      ]);
+
+      // Helper function to get significant words (excluding common words)
+      const getSignificantWords = (text: string): string[] => {
+        return text.toLowerCase()
+          .split(/\s+/)
+          .filter(word => !commonWords.has(word) && word.length > 2);
+      };
+
+      // Helper function to find consecutive matching words
+      const findConsecutiveMatches = (source: string[], target: string[]): number => {
+        let maxConsecutive = 0;
+        let current = 0;
+        
+        for (let i = 0; i < source.length; i++) {
+          for (let j = 0; j < target.length; j++) {
+            current = 0;
+            while (i + current < source.length &&
+                   j + current < target.length &&
+                   source[i + current] === target[j + current]) {
+              current++;
+            }
+            maxConsecutive = Math.max(maxConsecutive, current);
+          }
+        }
+        return maxConsecutive;
+      };
+
+      console.log("Starting tag validation with tags:", Array.from(usedSuggestions));
+      
+      // Validate tags based on content analysis
+      const validatedTags = new Set<string>();
+      const finalWords = getSignificantWords(feedback);
+      
+      // Validate each tag in usedSuggestions
+      console.log("Analyzing final content:", feedback);
+      console.log("Used suggestions before validation:", Array.from(usedSuggestions));
+      console.log("Available AI suggestions:", aiSuggestions);
+      for (const tag of usedSuggestions) {
+        console.log("\nValidating tag:", tag);
+        if (tag === 'original') {
+          const originalWords = getSignificantWords(originalFeedback);
+          const originalConsecutive = findConsecutiveMatches(originalWords, finalWords);
+          const originalThreshold = 3;
+          console.log("Validating original tag:", originalConsecutive, ">=", originalThreshold);
+          if (originalConsecutive >= originalThreshold) {
+            validatedTags.add('original');
+          }
+        } else if (tag === 'more_positive' && aiSuggestions?.["more positive"]) {
+          const positiveWords = getSignificantWords(aiSuggestions["more positive"]);
+          const positiveConsecutive = findConsecutiveMatches(positiveWords, finalWords);
+          const positiveThreshold = 3;
+          console.log("Validating more_positive tag:", positiveConsecutive, ">=", positiveThreshold);
+          if (positiveConsecutive >= positiveThreshold) {
+            validatedTags.add('more_positive');
+          }
+        } else if (tag === 'more_specific' && aiSuggestions?.["more specific"]) {
+          const specificWords = getSignificantWords(aiSuggestions["more specific"]);
+          const specificConsecutive = findConsecutiveMatches(specificWords, finalWords);
+          const specificThreshold = 3;
+          console.log("Validating more_specific tag:", specificConsecutive, ">=", specificThreshold);
+          if (specificConsecutive >= specificThreshold) {
+            validatedTags.add('more_specific');
+          }
+        }
+      }
+
+      // If no tags were validated, it's completely original
+      if (validatedTags.size === 0) {
+        validatedTags.add('original');
+      }
+
+      console.log("Final validated tags:", Array.from(validatedTags));
+      const modifier_field = Array.from(validatedTags);
+      console.log("Setting modifier_field to:", modifier_field);
+
       const feedbackData: FeedbackData = {
         project_id: projectId,
         project_name: projectName,
@@ -263,6 +358,7 @@ export default function FeedbackForm({
         specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
         positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
         actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
+        modifier_field: Array.from(usedSuggestions)
       };
 
       // First get the project UUID
@@ -287,6 +383,11 @@ export default function FeedbackForm({
           mentor_name: session.user.user_metadata?.full_name || "Unknown",
           mentor_email: session.user.email,
           feedback_text: feedback,
+          original_feedback_text: originalFeedback,
+          modifier_field: Array.from(usedSuggestions),
+          specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
+          positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
+          actionable_ai_suggestion: aiSuggestions?.["more actionable"] || ""
         },
       ]);
 
@@ -466,16 +567,57 @@ export default function FeedbackForm({
                         <div className="flex gap-2">
                           <Button
                             type="button"
-                            onClick={() => setFeedback(suggestion)}
+                            onClick={() => {
+                              console.log("Replace clicked for category:", category);
+                              setFeedback(suggestion);
+                              const newTags = new Set<string>();
+                              console.log("Raw category:", category);
+                              // Convert category to tag format
+                              // Map category directly to tag name
+                              const tagMap: { [key: string]: string } = {
+                                "more specific": "more_specific",
+                                "more positive": "more_positive",
+                                "more actionable": "more_actionable"
+                              };
+                              const tagToAdd = tagMap[category] || category.replace(/ /g, "_");
+                              console.log("Converted to tag:", tagToAdd);
+                              console.log("Adding tag:", tagToAdd);
+                              newTags.add(tagToAdd);
+                              newTags.add('original');
+                              console.log("Final tags:", Array.from(newTags));
+                              setUsedSuggestions(newTags);
+                            }}
                             className="bg-blue-900 text-white text-sm py-1 px-3 rounded-full"
                           >
                             Replace
                           </Button>
                           <Button
                             type="button"
-                            onClick={() =>
-                              setFeedback((prev) => `${prev}\n\n${suggestion}`)
-                            }
+                            onClick={() => {
+                              console.log("Add Below clicked for category:", category);
+                              setFeedback((prev) => `${prev}\n\n${suggestion}`);
+                              // Create new Set from existing tags
+                              const newTags = new Set(usedSuggestions);
+                              console.log("Add Below: Starting with tags:", Array.from(newTags));
+                              console.log("Raw category:", category);
+                              // Convert category to tag format
+                              // Map category directly to tag name
+                              const tagMap: { [key: string]: string } = {
+                                "more specific": "more_specific",
+                                "more positive": "more_positive",
+                                "more actionable": "more_actionable"
+                              };
+                              const tagToAdd = tagMap[category] || category.replace(/ /g, "_");
+                              console.log("Converted to tag:", tagToAdd);
+                              console.log("Current tags:", Array.from(newTags));
+                              console.log("Adding tag:", tagToAdd);
+                              newTags.add(tagToAdd);
+                              if (!newTags.has('original')) {
+                                newTags.add('original');
+                              }
+                              console.log("Final tags:", Array.from(newTags));
+                              setUsedSuggestions(newTags);
+                            }}
                             className="bg-green-700 text-white text-sm py-1 px-3 rounded-full"
                           >
                             Add Below
