@@ -12,15 +12,24 @@ export function AuthRedirectProvider({
   const router = useRouter();
 
   useEffect(() => {
-    const shouldRedirect = localStorage.getItem('redirectToParticipant');
-    if (!shouldRedirect) return;
+    // Check for participant redirect
+    const shouldRedirectToParticipant = localStorage.getItem('redirectToParticipant');
+    // Check for mentor redirect
+    const shouldRedirectToMentor = localStorage.getItem('redirectToMentor');
+
+    if (!shouldRedirectToParticipant && !shouldRedirectToMentor) return;
 
     // Check immediately if we're already signed in
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (session && !error) {
-        localStorage.removeItem('redirectToParticipant');
-        router.push('/participant');
+        if (shouldRedirectToParticipant) {
+          localStorage.removeItem('redirectToParticipant');
+          router.push('/participant');
+        } else if (shouldRedirectToMentor) {
+          localStorage.removeItem('redirectToMentor');
+          router.push('/mentor');
+        }
       }
     };
     checkSession();
@@ -28,8 +37,13 @@ export function AuthRedirectProvider({
     // Also listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        localStorage.removeItem('redirectToParticipant');
-        router.push('/participant');
+        if (shouldRedirectToParticipant) {
+          localStorage.removeItem('redirectToParticipant');
+          router.push('/participant');
+        } else if (shouldRedirectToMentor) {
+          localStorage.removeItem('redirectToMentor');
+          router.push('/mentor');
+        }
       }
     });
 
