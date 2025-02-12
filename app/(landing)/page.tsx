@@ -12,7 +12,6 @@ import { supabase } from "@/lib/supabase";
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const checkSession = async () => {
       const {

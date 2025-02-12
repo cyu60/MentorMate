@@ -36,7 +36,7 @@ export function LandingHero() {
           />
           <div>
             <Link
-              href="/login?mode=signup"
+              href="/select"
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
             >
               Get Started
@@ -108,10 +108,10 @@ export function LandingHero() {
             <div className="mt-8 flex justify-center">
               <div className="inline-flex rounded-md shadow">
                 <Link
-                  href="/login?mode=signup"
+                  href="/select"
                   className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-900 bg-white hover:bg-blue-50 transition-colors duration-300"
                 >
-                  Sign Up
+                  Get Started
                 </Link>
               </div>
               <div className="ml-3 inline-flex rounded-md shadow">

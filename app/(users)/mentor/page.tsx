@@ -1,49 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 export default function MentorPage() {
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (error) {
-        console.error("Error checking session:", error);
-        router.push("/");
-        return;
-      }
-
-      if (!session) {
-        router.push("/mentor/login");
-        return;
-      }
-
-      setIsLoading(false);
-    };
-
-    checkSession();
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
-      </div>
-    );
-  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
