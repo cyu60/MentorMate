@@ -59,9 +59,9 @@ interface FeedbackData {
   project_email: string;
   project_lead_name: string;
   project_description: string;
-  mentor_id: string;
-  mentor_name: string;
-  mentor_email: string;
+  mentor_id: string | null;
+  mentor_name: string | null;
+  mentor_email: string | null;
   original_feedback: string;
   final_feedback: string;
   specific_ai_suggestion: string;
@@ -238,21 +238,8 @@ export default function FeedbackForm({
   };
 
   const submitFeedback = async () => {
-    if (!session?.user) {
-      console.error("No user session found");
-      return;
-    }
-
-    if (!session.user.email) {
-      alert(
-        "Unable to submit feedback: Your account is missing an email address. Please log out and sign in again with a provider that includes your email (e.g., Google)."
-      );
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      console.log("Starting feedback submission with session:", session.user);
+      console.log("Starting feedback submission");
       const originalFeedback =
         localStorage.getItem("originalFeedback") || feedback;
 
@@ -350,9 +337,9 @@ export default function FeedbackForm({
         project_description: projectDescription,
         project_email: projectLeadEmail,
         project_lead_name: projectLeadName,
-        mentor_id: session.user.id,
-        mentor_name: session.user.user_metadata?.full_name || "Unknown",
-        mentor_email: session.user.email || "",
+        mentor_id: session?.user?.id || null,
+        mentor_name: session?.user?.user_metadata?.full_name || null,
+        mentor_email: session?.user?.email || null,
         original_feedback: originalFeedback,
         final_feedback: feedback,
         specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
@@ -379,9 +366,9 @@ export default function FeedbackForm({
       const { data, error } = await supabaseClient.from("feedback").insert([
         {
           project_id: projectData.id,
-          mentor_id: session.user.id,
-          mentor_name: session.user.user_metadata?.full_name || "Unknown",
-          mentor_email: session.user.email,
+          mentor_id: session?.user?.id || null,
+          mentor_name: session?.user?.user_metadata?.full_name || null,
+          mentor_email: session?.user?.email || null,
           feedback_text: feedback,
           original_feedback_text: originalFeedback,
           modifier_field: Array.from(usedSuggestions),
@@ -413,7 +400,7 @@ export default function FeedbackForm({
           type: 'feedback',
           to: projectLeadEmail,
           projectName: projectName,
-          mentorName: session.user.user_metadata?.full_name || "Unknown",
+          mentorName: session?.user?.user_metadata?.full_name || null,
           feedback: feedback,
           projectId: projectId
         }),
@@ -442,21 +429,9 @@ export default function FeedbackForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user) {
-      alert("Please log in to submit feedback.");
-      return;
-    }
     setIsSubmitting(true);
     await submitFeedback();
   };
-
-  if (!session) {
-    return (
-      <div className="text-center p-4">
-        <p>Please log in to submit feedback.</p>
-      </div>
-    );
-  }
 
   if (isSubmitted) {
     return <SubmissionConfirmation projectName={projectName} />;

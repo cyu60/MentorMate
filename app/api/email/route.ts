@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     } else if (type === 'feedback') {
       const { to, projectName, mentorName, feedback, projectId } = data;
 
-      if (!to || !projectName || !mentorName || !feedback || !projectId) {
+      if (!to || !projectName || !feedback || !projectId) {
         return NextResponse.json(
           { error: 'Missing required fields for feedback notification' },
           { status: 400 }

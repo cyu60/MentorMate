@@ -5,7 +5,7 @@ interface FeedbackEmailTemplate {
 
 export function getFeedbackNotificationEmailTemplate(
   projectName: string,
-  mentorName: string,
+  mentorName: string | null,
   feedback: string
 ): FeedbackEmailTemplate {
   return {
@@ -15,7 +15,7 @@ export function getFeedbackNotificationEmailTemplate(
         <h1 style="color: #2563eb; margin-bottom: 24px;">New Project Feedback</h1>
         
         <p style="font-size: 16px; line-height: 1.5; color: #374151; margin-bottom: 16px;">
-          You have received new feedback for your project "${projectName}" from mentor ${mentorName}.
+          You have received new feedback for your project "${projectName}"${mentorName ? ` from mentor ${mentorName}` : ''}.
         </p>
         
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">

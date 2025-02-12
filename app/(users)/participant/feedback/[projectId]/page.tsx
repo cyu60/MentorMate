@@ -106,8 +106,8 @@ export default function FeedbackPage() {
 
   // const fullUrl = `${window.location.origin}/project/${projectId}`;
 
-  // Function to get initials from mentor's name
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | null) => {
+    if (!name) return "?"; // Return a fallback for null/undefined names
     const names = name.trim().split(" ");
     const initials = names.map((n) => n[0]).join("");
     return initials.toUpperCase();
