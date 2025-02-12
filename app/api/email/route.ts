@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { getProjectSubmissionEmailTemplate } from '@/app/email-templates/project-submission';
 import { getProjectTeammateEmailTemplate } from '@/app/email-templates/project-teammate';
+import { getFeedbackNotificationEmailTemplate } from '@/app/email-templates/feedback-notification';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -50,26 +51,58 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 export async function POST(request: Request) {
   try {
-    const { to, projectName, leadName, teammates } = await request.json();
+    const { type, ...data } = await request.json();
 
-    if (!to || !projectName || !leadName) {
+    if (!type) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing email type' },
         { status: 400 }
       );
     }
 
-    const leadEmailTemplate = getProjectSubmissionEmailTemplate(projectName);
-    await sendEmail(to, leadEmailTemplate.subject, leadEmailTemplate.html);
+    if (type === 'project_submission') {
+      const { to, projectName, leadName, teammates } = data;
 
-    if (teammates && teammates.length > 0) {
-      const teammateEmails = await getTeammateEmails(teammates);
-      const teammateEmailTemplate = getProjectTeammateEmailTemplate(projectName, leadName);
+      if (!to || !projectName || !leadName) {
+        return NextResponse.json(
+          { error: 'Missing required fields for project submission' },
+          { status: 400 }
+        );
+      }
 
-      await Promise.all(
-        teammateEmails.map(email =>
-          sendEmail(email, teammateEmailTemplate.subject, teammateEmailTemplate.html)
-        )
+      const leadEmailTemplate = getProjectSubmissionEmailTemplate(projectName);
+      await sendEmail(to, leadEmailTemplate.subject, leadEmailTemplate.html);
+
+      if (teammates && teammates.length > 0) {
+        const teammateEmails = await getTeammateEmails(teammates);
+        const teammateEmailTemplate = getProjectTeammateEmailTemplate(projectName, leadName);
+
+        await Promise.all(
+          teammateEmails.map(email =>
+            sendEmail(email, teammateEmailTemplate.subject, teammateEmailTemplate.html)
+          )
+        );
+      }
+    } else if (type === 'feedback') {
+      const { to, projectName, mentorName, feedback } = data;
+
+      if (!to || !projectName || !mentorName || !feedback) {
+        return NextResponse.json(
+          { error: 'Missing required fields for feedback notification' },
+          { status: 400 }
+        );
+      }
+
+      const feedbackEmailTemplate = getFeedbackNotificationEmailTemplate(
+        projectName,
+        mentorName,
+        feedback
+      );
+      await sendEmail(to, feedbackEmailTemplate.subject, feedbackEmailTemplate.html);
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid email type' },
+        { status: 400 }
       );
     }
 

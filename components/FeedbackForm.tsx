@@ -403,6 +403,25 @@ export default function FeedbackForm({
 
       console.log("Feedback submitted successfully:", data);
 
+      // Send email notification
+      const emailResponse = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'feedback',
+          to: projectLeadEmail,
+          projectName: projectName,
+          mentorName: session.user.user_metadata?.full_name || "Unknown",
+          feedback: feedback
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send feedback notification email');
+      }
+
       // Log to Magic Loop API
       await logFeedbackToMagicLoop(feedbackData);
 

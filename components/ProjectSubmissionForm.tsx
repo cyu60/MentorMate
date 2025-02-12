@@ -120,6 +120,7 @@ export function ProjectSubmissionFormComponent({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'project_submission',
           to: values.leadEmail,
           projectName: values.projectName,
           leadName: values.leadName,
