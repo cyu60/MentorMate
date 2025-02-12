@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
+import Link from "next/link";
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -446,7 +448,7 @@ export default function FeedbackForm({
     >
       {/* Project Details */}
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg">
-        <div className="border-b border-blue-200 pb-4 p-6">
+        <div className="p-4">
           <h2 className="text-blue-900 text-2xl font-semibold">
             {projectName}
           </h2>
@@ -459,8 +461,21 @@ export default function FeedbackForm({
           </p>
         </div>
 
+        {/* Sign in notice */}
+        {!session && (
+          <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mx-4 flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-sm text-blue-600">
+              <LogIn className="w-4 h-4" />
+              <span>Sign in to save progress and communicate with project members</span>
+            </div>
+            <Link href="/login" className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">
+              Sign in →
+            </Link>
+          </div>
+        )}
+
         {/* Feedback Section */}
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="mb-6 text-gray-800">
               <h3 className="font-medium text-md mb-3">
