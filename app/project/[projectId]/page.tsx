@@ -7,9 +7,6 @@ import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/FeedbackForm";
 import type { Session } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
-import { LogIn } from "lucide-react";
-import Link from "next/link";
-
 interface ProjectData {
   id: string;
   project_name: string;
