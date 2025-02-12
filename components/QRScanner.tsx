@@ -14,7 +14,6 @@ export default function QRScanner() {
     if (detectedCodes.length > 0) {
       try {
         const rawValue = detectedCodes[0].rawValue;
-        // Extract the project ID from the URL
         const projectId = rawValue.split("/").pop();
 
         if (!projectId) {

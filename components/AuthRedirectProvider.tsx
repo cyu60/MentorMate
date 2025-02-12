@@ -12,14 +12,11 @@ export function AuthRedirectProvider({
   const router = useRouter();
 
   useEffect(() => {
-    // Check for participant redirect
     const shouldRedirectToParticipant = localStorage.getItem('redirectToParticipant');
-    // Check for mentor redirect
     const shouldRedirectToMentor = localStorage.getItem('redirectToMentor');
 
     if (!shouldRedirectToParticipant && !shouldRedirectToMentor) return;
 
-    // Check immediately if we're already signed in
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (session && !error) {
@@ -34,7 +31,6 @@ export function AuthRedirectProvider({
     };
     checkSession();
 
-    // Also listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         if (shouldRedirectToParticipant) {
