@@ -55,16 +55,45 @@ function LoginContent() {
     setError("");
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters long");
         setLoading(false);
         return;
       }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      
+      if (error) {
+        const errorMessage = error.message.includes("unique")
+          ? "This email is already registered. Please sign in instead."
+          : error.message;
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      // If sign up successful, create user profile
+      if (data?.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            username: data.user.email?.split('@')[0],
+            updated_at: new Date().toISOString()
+          });
+
+        if (profileError) {
+          console.error("Error creating user profile:", profileError);
+        }
+      }
+
       setLoading(false);
+      // Redirect to participant dashboard
+      router.push("/participant");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -72,7 +101,10 @@ function LoginContent() {
         password,
       });
       if (error) {
-        setError(error.message);
+        const errorMessage = error.message.includes("Invalid")
+          ? "Invalid email or password"
+          : error.message;
+        setError(errorMessage);
         setLoading(false);
         return;
       }
@@ -81,6 +113,22 @@ function LoginContent() {
         localStorage.removeItem('redirectToParticipant');
       }
       router.push("/participant");
+    }
+  };
+
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setError("Password reset instructions sent to your email!");
     }
   };
 
@@ -182,12 +230,13 @@ function LoginContent() {
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-semibold text-blue-900 hover:text-blue-500"
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                  className="font-semibold text-blue-900 hover:text-blue-500 disabled:opacity-50"
                 >
-                  Forgot password?
-                </a>
+                  {loading ? "Sending..." : "Forgot password?"}
+                </button>
               </div>
             </div>
 
