@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 
 interface Project {
   id: string;
@@ -27,6 +28,8 @@ interface Project {
   lead_email: string;
   project_description: string;
   created_at: string;
+  teammates?: string[];
+  isTeammate?: boolean;
 }
 
 export default function ParticipantPage() {
@@ -51,6 +54,12 @@ export default function ParticipantPage() {
         router.push("/");
       } else {
         setSession(session);
+        // Check for return URL and redirect if exists
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+        }
       }
     };
     fetchSession();
@@ -61,18 +70,49 @@ export default function ParticipantPage() {
     const fetchProjects = async () => {
       if (!session) return;
       setIsLoading(true);
-      const { data, error } = await supabase
+
+      // First get the user's display name from user_profiles
+      const { data: userProfile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('display_name')
+        .eq('email', session.user.email)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch both owned projects and projects where user is a teammate
+      const { data: ownedProjects, error: ownedError } = await supabase
         .from("projects")
         .select("*")
-        // Fetch only the projects tied to the logged-in user.
-        // TODO: Fetch all projects for the user, not just the lead email.
-        .eq("lead_email", session.user.email)
-        .order("created_at", { ascending: false });
-      if (error) {
-        console.error("Error fetching projects:", error);
-      } else {
-        setExistingProjects(data || []);
+        .eq("lead_email", session.user.email);
+
+      const { data: teammateProjects, error: teammateError } = await supabase
+        .from("projects")
+        .select("*")
+        .contains('teammates', [userProfile.display_name]);
+
+      if (ownedError) {
+        console.error("Error fetching owned projects:", ownedError);
       }
+      if (teammateError) {
+        console.error("Error fetching teammate projects:", teammateError);
+      }
+
+      const owned = (ownedProjects || []).map(p => ({ ...p, isTeammate: false }));
+      const teammate = (teammateProjects || []).map(p => ({ ...p, isTeammate: true }));
+      
+      const allProjects = [...owned, ...teammate].filter((project, index, self) =>
+        index === self.findIndex((p) => p.id === project.id)
+      );
+
+      setExistingProjects(allProjects.sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ));
+      
       setIsLoading(false);
     };
     fetchProjects();
@@ -81,6 +121,7 @@ export default function ParticipantPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
+      <ReturnUrlHandler />
       <div className="flex flex-col flex-grow">
         <main className="container mx-auto mt-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
@@ -133,10 +174,17 @@ export default function ParticipantPage() {
                       {existingProjects.map((project) => (
                         <Card key={project.id}>
                           <CardHeader>
-                            <CardTitle className="text-blue-900 text-xl font-semibold">
-                              {project.project_name}
-                            </CardTitle>
-                            <CardDescription className="text-blue-100 text-sm">
+                            <div className="flex justify-between items-start gap-2">
+                              <CardTitle className="text-blue-900 text-xl font-semibold">
+                                {project.project_name}
+                              </CardTitle>
+                              {project.isTeammate && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+                                  Team Member
+                                </span>
+                              )}
+                            </div>
+                            <CardDescription className="text-gray-600 text-sm mt-2">
                               <TextGenerateEffect
                                 words={
                                   project.project_description.slice(0, 100) +

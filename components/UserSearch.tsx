@@ -8,7 +8,6 @@ const UserSearch = ({ allTags, onTagsChange, initialTags = [] }: { allTags: stri
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
 
-  // Keep filteredTags updated when allTags changes
   useEffect(() => {
     if (tagInput) {
       const value = tagInput.toLowerCase();

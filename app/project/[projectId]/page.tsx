@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/FeedbackForm";
 import type { Session } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
-
 interface ProjectData {
   id: string;
   project_name: string;
@@ -71,17 +70,15 @@ export default function ProjectFeedbackPage() {
       <Navbar />
       <h1 className="text-3xl font-bold text-center">Project Feedback</h1>
       <div className="mt-8">
-        {session && (
-          <FeedbackForm
-            projectId={projectId}
-            projectName={projectData.project_name}
-            projectDescription={projectData.project_description}
-            projectLeadEmail={projectData.lead_email}
-            projectLeadName={projectData.lead_name}
-            userName={session?.user?.user_metadata?.full_name}
-            userEmail={session?.user?.email}
-          />
-        )}
+        <FeedbackForm
+          projectId={projectId}
+          projectName={projectData.project_name}
+          projectDescription={projectData.project_description}
+          projectLeadEmail={projectData.lead_email}
+          projectLeadName={projectData.lead_name}
+          userName={session?.user?.user_metadata?.full_name}
+          userEmail={session?.user?.email}
+        />
       </div>
     </div>
   );

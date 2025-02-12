@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import UserSearch from "@/components/UserSearch"; // Correct import to match file casing
+import UserSearch from "@/components/UserSearch";
 import {
   Form,
   FormControl,
@@ -92,7 +92,7 @@ export function ProjectSubmissionFormComponent({
   }, []);
 
   const handleTeammatesChange = (tags: string[]) => {
-    form.setValue("teammates", tags); // Set the teammates directly as an array
+    form.setValue("teammates", tags);
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -114,16 +114,32 @@ export function ProjectSubmissionFormComponent({
         throw error;
       }
 
+      const emailResponse = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'project_submission',
+          to: values.leadEmail,
+          projectName: values.projectName,
+          leadName: values.leadName,
+          teammates: values.teammates || [],
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send confirmation email');
+      }
+
       toast({
         title: "Project Submitted",
         description: "Your project has been submitted for feedback.",
       });
       form.reset();
 
-      // Trigger a re-render of the participant page
       router.refresh();
 
-      // Navigate to the project dashboard
       router.push(`/participant/dashboard/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);

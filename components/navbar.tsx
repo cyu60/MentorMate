@@ -39,6 +39,10 @@ export function Navbar() {
   }, []);
 
   const handleLoginClick = () => {
+    // Save current URL before redirecting
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('returnUrl', window.location.pathname);
+    }
     router.push("/login");
   };
 

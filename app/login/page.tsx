@@ -37,48 +37,113 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/participant");
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+        } else {
+          router.push("/participant");
+        }
       }
     };
 
     checkSession();
   }, [router]);
 
-  // Handle email/password sign in
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters long");
         setLoading(false);
         return;
       }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      
+      if (error) {
+        const errorMessage = error.message.includes("unique")
+          ? "This email is already registered. Please sign in instead."
+          : error.message;
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            username: data.user.email?.split('@')[0],
+            updated_at: new Date().toISOString()
+          });
+
+        if (profileError) {
+          console.error("Error creating user profile:", profileError);
+        }
+      }
+
       setLoading(false);
+      router.push("/participant");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
       if (error) {
-        setError(error.message);
+        const errorMessage = error.message.includes("Invalid")
+          ? "Invalid email or password"
+          : error.message;
+        setError(errorMessage);
         setLoading(false);
         return;
       }
-      router.push("/participant");
+      const returnUrl = localStorage.getItem('returnUrl');
+      if (returnUrl) {
+        localStorage.removeItem('returnUrl');
+        router.push(returnUrl);
+      } else {
+        router.push("/participant");
+      }
+    }
+  };
+
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setError("Password reset instructions sent to your email!");
     }
   };
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    const returnUrl = localStorage.getItem('returnUrl');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    const options = {
+      provider,
+      options: {
+        redirectTo: `${baseUrl}/auth/callback${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`
+      }
+    };
+    const { error } = await supabase.auth.signInWithOAuth(options);
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -174,12 +239,13 @@ function LoginContent() {
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-semibold text-blue-900 hover:text-blue-500"
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                  className="font-semibold text-blue-900 hover:text-blue-500 disabled:opacity-50"
                 >
-                  Forgot password?
-                </a>
+                  {loading ? "Sending..." : "Forgot password?"}
+                </button>
               </div>
             </div>
 

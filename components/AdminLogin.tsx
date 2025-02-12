@@ -14,7 +14,6 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real application, you would verify this password against a secure backend
     if (password === 'admin123') {
       localStorage.setItem('adminLoggedIn', 'true')
       onLogin()
