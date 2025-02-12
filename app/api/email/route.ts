@@ -92,8 +92,6 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-
-      // Get project teammates
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .select('teammates')
@@ -108,22 +106,18 @@ export async function POST(request: Request) {
         );
       }
 
-      // Get teammate emails
       const teammateEmails = projectData.teammates?.length
         ? await getTeammateEmails(projectData.teammates)
         : [];
 
-      // Create email template
       const feedbackEmailTemplate = getFeedbackNotificationEmailTemplate(
         projectName,
         mentorName,
         feedback
       );
 
-      // Send to project lead
       await sendEmail(to, feedbackEmailTemplate.subject, feedbackEmailTemplate.html);
 
-      // Send to teammates
       if (teammateEmails.length > 0) {
         await Promise.all(
           teammateEmails.map(email =>

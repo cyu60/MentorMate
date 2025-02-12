@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Hero } from "@/components/Hero";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Navbar } from "@/components/navbar";
@@ -12,6 +13,8 @@ import { supabase } from "@/lib/supabase";
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
   useEffect(() => {
     const checkSession = async () => {
       const {
@@ -24,14 +27,24 @@ export default function HomePage() {
         return;
       }
       setIsLoggedIn(!!session);
+      
+      if (session) {
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+          return;
+        }
+      }
+      
       setIsLoading(false);
     };
 
     checkSession();
-  }, []);
+  }, [router]);
 
   if (isLoading) {
-    return null; // or a loading spinner if preferred
+    return null; 
   }
 
   return (

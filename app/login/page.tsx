@@ -37,18 +37,19 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        const shouldRedirect = localStorage.getItem('redirectToParticipant');
-        if (shouldRedirect) {
-          localStorage.removeItem('redirectToParticipant');
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+        } else {
+          router.push("/participant");
         }
-        router.push("/participant");
       }
     };
 
     checkSession();
   }, [router]);
 
-  // Handle email/password sign in
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -75,7 +76,6 @@ function LoginContent() {
         return;
       }
 
-      // If sign up successful, create user profile
       if (data?.user) {
         const { error: profileError } = await supabase
           .from('user_profiles')
@@ -92,13 +92,12 @@ function LoginContent() {
       }
 
       setLoading(false);
-      // Redirect to participant dashboard
       router.push("/participant");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
       if (error) {
         const errorMessage = error.message.includes("Invalid")
@@ -108,11 +107,13 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      const shouldRedirect = localStorage.getItem('redirectToParticipant');
-      if (shouldRedirect) {
-        localStorage.removeItem('redirectToParticipant');
+      const returnUrl = localStorage.getItem('returnUrl');
+      if (returnUrl) {
+        localStorage.removeItem('returnUrl');
+        router.push(returnUrl);
+      } else {
+        router.push("/participant");
       }
-      router.push("/participant");
     }
   };
 
@@ -134,7 +135,15 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    const returnUrl = localStorage.getItem('returnUrl');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    const options = {
+      provider,
+      options: {
+        redirectTo: `${baseUrl}/auth/callback${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`
+      }
+    };
+    const { error } = await supabase.auth.signInWithOAuth(options);
     if (error) {
       setError(error.message);
       setLoading(false);

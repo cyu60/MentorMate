@@ -1,19 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 
 export default function MentorPage() {
   const router = useRouter();
 
+  useEffect(() => {
+    // Check for return URL and redirect if exists
+    const returnUrl = localStorage.getItem('returnUrl');
+    if (returnUrl) {
+      localStorage.removeItem('returnUrl');
+      router.push(returnUrl);
+    }
+  }, [router]);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      {/* Sign Out Button & Session Info */}
-=======
       <Navbar />
+      <ReturnUrlHandler />
       <div className="relative z-10 container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           Mentor Dashboard

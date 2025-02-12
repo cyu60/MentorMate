@@ -468,7 +468,15 @@ export default function FeedbackForm({
               <LogIn className="w-4 h-4" />
               <span>Sign in to save progress and communicate with project members</span>
             </div>
-            <Link href="/login" className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('returnUrl', window.location.pathname);
+                }
+              }}
+            >
               Sign in →
             </Link>
           </div>

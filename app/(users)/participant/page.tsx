@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 
 interface Project {
   id: string;
@@ -53,6 +54,12 @@ export default function ParticipantPage() {
         router.push("/");
       } else {
         setSession(session);
+        // Check for return URL and redirect if exists
+        const returnUrl = localStorage.getItem('returnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('returnUrl');
+          router.push(returnUrl);
+        }
       }
     };
     fetchSession();
@@ -95,11 +102,9 @@ export default function ParticipantPage() {
         console.error("Error fetching teammate projects:", teammateError);
       }
 
-      // Combine and mark projects
       const owned = (ownedProjects || []).map(p => ({ ...p, isTeammate: false }));
       const teammate = (teammateProjects || []).map(p => ({ ...p, isTeammate: true }));
       
-      // Remove duplicates in case user is both owner and teammate
       const allProjects = [...owned, ...teammate].filter((project, index, self) =>
         index === self.findIndex((p) => p.id === project.id)
       );
@@ -116,6 +121,7 @@ export default function ParticipantPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
+      <ReturnUrlHandler />
       <div className="flex flex-col flex-grow">
         <main className="container mx-auto mt-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
