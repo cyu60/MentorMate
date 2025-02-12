@@ -414,7 +414,8 @@ export default function FeedbackForm({
           to: projectLeadEmail,
           projectName: projectName,
           mentorName: session.user.user_metadata?.full_name || "Unknown",
-          feedback: feedback
+          feedback: feedback,
+          projectId: projectId
         }),
       });
 

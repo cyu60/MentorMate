@@ -84,21 +84,53 @@ export async function POST(request: Request) {
         );
       }
     } else if (type === 'feedback') {
-      const { to, projectName, mentorName, feedback } = data;
+      const { to, projectName, mentorName, feedback, projectId } = data;
 
-      if (!to || !projectName || !mentorName || !feedback) {
+      if (!to || !projectName || !mentorName || !feedback || !projectId) {
         return NextResponse.json(
           { error: 'Missing required fields for feedback notification' },
           { status: 400 }
         );
       }
 
+      // Get project teammates
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('teammates')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError) {
+        console.error('Error fetching project teammates:', projectError);
+        return NextResponse.json(
+          { error: 'Failed to fetch project teammates' },
+          { status: 500 }
+        );
+      }
+
+      // Get teammate emails
+      const teammateEmails = projectData.teammates?.length
+        ? await getTeammateEmails(projectData.teammates)
+        : [];
+
+      // Create email template
       const feedbackEmailTemplate = getFeedbackNotificationEmailTemplate(
         projectName,
         mentorName,
         feedback
       );
+
+      // Send to project lead
       await sendEmail(to, feedbackEmailTemplate.subject, feedbackEmailTemplate.html);
+
+      // Send to teammates
+      if (teammateEmails.length > 0) {
+        await Promise.all(
+          teammateEmails.map(email =>
+            sendEmail(email, feedbackEmailTemplate.subject, feedbackEmailTemplate.html)
+          )
+        );
+      }
     } else {
       return NextResponse.json(
         { error: 'Invalid email type' },
