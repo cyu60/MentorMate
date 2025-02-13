@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
@@ -65,7 +65,7 @@ export default function ParticipantPage() {
     fetchSession();
   }, [router]);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
       if (!session) return;
       setIsLoading(true);
 
@@ -152,12 +152,12 @@ export default function ParticipantPage() {
       );
 
       setIsLoading(false);
-    };
+    }, [session, setIsLoading, setExistingProjects]);
 
   // Once the session is available, fetch the projects from Supabase
   useEffect(() => {
     fetchProjects();
-  }, [session]);
+  }, [session, fetchProjects]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">

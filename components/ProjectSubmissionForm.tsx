@@ -46,9 +46,11 @@ const formSchema = z.object({
 export function ProjectSubmissionFormComponent({
   userEmail,
   leadName,
+  onProjectSubmitted,
 }: {
   userEmail?: string;
   leadName?: string;
+  onProjectSubmitted?: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -138,6 +140,7 @@ export function ProjectSubmissionFormComponent({
       });
       form.reset();
 
+      onProjectSubmitted?.();
       router.push(`/participant/dashboard/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);
