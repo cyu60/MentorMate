@@ -99,10 +99,14 @@ export default function FeedbackForm({
   const [session, setSession] = useState<Session | null>(null);
   const [supabaseClient] = useState(() => createClient());
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
+    null
+  );
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
-  const [usedSuggestions, setUsedSuggestions] = useState<Set<string>>(new Set(['original']));
-  
+  const [usedSuggestions, setUsedSuggestions] = useState<Set<string>>(
+    new Set(["original"])
+  );
+
   // Log usedSuggestions changes
   useEffect(() => {
     console.log("usedSuggestions updated:", Array.from(usedSuggestions));
@@ -110,28 +114,29 @@ export default function FeedbackForm({
 
   // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       type SpeechRecognitionWindow = {
         SpeechRecognition?: new () => SpeechRecognition;
         webkitSpeechRecognition?: new () => SpeechRecognition;
       };
 
-      const SpeechRecognitionConstructor = (
-        (window as SpeechRecognitionWindow).SpeechRecognition ||
-        (window as SpeechRecognitionWindow).webkitSpeechRecognition
-      ) as new () => SpeechRecognition;
+      const SpeechRecognitionConstructor = ((window as SpeechRecognitionWindow)
+        .SpeechRecognition ||
+        (window as SpeechRecognitionWindow)
+          .webkitSpeechRecognition) as new () => SpeechRecognition;
 
       if (SpeechRecognitionConstructor) {
         const recognition = new SpeechRecognitionConstructor();
         recognition.continuous = true;
         recognition.interimResults = true;
-        
+
         recognition.onresult = (event: SpeechRecognitionEvent) => {
           const lastResult = event.results[event.results.length - 1];
-          const transcript = (lastResult[0] as SpeechRecognitionAlternative).transcript;
-          
+          const transcript = (lastResult[0] as SpeechRecognitionAlternative)
+            .transcript;
+
           if (lastResult.isFinal) {
-            setFeedback(prev => {
+            setFeedback((prev) => {
               const newText = transcript.trim();
               return prev ? `${prev} ${newText}` : newText;
             });
@@ -147,7 +152,7 @@ export default function FeedbackForm({
         };
 
         recognition.onerror = (event: { error: string }) => {
-          console.error('Speech recognition error:', event.error);
+          console.error("Speech recognition error:", event.error);
           setIsListening(false);
           setCurrentTranscript("");
         };
@@ -159,7 +164,7 @@ export default function FeedbackForm({
 
   const toggleListening = () => {
     if (!recognition) return;
-    
+
     if (isListening) {
       recognition.stop();
       setIsListening(false);
@@ -247,36 +252,124 @@ export default function FeedbackForm({
 
       // Common words to filter out
       const commonWords = new Set([
-        'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
-        'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
-        'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
-        'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
-        'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
-        'project', 'could', 'can', 'just', 'should', 'now', 'work', 'like', 'any',
-        'also', 'into', 'only', 'see', 'use', 'way', 'than', 'find', 'day', 'more',
-        'your', 'such', 'make', 'want', 'look', 'these', 'know', 'because', 'good',
-        'people', 'year', 'take', 'well', 'some', 'when', 'then', 'other', 'how',
-        'our', 'two', 'more', 'time', 'very'
+        "the",
+        "be",
+        "to",
+        "of",
+        "and",
+        "a",
+        "in",
+        "that",
+        "have",
+        "i",
+        "it",
+        "for",
+        "not",
+        "on",
+        "with",
+        "he",
+        "as",
+        "you",
+        "do",
+        "at",
+        "this",
+        "but",
+        "his",
+        "by",
+        "from",
+        "they",
+        "we",
+        "say",
+        "her",
+        "she",
+        "or",
+        "an",
+        "will",
+        "my",
+        "one",
+        "all",
+        "would",
+        "there",
+        "their",
+        "what",
+        "so",
+        "up",
+        "out",
+        "if",
+        "about",
+        "who",
+        "get",
+        "which",
+        "go",
+        "me",
+        "project",
+        "could",
+        "can",
+        "just",
+        "should",
+        "now",
+        "work",
+        "like",
+        "any",
+        "also",
+        "into",
+        "only",
+        "see",
+        "use",
+        "way",
+        "than",
+        "find",
+        "day",
+        "more",
+        "your",
+        "such",
+        "make",
+        "want",
+        "look",
+        "these",
+        "know",
+        "because",
+        "good",
+        "people",
+        "year",
+        "take",
+        "well",
+        "some",
+        "when",
+        "then",
+        "other",
+        "how",
+        "our",
+        "two",
+        "more",
+        "time",
+        "very",
       ]);
 
       // Helper function to get significant words (excluding common words)
       const getSignificantWords = (text: string): string[] => {
-        return text.toLowerCase()
+        return text
+          .toLowerCase()
           .split(/\s+/)
-          .filter(word => !commonWords.has(word) && word.length > 2);
+          .filter((word) => !commonWords.has(word) && word.length > 2);
       };
 
       // Helper function to find consecutive matching words
-      const findConsecutiveMatches = (source: string[], target: string[]): number => {
+      const findConsecutiveMatches = (
+        source: string[],
+        target: string[]
+      ): number => {
         let maxConsecutive = 0;
         let current = 0;
-        
+
         for (let i = 0; i < source.length; i++) {
           for (let j = 0; j < target.length; j++) {
             current = 0;
-            while (i + current < source.length &&
-                   j + current < target.length &&
-                   source[i + current] === target[j + current]) {
+            while (
+              i + current < source.length &&
+              j + current < target.length &&
+              source[i + current] === target[j + current]
+            ) {
               current++;
             }
             maxConsecutive = Math.max(maxConsecutive, current);
@@ -285,48 +378,88 @@ export default function FeedbackForm({
         return maxConsecutive;
       };
 
-      console.log("Starting tag validation with tags:", Array.from(usedSuggestions));
-      
+      console.log(
+        "Starting tag validation with tags:",
+        Array.from(usedSuggestions)
+      );
+
       // Validate tags based on content analysis
       const validatedTags = new Set<string>();
       const finalWords = getSignificantWords(feedback);
-      
+
       // Validate each tag in usedSuggestions
       console.log("Analyzing final content:", feedback);
-      console.log("Used suggestions before validation:", Array.from(usedSuggestions));
+      console.log(
+        "Used suggestions before validation:",
+        Array.from(usedSuggestions)
+      );
       console.log("Available AI suggestions:", aiSuggestions);
       for (const tag of usedSuggestions) {
         console.log("\nValidating tag:", tag);
-        if (tag === 'original') {
+        if (tag === "original") {
           const originalWords = getSignificantWords(originalFeedback);
-          const originalConsecutive = findConsecutiveMatches(originalWords, finalWords);
+          const originalConsecutive = findConsecutiveMatches(
+            originalWords,
+            finalWords
+          );
           const originalThreshold = 3;
-          console.log("Validating original tag:", originalConsecutive, ">=", originalThreshold);
+          console.log(
+            "Validating original tag:",
+            originalConsecutive,
+            ">=",
+            originalThreshold
+          );
           if (originalConsecutive >= originalThreshold) {
-            validatedTags.add('original');
+            validatedTags.add("original");
           }
-        } else if (tag === 'more_positive' && aiSuggestions?.["more positive"]) {
-          const positiveWords = getSignificantWords(aiSuggestions["more positive"]);
-          const positiveConsecutive = findConsecutiveMatches(positiveWords, finalWords);
+        } else if (
+          tag === "more_positive" &&
+          aiSuggestions?.["more positive"]
+        ) {
+          const positiveWords = getSignificantWords(
+            aiSuggestions["more positive"]
+          );
+          const positiveConsecutive = findConsecutiveMatches(
+            positiveWords,
+            finalWords
+          );
           const positiveThreshold = 3;
-          console.log("Validating more_positive tag:", positiveConsecutive, ">=", positiveThreshold);
+          console.log(
+            "Validating more_positive tag:",
+            positiveConsecutive,
+            ">=",
+            positiveThreshold
+          );
           if (positiveConsecutive >= positiveThreshold) {
-            validatedTags.add('more_positive');
+            validatedTags.add("more_positive");
           }
-        } else if (tag === 'more_specific' && aiSuggestions?.["more specific"]) {
-          const specificWords = getSignificantWords(aiSuggestions["more specific"]);
-          const specificConsecutive = findConsecutiveMatches(specificWords, finalWords);
+        } else if (
+          tag === "more_specific" &&
+          aiSuggestions?.["more specific"]
+        ) {
+          const specificWords = getSignificantWords(
+            aiSuggestions["more specific"]
+          );
+          const specificConsecutive = findConsecutiveMatches(
+            specificWords,
+            finalWords
+          );
           const specificThreshold = 3;
-          console.log("Validating more_specific tag:", specificConsecutive, ">=", specificThreshold);
+          console.log(
+            "Validating more_specific tag:",
+            specificConsecutive,
+            ">=",
+            specificThreshold
+          );
           if (specificConsecutive >= specificThreshold) {
-            validatedTags.add('more_specific');
+            validatedTags.add("more_specific");
           }
         }
       }
 
       // If no tags were validated, it's completely original
       if (validatedTags.size === 0) {
-        validatedTags.add('original');
+        validatedTags.add("original");
       }
 
       console.log("Final validated tags:", Array.from(validatedTags));
@@ -347,7 +480,7 @@ export default function FeedbackForm({
         specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
         positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
         actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
-        modifier_field: Array.from(usedSuggestions)
+        modifier_field: Array.from(usedSuggestions),
       };
 
       // First get the project UUID
@@ -376,7 +509,7 @@ export default function FeedbackForm({
           modifier_field: Array.from(usedSuggestions),
           specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
           positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
-          actionable_ai_suggestion: aiSuggestions?.["more actionable"] || ""
+          actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
         },
       ]);
 
@@ -393,23 +526,23 @@ export default function FeedbackForm({
       console.log("Feedback submitted successfully:", data);
 
       // Send email notification
-      const emailResponse = await fetch('/api/email', {
-        method: 'POST',
+      const emailResponse = await fetch("/api/email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          type: 'feedback',
+          type: "feedback",
           to: projectLeadEmail,
           projectName: projectName,
           mentorName: session?.user?.user_metadata?.full_name || null,
           feedback: feedback,
-          projectId: projectId
+          projectId: projectId,
         }),
       });
 
       if (!emailResponse.ok) {
-        console.error('Failed to send feedback notification email');
+        console.error("Failed to send feedback notification email");
       }
 
       // Log to Magic Loop API
@@ -466,14 +599,16 @@ export default function FeedbackForm({
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mx-4 flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-blue-600">
               <LogIn className="w-4 h-4" />
-              <span>Sign in to save progress and communicate with project members</span>
+              <span>
+                Sign in to save progress and communicate with project members
+              </span>
             </div>
             <Link
               href="/login"
               className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors"
               onClick={() => {
-                if (typeof window !== 'undefined') {
-                  localStorage.setItem('returnUrl', window.location.pathname);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("returnUrl", window.location.pathname);
                 }
               }}
             >
@@ -519,13 +654,15 @@ export default function FeedbackForm({
                   type="button"
                   onClick={toggleListening}
                   className={`absolute right-2 top-2 p-2 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-2 z-10 shadow-sm border border-blue-100 ${
-                    isListening ? 'bg-blue-100' : 'bg-blue-50'
+                    isListening ? "bg-blue-100" : "bg-blue-50"
                   }`}
                   title={isListening ? "Stop recording" : "Start voice input"}
                 >
                   <span className="text-sm">
                     {isListening ? (
-                      <span className="text-red-500 animate-pulse">Listening...</span>
+                      <span className="text-red-500 animate-pulse">
+                        Listening...
+                      </span>
                     ) : (
                       <span className="text-blue-500">Voice input</span>
                     )}
@@ -586,7 +723,10 @@ export default function FeedbackForm({
                           <Button
                             type="button"
                             onClick={() => {
-                              console.log("Replace clicked for category:", category);
+                              console.log(
+                                "Replace clicked for category:",
+                                category
+                              );
                               setFeedback(suggestion);
                               const newTags = new Set<string>();
                               console.log("Raw category:", category);
@@ -595,13 +735,14 @@ export default function FeedbackForm({
                               const tagMap: { [key: string]: string } = {
                                 "more specific": "more_specific",
                                 "more positive": "more_positive",
-                                "more actionable": "more_actionable"
+                                "more actionable": "more_actionable",
                               };
-                              const tagToAdd = tagMap[category] || category.replace(/ /g, "_");
+                              const tagToAdd =
+                                tagMap[category] || category.replace(/ /g, "_");
                               console.log("Converted to tag:", tagToAdd);
                               console.log("Adding tag:", tagToAdd);
                               newTags.add(tagToAdd);
-                              newTags.add('original');
+                              newTags.add("original");
                               console.log("Final tags:", Array.from(newTags));
                               setUsedSuggestions(newTags);
                             }}
@@ -612,26 +753,33 @@ export default function FeedbackForm({
                           <Button
                             type="button"
                             onClick={() => {
-                              console.log("Add Below clicked for category:", category);
+                              console.log(
+                                "Add Below clicked for category:",
+                                category
+                              );
                               setFeedback((prev) => `${prev}\n\n${suggestion}`);
                               // Create new Set from existing tags
                               const newTags = new Set(usedSuggestions);
-                              console.log("Add Below: Starting with tags:", Array.from(newTags));
+                              console.log(
+                                "Add Below: Starting with tags:",
+                                Array.from(newTags)
+                              );
                               console.log("Raw category:", category);
                               // Convert category to tag format
                               // Map category directly to tag name
                               const tagMap: { [key: string]: string } = {
                                 "more specific": "more_specific",
                                 "more positive": "more_positive",
-                                "more actionable": "more_actionable"
+                                "more actionable": "more_actionable",
                               };
-                              const tagToAdd = tagMap[category] || category.replace(/ /g, "_");
+                              const tagToAdd =
+                                tagMap[category] || category.replace(/ /g, "_");
                               console.log("Converted to tag:", tagToAdd);
                               console.log("Current tags:", Array.from(newTags));
                               console.log("Adding tag:", tagToAdd);
                               newTags.add(tagToAdd);
-                              if (!newTags.has('original')) {
-                                newTags.add('original');
+                              if (!newTags.has("original")) {
+                                newTags.add("original");
                               }
                               console.log("Final tags:", Array.from(newTags));
                               setUsedSuggestions(newTags);

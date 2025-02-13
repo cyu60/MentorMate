@@ -114,16 +114,16 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="container m-0 p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
+    <div className="container m-0 p-0 sm:p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
       <Navbar />
       <h1 className="text-3xl font-bold mb-8 text-center">
         Feedback for {projectData.project_name}
       </h1>
-      <div className="mb-6">
+      <div className="w-full max-w-4xl px-4 sm:px-0 mb-6 mx-auto">
         <Link href={`/participant/dashboard/${projectId}`}>
-          <Button className="button-gradient text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center">
-            <ChevronLeft />
-            Project Details
+          <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>Project Details</span>
           </Button>
         </Link>
       </div>
@@ -157,7 +157,22 @@ export default function FeedbackPage() {
             ))}
           </ul>
         ) : (
-          <p className="text-center text-gray-500">No feedback received yet.</p>
+          <div className="flex flex-col items-center justify-center space-y-4 mt-12 px-4">
+            <div className="text-center space-y-3">
+              <h3 className="text-xl font-semibold text-gray-700">
+                No Feedback Yet
+              </h3>
+              <p className="text-gray-500 max-w-sm">
+                Share your project with mentors to receive valuable feedback and
+                insights!
+              </p>
+            </div>
+            <Link href={`/participant/dashboard/${projectId}`}>
+              <Button className="button-gradient text-white font-semibold py-6 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
+                Request Your First Feedback! 💡
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
     </div>

@@ -41,7 +41,10 @@ export default function ProjectFeedbackPage() {
     };
 
     const fetchSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (error) {
         console.error("Error fetching session:", error);
       } else {

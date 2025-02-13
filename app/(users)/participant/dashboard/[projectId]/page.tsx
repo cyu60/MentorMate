@@ -269,19 +269,19 @@ export default function ParticipantDashboard() {
           </h1>
         </div>
 
-        <div className="w-full max-w-4xl mb-6">
+        <div className="w-full max-w-4xl px-4 sm:px-0 mb-6">
           <Link href="/participant">
-            <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center">
-              <ChevronLeft />
-              Dashboard
+            <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Dashboard</span>
             </Button>
           </Link>
         </div>
 
         <div className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl">
           <div className="flex flex-col md:flex-row items-start gap-8">
-            <div className="flex flex-col items-center md:items-start">
-              <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="flex flex-col items-center w-full md:w-auto md:items-start">
+              <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
                 <QRCode value={fullUrl} size={200} id="project-qr-code" />
               </div>
               <div className="mt-4 space-y-2 w-full">

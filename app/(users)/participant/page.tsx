@@ -55,9 +55,9 @@ export default function ParticipantPage() {
       } else {
         setSession(session);
         // Check for return URL and redirect if exists
-        const returnUrl = localStorage.getItem('returnUrl');
+        const returnUrl = localStorage.getItem("returnUrl");
         if (returnUrl) {
-          localStorage.removeItem('returnUrl');
+          localStorage.removeItem("returnUrl");
           router.push(returnUrl);
         }
       }
@@ -73,9 +73,9 @@ export default function ParticipantPage() {
 
       // First get the user's display name from user_profiles
       const { data: userProfile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('display_name')
-        .eq('email', session.user.email)
+        .from("user_profiles")
+        .select("display_name")
+        .eq("email", session.user.email)
         .single();
 
       if (profileError) {
@@ -93,7 +93,7 @@ export default function ParticipantPage() {
       const { data: teammateProjects, error: teammateError } = await supabase
         .from("projects")
         .select("*")
-        .contains('teammates', [userProfile.display_name]);
+        .contains("teammates", [userProfile.display_name]);
 
       if (ownedError) {
         console.error("Error fetching owned projects:", ownedError);
@@ -102,17 +102,27 @@ export default function ParticipantPage() {
         console.error("Error fetching teammate projects:", teammateError);
       }
 
-      const owned = (ownedProjects || []).map(p => ({ ...p, isTeammate: false }));
-      const teammate = (teammateProjects || []).map(p => ({ ...p, isTeammate: true }));
-      
-      const allProjects = [...owned, ...teammate].filter((project, index, self) =>
-        index === self.findIndex((p) => p.id === project.id)
+      const owned = (ownedProjects || []).map((p) => ({
+        ...p,
+        isTeammate: false,
+      }));
+      const teammate = (teammateProjects || []).map((p) => ({
+        ...p,
+        isTeammate: true,
+      }));
+
+      const allProjects = [...owned, ...teammate].filter(
+        (project, index, self) =>
+          index === self.findIndex((p) => p.id === project.id)
       );
 
-      setExistingProjects(allProjects.sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ));
-      
+      setExistingProjects(
+        allProjects.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+      );
+
       setIsLoading(false);
     };
     fetchProjects();
@@ -166,48 +176,67 @@ export default function ParticipantPage() {
                   transition={{ duration: 0.5 }}
                   className="mb-16"
                 >
-                  <h2 className="text-xl font-semibold mt-6 mb-6 text-black px-20">
-                    Your Projects
-                  </h2>
                   {existingProjects.length > 0 ? (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-20">
-                      {existingProjects.map((project) => (
-                        <Card key={project.id}>
-                          <CardHeader>
-                            <div className="flex justify-between items-start gap-2">
-                              <CardTitle className="text-blue-900 text-xl font-semibold">
-                                {project.project_name}
-                              </CardTitle>
-                              {project.isTeammate && (
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
-                                  Team Member
-                                </span>
-                              )}
-                            </div>
-                            <CardDescription className="text-gray-600 text-sm mt-2">
-                              <TextGenerateEffect
-                                words={
-                                  project.project_description.slice(0, 100) +
-                                  "..."
-                                }
-                                className="text-md font-light"
-                              />
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Link href={`/participant/dashboard/${project.id}`}>
-                              <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                                View Project
-                              </Button>
-                            </Link>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                    <>
+                      <h2 className="text-xl font-semibold mt-6 mb-6 text-black px-20">
+                        Your Projects
+                      </h2>
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-20">
+                        {existingProjects.map((project) => (
+                          <Card key={project.id}>
+                            <CardHeader>
+                              <div className="flex justify-between items-start gap-2">
+                                <CardTitle className="text-blue-900 text-xl font-semibold">
+                                  {project.project_name}
+                                </CardTitle>
+                                {project.isTeammate && (
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+                                    Team Member
+                                  </span>
+                                )}
+                              </div>
+                              <CardDescription className="text-gray-600 text-sm mt-2">
+                                <TextGenerateEffect
+                                  words={
+                                    project.project_description.slice(0, 100) +
+                                    "..."
+                                  }
+                                  className="text-md font-light"
+                                />
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <Link
+                                href={`/participant/dashboard/${project.id}`}
+                              >
+                                <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                                  View Project
+                                </Button>
+                              </Link>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </>
                   ) : (
-                    <p className="text-center text-gray-500 text-md font-bold">
-                      No Project Submitted
-                    </p>
+                    <div className="flex flex-col items-center justify-center space-y-4 mt-12 px-4">
+                      <div className="text-center space-y-3">
+                        <h3 className="text-xl font-semibold text-gray-700">
+                          No Projects Yet
+                          {/* {JSON.stringify(existingProjects)} */}
+                        </h3>
+                        <p className="text-gray-500 max-w-sm">
+                          Start your journey by creating your first project. It
+                          only takes a few minutes!
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => setActiveTab("submit")}
+                        className="button-gradient text-white font-semibold py-6 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
+                      >
+                        Create Your First Project! 🚀
+                      </Button>
+                    </div>
                   )}
                 </motion.div>
               )}
