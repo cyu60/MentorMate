@@ -138,8 +138,6 @@ export function ProjectSubmissionFormComponent({
       });
       form.reset();
 
-      router.refresh();
-
       router.push(`/participant/dashboard/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);

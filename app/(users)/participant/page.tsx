@@ -65,24 +65,48 @@ export default function ParticipantPage() {
     fetchSession();
   }, [router]);
 
-  // Once the session is available, fetch the projects from Supabase
-  useEffect(() => {
-    const fetchProjects = async () => {
+  const fetchProjects = async () => {
       if (!session) return;
       setIsLoading(true);
 
       // First get the user's display name from user_profiles
-      const { data: userProfile, error: profileError } = await supabase
+      console.log("Fetching projects for email:", session.user.email);
+      
+      // Try to get or create user profile
+      let userProfile;
+      const { data: existingProfile, error: profileError } = await supabase
         .from("user_profiles")
-        .select("display_name")
+        .select()
         .eq("email", session.user.email)
         .single();
 
-      if (profileError) {
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        const { data: newProfile, error: createError } = await supabase
+          .from("user_profiles")
+          .insert({
+            email: session.user.email,
+            display_name: session.user.email?.split('@')[0],
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Error creating user profile:", createError);
+          setIsLoading(false);
+          return;
+        }
+        userProfile = newProfile;
+      } else if (profileError) {
         console.error("Error fetching user profile:", profileError);
         setIsLoading(false);
         return;
+      } else {
+        userProfile = existingProfile;
       }
+
+      console.log("User profile:", userProfile);
 
       // Fetch both owned projects and projects where user is a teammate
       const { data: ownedProjects, error: ownedError } = await supabase
@@ -90,10 +114,14 @@ export default function ParticipantPage() {
         .select("*")
         .eq("lead_email", session.user.email);
 
+      console.log("Owned projects:", ownedProjects);
+
       const { data: teammateProjects, error: teammateError } = await supabase
         .from("projects")
         .select("*")
         .contains("teammates", [userProfile.display_name]);
+
+      console.log("Teammate projects:", teammateProjects);
 
       if (ownedError) {
         console.error("Error fetching owned projects:", ownedError);
@@ -125,6 +153,9 @@ export default function ParticipantPage() {
 
       setIsLoading(false);
     };
+
+  // Once the session is available, fetch the projects from Supabase
+  useEffect(() => {
     fetchProjects();
   }, [session]);
 
@@ -253,6 +284,11 @@ export default function ParticipantPage() {
                       <ProjectSubmissionFormComponent
                         userEmail={session?.user?.email}
                         leadName={session?.user?.user_metadata?.full_name}
+                        onProjectSubmitted={() => {
+                          console.log("Project submitted, fetching updated projects...");
+                          setActiveTab("projects");
+                          fetchProjects();
+                        }}
                       />
                     </CardContent>
                   </Card>
