@@ -115,10 +115,10 @@ export function Navbar() {
               ) : (
                 <Button
                   size="lg"
-                  className="bg-black text-white font-semibold py-2 px-4 rounded-full hover:bg-gray-800 transition-all duration-300 w-40"
+                  className="bg-black text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800 transition-all duration-300"
                   onClick={handleLoginClick}
                 >
-                  Sign Up/Login
+                  Login
                 </Button>
               )}
             </div>
