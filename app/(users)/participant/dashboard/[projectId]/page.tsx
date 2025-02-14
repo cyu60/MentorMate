@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { ChevronLeft, Edit2, X, Download, Copy, ExternalLink } from "lucide-reac
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import UserSearch from "../../../../../components/UserSearch";
@@ -36,16 +37,24 @@ export default function ParticipantDashboard() {
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   const getFileNameFromUrl = (url: string) => {
     const pathParts = url.split('/');
     const fileName = pathParts[pathParts.length - 1];
-    // Remove any query parameters
     return decodeURIComponent(fileName.split('?')[0]);
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('saved') === 'true') {
+      toast({
+        title: "Success",
+        description: "Project information updated successfully",
+      });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     console.log("Fetching users...");
     const fetchUsers = async () => {
       const { data, error } = await supabase
@@ -110,7 +119,6 @@ export default function ParticipantDashboard() {
     try {
       let additionalMaterialsUrl = editedData.additional_materials_url;
 
-      // Handle file upload if a new file is selected
       if (selectedFile) {
         if (selectedFile.size > MAX_FILE_SIZE) {
           toast({
@@ -162,10 +170,7 @@ export default function ParticipantDashboard() {
       });
       setIsEditing(false);
       setSelectedFile(null);
-      toast({
-        title: "Success",
-        description: "Project information updated successfully",
-      });
+      window.location.href = `${window.location.pathname}?saved=true`;
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error updating project:", error.message);
@@ -306,6 +311,7 @@ export default function ParticipantDashboard() {
 
   return (
     <div>
+      <Toaster />
       <Navbar />
       <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <div className="w-full max-w-4xl">

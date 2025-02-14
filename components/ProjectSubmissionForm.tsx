@@ -350,7 +350,6 @@ export function ProjectSubmissionFormComponent({
                         onClick={() => {
                           setSelectedFile(null);
                           onChange(undefined);
-                          // Reset the file input by recreating it
                           const fileInput = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
                           if (fileInput) {
                             fileInput.value = '';

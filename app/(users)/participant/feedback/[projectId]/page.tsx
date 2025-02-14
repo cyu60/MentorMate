@@ -39,7 +39,6 @@ export default function FeedbackPage() {
 
       setIsLoading(true);
 
-      // Fetch project data
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("*")
@@ -54,7 +53,6 @@ export default function FeedbackPage() {
 
       setProjectData(projectData);
 
-      // Fetch feedback
       const { data: feedbackData, error: feedbackError } = await supabase
         .from("feedback")
         .select("*")
@@ -63,7 +61,7 @@ export default function FeedbackPage() {
 
       if (feedbackError) {
         console.error("Error fetching feedback:", feedbackError);
-        setFeedback([]); // Clear feedback on error
+        setFeedback([]);
         toast({
           title: "Error",
           description: "Failed to fetch feedback. Please try again later.",
@@ -134,7 +132,7 @@ export default function FeedbackPage() {
   }
 
   const getInitials = (name: string | null) => {
-    if (!name) return "?"; // Return a fallback for null/undefined names
+    if (!name) return "?";
     const names = name.trim().split(" ");
     const initials = names.map((n) => n[0]).join("");
     return initials.toUpperCase();
@@ -197,13 +195,11 @@ export default function FeedbackPage() {
                 key={item.id}
                 className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow backdrop-blur-md"
               >
-                {/* Avatar */}
                 <div className="flex-shrink-0">
                   <div className="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-white font-bold">
                     {getInitials(item.mentor_name)}
                   </div>
                 </div>
-                {/* Comment Content */}
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-gray-800">

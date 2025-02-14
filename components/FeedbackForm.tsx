@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { LogIn, ExternalLink, Download } from "lucide-react";
 import Link from "next/link";
 
-// Web Speech API types
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -111,12 +110,10 @@ export default function FeedbackForm({
     new Set(["original"])
   );
 
-  // Log usedSuggestions changes
   useEffect(() => {
     console.log("usedSuggestions updated:", Array.from(usedSuggestions));
   }, [usedSuggestions]);
 
-  // Initialize speech recognition
   useEffect(() => {
     if (typeof window !== "undefined") {
       type SpeechRecognitionWindow = {
@@ -254,7 +251,6 @@ export default function FeedbackForm({
       const originalFeedback =
         localStorage.getItem("originalFeedback") || feedback;
 
-      // Common words to filter out
       const commonWords = new Set([
         "the",
         "be",
@@ -350,7 +346,6 @@ export default function FeedbackForm({
         "very",
       ]);
 
-      // Helper function to get significant words (excluding common words)
       const getSignificantWords = (text: string): string[] => {
         return text
           .toLowerCase()
@@ -358,7 +353,6 @@ export default function FeedbackForm({
           .filter((word) => !commonWords.has(word) && word.length > 2);
       };
 
-      // Helper function to find consecutive matching words
       const findConsecutiveMatches = (
         source: string[],
         target: string[]
@@ -461,7 +455,6 @@ export default function FeedbackForm({
         }
       }
 
-      // If no tags were validated, it's completely original
       if (validatedTags.size === 0) {
         validatedTags.add("original");
       }
@@ -487,7 +480,6 @@ export default function FeedbackForm({
         modifier_field: Array.from(usedSuggestions),
       };
 
-      // First get the project UUID
       const { data: projectData, error: projectError } = await supabaseClient
         .from("projects")
         .select("id")
@@ -501,7 +493,6 @@ export default function FeedbackForm({
 
       console.log("Found project:", projectData);
 
-      // Then submit feedback with the project UUID and let Supabase handle id generation
       const { data, error } = await supabaseClient.from("feedback").insert([
         {
           project_id: projectData.id,
@@ -583,7 +574,6 @@ export default function FeedbackForm({
       transition={{ duration: 0.5 }}
       className="w-full mx-auto px-4"
     >
-      {/* Project Details */}
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg">
         <div className="p-4">
           <h2 className="text-blue-900 text-2xl font-semibold">
@@ -603,7 +593,6 @@ export default function FeedbackForm({
           </div>
         </div>
 
-        {/* Project Resources */}
         {(project_url || additional_materials_url) && (
           <div className="p-4 space-y-2">
             {project_url && (
@@ -635,7 +624,6 @@ export default function FeedbackForm({
           </div>
         )}
 
-        {/* Sign in notice */}
         {!session && (
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mx-4 flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-blue-600">
@@ -658,7 +646,6 @@ export default function FeedbackForm({
           </div>
         )}
 
-        {/* Feedback Section */}
         <div className="space-y-4 p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="mb-6 text-gray-800">
@@ -722,7 +709,6 @@ export default function FeedbackForm({
               )}
             </div>
 
-            {/* AI Improvement Button */}
             {!hasImprovedWithAI && (
               <Button
                 type="button"
@@ -744,7 +730,6 @@ export default function FeedbackForm({
               </Button>
             )}
 
-            {/* AI Suggestions */}
             {aiSuggestions && (
               <Card className="bg-blue-50 border-blue-200 mt-4 p-4 rounded-lg">
                 <h3 className="text-blue-900 text-lg font-semibold mb-4">
@@ -837,7 +822,6 @@ export default function FeedbackForm({
               </Card>
             )}
 
-            {/* Submit Button */}
             {showSubmitButton && !isSubmitting && (
               <Button
                 type="submit"

@@ -177,7 +177,6 @@ function LoginContent() {
             </div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -199,7 +198,6 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -221,7 +219,6 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Options */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input

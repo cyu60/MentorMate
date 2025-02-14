@@ -39,7 +39,6 @@ export default function ParticipantPage() {
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects");
   const [session, setSession] = useState<Session | null>(null);
 
-  // First fetch the session
   useEffect(() => {
     const fetchSession = async () => {
       const {
@@ -54,7 +53,6 @@ export default function ParticipantPage() {
         router.push("/");
       } else {
         setSession(session);
-        // Check for return URL and redirect if exists
         const returnUrl = localStorage.getItem("returnUrl");
         if (returnUrl) {
           localStorage.removeItem("returnUrl");
@@ -69,10 +67,8 @@ export default function ParticipantPage() {
       if (!session) return;
       setIsLoading(true);
 
-      // First get the user's display name from user_profiles
       console.log("Fetching projects for email:", session.user.email);
       
-      // Try to get or create user profile
       let userProfile;
       const { data: existingProfile, error: profileError } = await supabase
         .from("user_profiles")
@@ -81,7 +77,6 @@ export default function ParticipantPage() {
         .single();
 
       if (profileError && profileError.code === 'PGRST116') {
-        // Profile doesn't exist, create it
         const { data: newProfile, error: createError } = await supabase
           .from("user_profiles")
           .insert({
@@ -108,7 +103,6 @@ export default function ParticipantPage() {
 
       console.log("User profile:", userProfile);
 
-      // Fetch both owned projects and projects where user is a teammate
       const { data: ownedProjects, error: ownedError } = await supabase
         .from("projects")
         .select("*")
@@ -154,7 +148,6 @@ export default function ParticipantPage() {
       setIsLoading(false);
     }, [session, setIsLoading, setExistingProjects]);
 
-  // Once the session is available, fetch the projects from Supabase
   useEffect(() => {
     fetchProjects();
   }, [session, fetchProjects]);
@@ -169,7 +162,6 @@ export default function ParticipantPage() {
             Participant Dashboard
           </h1>
 
-          {/* Navigation for Projects / Submit Project */}
           <div className="flex justify-center gap-4">
             <Button
               onClick={() => setActiveTab("projects")}
@@ -193,7 +185,6 @@ export default function ParticipantPage() {
             </Button>
           </div>
 
-          {/* Loading / Projects Section */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
@@ -254,7 +245,6 @@ export default function ParticipantPage() {
                       <div className="text-center space-y-3">
                         <h3 className="text-xl font-semibold text-gray-700">
                           No Projects Yet
-                          {/* {JSON.stringify(existingProjects)} */}
                         </h3>
                         <p className="text-gray-500 max-w-sm">
                           Start your journey by creating your first project. It
