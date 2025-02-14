@@ -65,20 +65,8 @@ export async function GET(request: Request) {
 
     return NextResponse.redirect(`${baseUrl}/mentor`);
   } else {
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .upsert({
-        id: user.id,
-        email: user.email,
-        username: user.user_metadata?.full_name || user.email?.split('@')[0],
-        updated_at: new Date().toISOString()
-      });
-
-    if (profileError) {
-      console.error("Error upserting user profile:", profileError);
-      return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
-    }
-
-    return NextResponse.redirect(`${baseUrl}/participant`);
+    const returnUrl = searchParams.get('returnUrl');
+    const participantRedirectUrl = `${baseUrl}/participant${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
+    return NextResponse.redirect(participantRedirectUrl);
   }
 }

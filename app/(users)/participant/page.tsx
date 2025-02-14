@@ -33,6 +33,7 @@ interface Project {
 }
 
 export default function ParticipantPage() {
+  console.log("ParticipantPage component is rendering");
   const router = useRouter();
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,12 +48,14 @@ export default function ParticipantPage() {
       } = await supabase.auth.getSession();
       if (error) {
         console.error("Error fetching session:", error);
+        router.push("/login");
         return;
       }
       if (!session) {
-        router.push("/");
+        router.push("/login");
       } else {
         setSession(session);
+        console.log("Session in participant page:", session);
         const returnUrl = localStorage.getItem("returnUrl");
         if (returnUrl) {
           localStorage.removeItem("returnUrl");
@@ -144,6 +147,7 @@ export default function ParticipantPage() {
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
       );
+      console.log("Fetched projects:", allProjects);
 
       setIsLoading(false);
     }, [session, setIsLoading, setExistingProjects]);
