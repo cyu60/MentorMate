@@ -17,27 +17,27 @@ export function LandingHero() {
         <div className="space-y-8 text-center">
           <p className="text-xl italic font-medium text-gray-800 max-w-3xl mx-auto leading-relaxed">
             Need better feedback than generic comments for your{" "}
-            <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
+            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
               hackathons
             </span>
             ,{" "}
-            <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
+            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
               projects
             </span>
             , and{" "}
-            <span className="text-blue-900 font-bold bg-blue-100/30 px-2 py-1 rounded">
+            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
               presentations
             </span>
             ?
           </p>
           <TextGenerateEffect
             words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
-            className="text-2xl text-blue-100 max-w-3xl mx-auto font-light"
+            className="text-xl text-blue-100 max-w-3xl mx-auto font-light"
           />
           <div>
             <Link
               href="/select"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
+              className="inline-flex items-center px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
             >
               Get Started
               <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
@@ -89,18 +89,18 @@ export function LandingHero() {
               priority
             />
           </div>
-          <p className="text-md text-gray-600 max-w-2xl mx-auto">
+          <p className="text-md text-gray-600 max-w-3xl mx-auto pt-2">
             Mentor Mate is built at Stanford Graduate School of Education and
             supported by the Stanford Accelerator for Learning—backed by the
             latest advances in learning sciences and pedagogy.
           </p>
         </div>
 
-        <div className="mt-16 bg-blue-900/80 rounded-2xl shadow-xl overflow-hidden">
-          <div className="py-12 px-4 sm:px-6 lg:py-16 lg:px-8 text-center">
+        <div className="mt-16 bg-blue-900 rounded-2xl shadow-xl overflow-hidden">
+          <div className="py-8 px-4 sm:px-6 lg:py-12 lg:px-8 text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               <span className="block">Ready to start your journey?</span>
-              <span className="block text-blue-200">
+              <span className="block text-blue-200 mt-2">
                 Join MentorMates today.
               </span>
             </h2>
@@ -109,7 +109,7 @@ export function LandingHero() {
               <div className="inline-flex rounded-md shadow">
                 <Link
                   href="/select"
-                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-900 bg-white hover:bg-blue-50 transition-colors duration-300"
+                  className="inline-flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-blue-900 bg-white hover:bg-blue-200/20 hover:text-white transition-colors duration-300"
                 >
                   Get Started
                 </Link>
@@ -117,7 +117,7 @@ export function LandingHero() {
               <div className="ml-3 inline-flex rounded-md shadow">
                 <Link
                   href="/about"
-                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-blue-400 transition-colors duration-300"
+                  className="inline-flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-blue-200 hover:text-blue-900 transition-colors duration-300"
                 >
                   Learn More
                 </Link>

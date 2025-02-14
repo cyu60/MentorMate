@@ -5,7 +5,7 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="w-full">
-      <div className="mx-auto max-w-7xl mt-16 px-6 flex flex-col items-center justify-center lg:px-8">
+      <div className="mx-auto max-w-7xl mt-8 px-6 flex flex-col items-center justify-center lg:px-8">
         <div className="flex flex-col items-center">
           <div className="flex justify-center space-x-4 text-sm text-gray-600">
             <Link href="/about" className="hover:text-gray-800">

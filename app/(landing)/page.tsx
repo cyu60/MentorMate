@@ -48,7 +48,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100">
+    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
       <Navbar />
       {/* <BackgroundBeams /> */}
       {isLoggedIn ? <Hero /> : <LandingHero />}
