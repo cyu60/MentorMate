@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, ExternalLink, Download } from "lucide-react";
 import Link from "next/link";
 
 // Web Speech API types
@@ -78,6 +78,8 @@ export default function FeedbackForm({
   projectDescription,
   projectLeadEmail,
   projectLeadName,
+  project_url,
+  additional_materials_url,
 }: {
   projectId: string;
   projectName: string;
@@ -86,6 +88,8 @@ export default function FeedbackForm({
   projectLeadName: string;
   userName?: string;
   userEmail?: string;
+  project_url?: string | null;
+  additional_materials_url?: string | null;
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -598,6 +602,38 @@ export default function FeedbackForm({
             </p>
           </div>
         </div>
+
+        {/* Project Resources */}
+        {(project_url || additional_materials_url) && (
+          <div className="p-4 space-y-2">
+            {project_url && (
+              <div className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-gray-600" />
+                <a
+                  href={project_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  View Project Repository
+                </a>
+              </div>
+            )}
+            {additional_materials_url && (
+              <div className="flex items-center gap-2">
+                <Download className="w-4 h-4 text-gray-600" />
+                <a
+                  href={additional_materials_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  Download Project Materials
+                </a>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Sign in notice */}
         {!session && (

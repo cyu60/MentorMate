@@ -7,7 +7,7 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X, Download, Copy } from "lucide-react";
+import { ChevronLeft, Edit2, X, Download, Copy, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +22,8 @@ interface ProjectData {
   lead_email: string;
   project_description: string;
   teammates: string[];
+  project_url?: string | null;
+  additional_materials_url?: string | null;
 }
 
 export default function ParticipantDashboard() {
@@ -32,7 +34,6 @@ export default function ParticipantDashboard() {
   const [editedData, setEditedData] = useState<ProjectData | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
 
-  // Fetch available users
   useEffect(() => {
     console.log("Fetching users...");
     const fetchUsers = async () => {
@@ -101,6 +102,8 @@ export default function ParticipantDashboard() {
           lead_email: editedData.lead_email,
           project_description: editedData.project_description,
           teammates: editedData.teammates,
+          project_url: editedData.project_url || null,
+          additional_materials_url: editedData.additional_materials_url || null,
         })
         .eq("id", projectId);
 
@@ -132,19 +135,16 @@ export default function ParticipantDashboard() {
       const svg = document.querySelector("#project-qr-code");
       if (!svg) throw new Error("QR Code SVG not found");
 
-      // Create a canvas element
       const canvas = document.createElement("canvas");
       canvas.width = svg.clientWidth;
       canvas.height = svg.clientHeight;
 
-      // Convert SVG to a data URL
       const svgData = new XMLSerializer().serializeToString(svg);
       const svgBlob = new Blob([svgData], {
         type: "image/svg+xml;charset=utf-8",
       });
       const svgUrl = URL.createObjectURL(svgBlob);
 
-      // Create an image from the SVG
       const img = new Image();
       img.src = svgUrl;
 
@@ -184,19 +184,16 @@ export default function ParticipantDashboard() {
       const svg = document.querySelector("#project-qr-code");
       if (!svg) throw new Error("QR Code SVG not found");
 
-      // Create a canvas element
       const canvas = document.createElement("canvas");
       canvas.width = svg.clientWidth;
       canvas.height = svg.clientHeight;
 
-      // Convert SVG to a data URL
       const svgData = new XMLSerializer().serializeToString(svg);
       const svgBlob = new Blob([svgData], {
         type: "image/svg+xml;charset=utf-8",
       });
       const svgUrl = URL.createObjectURL(svgBlob);
 
-      // Create an image from the SVG
       const img = new Image();
       img.src = svgUrl;
 
@@ -209,12 +206,11 @@ export default function ParticipantDashboard() {
         };
       });
 
-      // Create sanitized filename from project name
       const sanitizedProjectName = projectData?.project_name
         ?.toLowerCase()
-        .replace(/[^a-z0-9]/g, "-") // Replace non-alphanumeric chars with hyphens
-        .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
-        .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
 
       const link = document.createElement("a");
       link.download = `${sanitizedProjectName}-feedback-qr-code.png`;
@@ -343,7 +339,7 @@ export default function ParticipantDashboard() {
               </div>
 
               {!isEditing ? (
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div>
                     <span className="font-bold text-gray-800">
                       Project Name:
@@ -423,6 +419,39 @@ export default function ParticipantDashboard() {
                       {projectData.project_description}
                     </p>
                   </div>
+                  {(projectData.project_url || projectData.additional_materials_url) && (
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                      <h3 className="text-lg font-semibold text-blue-900">
+                        Project Resources
+                      </h3>
+                      {projectData.project_url && (
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={projectData.project_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            View Project Repository
+                          </a>
+                        </div>
+                      )}
+                      {projectData.additional_materials_url && (
+                        <div className="flex items-center gap-2">
+                          <Download className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={projectData.additional_materials_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Download Project Materials
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -475,6 +504,38 @@ export default function ParticipantDashboard() {
                         />
                       </div>
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Project URL (Optional)
+                    </label>
+                    <Input
+                      type="url"
+                      value={editedData?.project_url || ""}
+                      onChange={(e) =>
+                        setEditedData((prev) => ({
+                          ...prev!,
+                          project_url: e.target.value,
+                        }))
+                      }
+                      placeholder="https://github.com/your-project or https://devpost.com/your-project"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Additional Materials URL (Optional)
+                    </label>
+                    <Input
+                      type="url"
+                      value={editedData?.additional_materials_url || ""}
+                      onChange={(e) =>
+                        setEditedData((prev) => ({
+                          ...prev!,
+                          additional_materials_url: e.target.value,
+                        }))
+                      }
+                      placeholder="URL to your project materials"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
