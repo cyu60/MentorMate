@@ -98,8 +98,9 @@ export function Hero() {
                         localStorage.removeItem('redirectToMentor');
                       }
                     }}
+                    className="bg-blue-900 text-white"
                   >
-                    Login / Create Account
+                    Login
                   </Button>
                 </div>
               </DialogContent>
