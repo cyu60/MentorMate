@@ -587,10 +587,10 @@ export default function FeedbackForm({
           </h2>
           <p className="text-black text-md">{projectDescription}</p>
           <p className="text-black text-sm">
-            <strong>Lead Name:</strong> {projectLeadName}
+            <strong>Submitted by:</strong> {projectLeadName}
           </p>
           <p className="text-black text-sm">
-            <strong>Lead Email:</strong> {projectLeadEmail}
+            <strong>Email:</strong> {projectLeadEmail}
           </p>
         </div>
 

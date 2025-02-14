@@ -27,7 +27,7 @@ const formSchema = z.object({
     message: "Project name must be at least 2 characters.",
   }),
   leadName: z.string().min(2, {
-    message: "Lead name must be at least 2 characters.",
+    message: "Name must be at least 2 characters.",
   }),
   leadEmail: z.string().email({
     message: "Please enter a valid email address.",
@@ -187,45 +187,50 @@ export function ProjectSubmissionFormComponent({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="leadName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Project Lead Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="John Doe"
-                    {...field}
-                    className="text-sm sm:text-base p-2 sm:p-3"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="leadEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Project Lead Email
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="johndoe@example.com"
-                    {...field}
-                    className="text-sm sm:text-base p-2 sm:p-3"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-4">
+            <h3 className="text-sm sm:text-base font-medium">Submitted by:</h3>
+            <div className="pl-4 space-y-4">
+              <FormField
+                control={form.control}
+                name="leadName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="John Doe"
+                        {...field}
+                        className="text-sm sm:text-base p-2 sm:p-3"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leadEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="johndoe@example.com"
+                        {...field}
+                        className="text-sm sm:text-base p-2 sm:p-3"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
           <FormField
             control={form.control}
             name="projectDescription"
