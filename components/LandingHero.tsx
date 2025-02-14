@@ -88,15 +88,15 @@ export function LandingHero() {
                 onClick={handleParticipantClick}
                 className="bg-blue-900 text-white"
               >
-                I'm a Participant
+                I&apos;m a Participant
               </Button>
               <Button
                 variant="outline"
                 onClick={() => {
-                router.push("/mentor");
+                router.push("/mentor/login");
                 }}
               >
-                I'm a Mentor/Judge
+                I&apos;m a Mentor/Judge
               </Button>
               </div>
             </DialogContent>

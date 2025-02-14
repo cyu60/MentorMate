@@ -40,7 +40,7 @@ export default function MentorPage() {
             className="relative block w-full max-w-md rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             <Camera className="mx-auto h-12 w-12 text-gray-400" />
-            <span className="mt-2 block text-sm font-semibold text-gray-900">
+            <span className="min-h-1/2-screen mt-2 block text-sm font-semibold text-gray-900">
               Start Scanning
             </span>
           </button>

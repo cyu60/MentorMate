@@ -355,7 +355,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="bg-gradient-to-b from-white to-blue-100/80 items-center">
+    <div className="pb-10 bg-gradient-to-b from-white to-blue-100/80 items-center">
       <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />

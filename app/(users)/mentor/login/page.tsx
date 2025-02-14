@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import Link from "next/link";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -84,9 +86,9 @@ export default function MentorLoginPage() {
   };
 
   return (
-    <>
+    <div className="pb-10 bg-gradient-to-b from-white to-blue-100/80 items-center">
       <Navbar />
-      <div className="pb-20 min-h-[calc(100vh-80px)] overflow-auto flex flex-col justify-center bg-gradient-to-b from-white to-blue-100/80 items-center">
+      <div className="overflow-auto flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image
             alt="MentorMate"
@@ -218,7 +220,11 @@ export default function MentorLoginPage() {
                   onClick={() => handleOAuthSignIn("google")}
                   className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                  >
                     <path
                       d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
                       fill="#EA4335"
@@ -259,6 +265,16 @@ export default function MentorLoginPage() {
               </div>
             </div>
 
+            {/* New button to proceed without signing in */}
+            <div className="mt-6">
+              <Link
+                href="/mentor/scan"
+                className="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus:outline-none focus:outline-2 focus:outline-gray-500"
+              >
+                Proceed without signing in
+              </Link>
+            </div>
+
             {/* Toggle between Sign In and Sign Up */}
             <p className="mt-10 text-center text-sm text-gray-500">
               {isSignUp
@@ -278,6 +294,7 @@ export default function MentorLoginPage() {
           </div>
         </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }
