@@ -4,9 +4,6 @@ import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
-/**
- * Rewritten AboutPage with citations integrated from the provided text
- */
 const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-2">
