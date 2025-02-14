@@ -353,16 +353,21 @@ export default function ParticipantDashboard() {
                     </span>
                   </div>
                   <div>
-                    <span className="font-bold text-gray-800">Lead Name:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-gray-800">Lead Email:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_email}
-                    </span>
+                    <span className="font-bold text-gray-800">Submitted by:</span>
+                    <div className="ml-4 space-y-1 mt-1">
+                      <div>
+                        <span className="font-bold text-gray-600">Name:</span>{" "}
+                        <span className="text-gray-700">
+                          {projectData.lead_name}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-600">Email:</span>{" "}
+                        <span className="text-gray-700">
+                          {projectData.lead_email}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <span className="font-bold text-gray-800">Teammates:</span>{" "}
@@ -436,33 +441,40 @@ export default function ParticipantDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Lead Name
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Submitted by:
                     </label>
-                    <Input
-                      value={editedData?.lead_name}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          lead_name: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Lead Email
-                    </label>
-                    <Input
-                      type="email"
-                      value={editedData?.lead_email}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          lead_email: e.target.value,
-                        }))
-                      }
-                    />
+                    <div className="ml-4 space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-1">
+                          Name
+                        </label>
+                        <Input
+                          value={editedData?.lead_name}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev!,
+                              lead_name: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-1">
+                          Email
+                        </label>
+                        <Input
+                          type="email"
+                          value={editedData?.lead_email}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev!,
+                              lead_email: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -586,12 +586,17 @@ export default function FeedbackForm({
             {projectName}
           </h2>
           <p className="text-black text-md">{projectDescription}</p>
-          <p className="text-black text-sm">
-            <strong>Submitted by:</strong> {projectLeadName}
-          </p>
-          <p className="text-black text-sm">
-            <strong>Email:</strong> {projectLeadEmail}
-          </p>
+          <p className="text-black text-sm font-bold">Submitted by:</p>
+          <div className="ml-4 space-y-1 mt-1">
+            <p className="text-black text-sm">
+              <span className="font-bold text-gray-600">Name:</span>{" "}
+              <span className="text-gray-700">{projectLeadName}</span>
+            </p>
+            <p className="text-black text-sm">
+              <span className="font-bold text-gray-600">Email:</span>{" "}
+              <span className="text-gray-700">{projectLeadEmail}</span>
+            </p>
+          </div>
         </div>
 
         {/* Sign in notice */}
