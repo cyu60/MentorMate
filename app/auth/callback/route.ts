@@ -63,10 +63,12 @@ export async function GET(request: Request) {
       }
     }
 
+    localStorage.removeItem('returnUrl');
     return NextResponse.redirect(`${baseUrl}/mentor`);
   } else {
     const returnUrl = searchParams.get('returnUrl');
     const participantRedirectUrl = `${baseUrl}/participant${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
+    localStorage.removeItem('returnUrl');
     return NextResponse.redirect(participantRedirectUrl);
   }
 }
