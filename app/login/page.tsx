@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
 import Image from "next/image";
+import { Footer } from "@/components/footer";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -159,7 +160,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="pb-20 flex min-h-[calc(100vh-80px)] overflow-auto flex-col justify-center bg-gradient-to-b from-white to-blue-100/80 items-center">
+    <div>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           alt="MentorMate"
@@ -354,11 +355,12 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <>
+    <div className="bg-gradient-to-b from-white to-blue-100/80 items-center">
       <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />
       </Suspense>
-    </>
+      <Footer />
+    </ div>
   );
 }

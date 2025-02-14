@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
 
 export function Hero() {
   const router = useRouter();
@@ -35,11 +36,33 @@ export function Hero() {
     }
   };
 
+  const [hasSession, setHasSession] = useState(false);
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error checking session:", error);
+        return;
+      }
+      if (session) {
+        setHasSession(true);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    if (hasSession) {
+      router.push("/mentor");
+    }
+  }, [hasSession, router]);
+
   return (
     <div className="relative flex flex-col overflow-hidden bg-artistic">
       {/* <BackgroundBeams /> */}
       <div className="flex items-center justify-center">
-        <div className="relative text-center py-16 max-w-4xl">
+        <div className="relative text-center max-w-4xl">
           <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
             <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
               Mentor Mate
@@ -84,22 +107,12 @@ export function Hero() {
                     Continue Without Login
                   </Button>
                   <Button
-                    onClick={async () => {
-                      localStorage.setItem('redirectToMentor', 'true');
-                      const { data: { session }, error } = await supabase.auth.getSession();
-                      if (error) {
-                        console.error("Error checking session:", error);
-                        return;
-                      }
-                      if (!session) {
-                        router.push("/mentor/login");
-                      } else {
-                        router.push("/mentor");
-                        localStorage.removeItem('redirectToMentor');
-                      }
+                    onClick={() => {
+                      router.push("/mentor/login");
                     }}
+                    className="bg-blue-900 text-white"
                   >
-                    Login / Create Account
+                    Login
                   </Button>
                 </div>
               </DialogContent>

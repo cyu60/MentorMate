@@ -157,11 +157,11 @@ export default function ParticipantPage() {
   }, [session, fetchProjects]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
       <Navbar />
       <ReturnUrlHandler />
-      <div className="flex flex-col flex-grow">
-        <main className="container mx-auto mt-8">
+      <div>
+        <main className="container mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
             Participant Dashboard
           </h1>
@@ -290,9 +290,11 @@ export default function ParticipantPage() {
               )}
             </>
           )}
+        <div className="mt-16">
+          <Footer />
+        </div>
         </main>
       </div>
-      <Footer />
     </div>
   );
 }

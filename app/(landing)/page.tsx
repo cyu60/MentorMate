@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Hero } from "@/components/Hero";
+// import { Hero } from "@/components/Hero";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -48,10 +48,11 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100">
+    <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
       <Navbar />
       {/* <BackgroundBeams /> */}
-      {isLoggedIn ? <Hero /> : <LandingHero />}
+      {/* {isLoggedIn ? <Hero /> : <LandingHero />} */}
+      <LandingHero />
       <ServiceWorkerRegistration />
       <Footer />
     </div>
