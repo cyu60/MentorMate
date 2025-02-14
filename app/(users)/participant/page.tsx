@@ -133,7 +133,7 @@ export default function ParticipantPage() {
       <Navbar />
       <ReturnUrlHandler />
       <div className="flex flex-col flex-grow">
-        <main className="container mx-auto mt-8">
+        <main className="container mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
             Participant Dashboard
           </h1>
@@ -260,9 +260,11 @@ export default function ParticipantPage() {
               )}
             </>
           )}
+        <div className="mt-16">
+          <Footer />
+        </div>
         </main>
       </div>
-      <Footer />
     </div>
   );
 }

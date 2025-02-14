@@ -39,7 +39,7 @@ export function Hero() {
     <div className="relative flex flex-col overflow-hidden bg-artistic">
       {/* <BackgroundBeams /> */}
       <div className="flex items-center justify-center">
-        <div className="relative text-center py-16 max-w-4xl">
+        <div className="relative text-center max-w-4xl">
           <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
             <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
               Mentor Mate
