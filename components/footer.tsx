@@ -19,18 +19,6 @@ export function Footer() {
             &copy; 2025 Mentor Mate, All rights reserved.
           </p>
         </div>
-        <div className="flex justify-center gap-x-6 mt-4">
-          {/* {navigation.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              <span className="sr-only">{item.name}</span>
-              <item.icon aria-hidden="true" className="h-6 w-6" />
-            </a>
-          ))} */}
-        </div>
       </div>
     </footer>
   );
