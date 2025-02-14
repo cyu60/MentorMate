@@ -32,7 +32,7 @@ export default function MentorLoginPage() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/participant");
+        router.push("/mentor");
       }
     };
 
@@ -77,7 +77,9 @@ export default function MentorLoginPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+      return;
     }
+    router.push("/mentor");
   };
 
   const handleToggleAuthMode = () => {

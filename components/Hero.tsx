@@ -37,6 +37,7 @@ export function Hero() {
   };
 
   const [hasSession, setHasSession] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -81,43 +82,57 @@ export function Hero() {
             >
               I&apos;m a Participant
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
-                >
-                  I&apos;m a Mentor/Judge
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Welcome Mentor!</DialogTitle>
-                  <DialogDescription>
-                    Would you like to continue with an account? Creating an account allows you to save and track your mentoring history and allows users to interact with your feedback.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col sm:flex-row gap-4 justify-end mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      router.push("/mentor");
-                    }}
-                  >
-                    Continue Without Login
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      router.push("/mentor/login");
-                    }}
-                    className="bg-blue-900 text-white"
-                  >
-                    Login
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
+              onClick={async () => {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                  console.error("Error checking session:", error);
+                  return;
+                }
+                if (session) {
+                  router.push("/mentor");
+                } else {
+                  setShowDialog(true);
+                }
+              }}
+            >
+              I&apos;m a Mentor/Judge
+            </Button>
+            {showDialog && (
+              <Dialog open={true} onOpenChange={setShowDialog}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Welcome Mentor!</DialogTitle>
+                    <DialogDescription>
+                      Would you like to continue with an account? Creating an account allows you to save and track your mentoring history and allows users to interact with your feedback.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-end mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowDialog(false);
+                        router.push("/mentor");
+                      }}
+                    >
+                      Continue Without Login
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowDialog(false);
+                        router.push("/mentor/login");
+                      }}
+                      className="bg-blue-900 text-white"
+                    >
+                      Login
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
           <div className="mt-24 text-center space-y-4">
             <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
