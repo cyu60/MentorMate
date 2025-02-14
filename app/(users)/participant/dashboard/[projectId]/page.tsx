@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,18 @@ export default function ParticipantDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const getFileNameFromUrl = (url: string) => {
+    const pathParts = url.split('/');
+    const fileName = pathParts[pathParts.length - 1];
+    // Remove any query parameters
+    return decodeURIComponent(fileName.split('?')[0]);
+  };
 
   useEffect(() => {
     console.log("Fetching users...");
@@ -73,6 +84,9 @@ export default function ParticipantDashboard() {
       } else {
         setProjectData(data);
         setEditedData(data);
+        if (data.additional_materials_url) {
+          setCurrentFileName(getFileNameFromUrl(data.additional_materials_url));
+        }
       }
 
       setIsLoading(false);
@@ -94,6 +108,39 @@ export default function ParticipantDashboard() {
     if (!editedData) return;
 
     try {
+      let additionalMaterialsUrl = editedData.additional_materials_url;
+
+      // Handle file upload if a new file is selected
+      if (selectedFile) {
+        if (selectedFile.size > MAX_FILE_SIZE) {
+          toast({
+            title: "Error",
+            description: "File size must be less than 10MB",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `project-materials/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('project-materials')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('project-materials')
+          .getPublicUrl(filePath);
+
+        additionalMaterialsUrl = publicUrl;
+        setCurrentFileName(fileName);
+      }
+
       const { error } = await supabase
         .from("projects")
         .update({
@@ -103,14 +150,18 @@ export default function ParticipantDashboard() {
           project_description: editedData.project_description,
           teammates: editedData.teammates,
           project_url: editedData.project_url || null,
-          additional_materials_url: editedData.additional_materials_url || null,
+          additional_materials_url: additionalMaterialsUrl,
         })
         .eq("id", projectId);
 
       if (error) throw error;
 
-      setProjectData(editedData);
+      setProjectData({
+        ...editedData,
+        additional_materials_url: additionalMaterialsUrl,
+      });
       setIsEditing(false);
+      setSelectedFile(null);
       toast({
         title: "Success",
         description: "Project information updated successfully",
@@ -518,24 +569,114 @@ export default function ParticipantDashboard() {
                           project_url: e.target.value,
                         }))
                       }
-                      placeholder="https://github.com/your-project or https://devpost.com/your-project"
+                      placeholder="Github/Devpost"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Additional Materials URL (Optional)
+                      Additional Materials
                     </label>
-                    <Input
-                      type="url"
-                      value={editedData?.additional_materials_url || ""}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          additional_materials_url: e.target.value,
-                        }))
-                      }
-                      placeholder="URL to your project materials"
-                    />
+                    <div className="space-y-2">
+                      {!selectedFile && editedData?.additional_materials_url && currentFileName && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <Download className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={editedData.additional_materials_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline text-sm"
+                          >
+                            {currentFileName}
+                          </a>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setEditedData((prev) => ({
+                                ...prev!,
+                                additional_materials_url: null,
+                              }));
+                              setCurrentFileName(null);
+                            }}
+                            className="px-2 py-1 ml-2"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      )}
+                      {(!editedData?.additional_materials_url || selectedFile) && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            {!editedData?.additional_materials_url ? (
+                              <input
+                                key={editedData?.additional_materials_url || 'new-file'}
+                                type="file"
+                                onChange={(e) => {
+                                  const files = e.target.files;
+                                  if (files && files.length > 0) {
+                                    const file = files[0];
+                                    setSelectedFile(file);
+                                    setCurrentFileName(file.name);
+                                    setEditedData((prev) => ({
+                                      ...prev!,
+                                      additional_materials_url: null,
+                                    }));
+                                  }
+                                }}
+                                accept=".pdf,.ppt,.pptx,.doc,.docx"
+                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                              />
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+                                  input.onchange = (e) => {
+                                    const files = (e.target as HTMLInputElement).files;
+                                    if (files && files.length > 0) {
+                                      setSelectedFile(files[0]);
+                                      setEditedData((prev) => ({
+                                        ...prev!,
+                                        additional_materials_url: null,
+                                      }));
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                                className="w-full"
+                              >
+                                Choose New File
+                              </Button>
+                            )}
+                          </div>
+                          {selectedFile && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                setCurrentFileName(projectData?.additional_materials_url ? getFileNameFromUrl(projectData.additional_materials_url) : null);
+                                setEditedData((prev) => ({
+                                  ...prev!,
+                                  additional_materials_url: projectData?.additional_materials_url || null,
+                                }));
+                              }}
+                              className="px-2 py-1"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Upload pitch deck or other project materials (max 10MB)
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

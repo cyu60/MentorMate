@@ -65,6 +65,7 @@ export function ProjectSubmissionFormComponent({
   onProjectSubmitted?: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -304,7 +305,7 @@ export function ProjectSubmissionFormComponent({
                 <FormControl>
                   <Input
                     type="url"
-                    placeholder="https://github.com/your-project or https://devpost.com/your-project"
+                    placeholder="Github/Devpost"
                     {...field}
                     className="text-sm sm:text-base p-2 sm:p-3"
                   />
@@ -325,20 +326,42 @@ export function ProjectSubmissionFormComponent({
                   Additional Materials (Optional)
                 </FormLabel>
                 <FormControl>
-                  <input
-                    type="file"
-                    name={name}
-                    ref={ref}
-                    onBlur={onBlur}
-                    onChange={(e) => {
-                      const files = e.target.files;
-                      if (files) {
-                        onChange(files);
-                      }
-                    }}
-                    accept=".pdf,.ppt,.pptx,.doc,.docx"
-                    className="w-full text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      name={name}
+                      ref={ref}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          setSelectedFile(files[0]);
+                          onChange(files);
+                        }
+                      }}
+                      accept=".pdf,.ppt,.pptx,.doc,.docx"
+                      className="flex-1 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                    />
+                    {selectedFile && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedFile(null);
+                          onChange(undefined);
+                          // Reset the file input by recreating it
+                          const fileInput = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+                          if (fileInput) {
+                            fileInput.value = '';
+                          }
+                        }}
+                        className="px-2 py-1"
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
                 </FormControl>
                 <FormDescription className="text-xs sm:text-sm">
                   Upload pitch deck or other project materials (max 10MB)
