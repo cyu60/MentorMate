@@ -53,7 +53,8 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    if (hasSession) {
+    const currentPath = window.location.pathname;
+    if (hasSession && !localStorage.getItem('redirectToParticipant') && currentPath !== "/mentor" && currentPath !== "/" && currentPath !== "/select") {
       router.push("/mentor");
     }
   }, [hasSession, router]);

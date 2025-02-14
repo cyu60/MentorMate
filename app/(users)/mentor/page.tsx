@@ -12,10 +12,11 @@ export default function MentorPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for return URL and redirect if exists
     const returnUrl = localStorage.getItem("returnUrl");
+    console.log("returnUrl:", returnUrl);
     if (returnUrl) {
       localStorage.removeItem("returnUrl");
+      console.log("Redirecting to:", returnUrl); 
       router.push(returnUrl);
     }
   }, [router]);

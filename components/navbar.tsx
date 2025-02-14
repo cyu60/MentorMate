@@ -41,7 +41,11 @@ export function Navbar() {
   const handleLoginClick = () => {
     // Save current URL before redirecting
     if (typeof window !== 'undefined') {
-      localStorage.setItem('returnUrl', window.location.pathname);
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/mentor") {
+        localStorage.setItem('returnUrl', currentPath);
+        console.log("Setting returnUrl:", currentPath); // Add logging
+      }
     }
     router.push("/login");
   };
@@ -52,6 +56,7 @@ export function Navbar() {
       console.error("Error signing out:", error);
     } else {
       setSession(null);
+      localStorage.removeItem('returnUrl'); // Clear returnUrl on sign out
       await router.push("/");
     }
   };
