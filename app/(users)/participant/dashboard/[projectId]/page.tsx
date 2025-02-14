@@ -7,7 +7,14 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X, Download, Copy, ExternalLink } from "lucide-react";
+import {
+  ChevronLeft,
+  Edit2,
+  X,
+  Download,
+  Copy,
+  ExternalLink,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
@@ -40,19 +47,19 @@ export default function ParticipantDashboard() {
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   const getFileNameFromUrl = (url: string) => {
-    const pathParts = url.split('/');
+    const pathParts = url.split("/");
     const fileName = pathParts[pathParts.length - 1];
-    return decodeURIComponent(fileName.split('?')[0]);
+    return decodeURIComponent(fileName.split("?")[0]);
   };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('saved') === 'true') {
+    if (params.get("saved") === "true") {
       toast({
         title: "Success",
         description: "Project information updated successfully",
       });
-      window.history.replaceState({}, '', window.location.pathname);
+      window.history.replaceState({}, "", window.location.pathname);
     }
 
     console.log("Fetching users...");
@@ -129,21 +136,23 @@ export default function ParticipantDashboard() {
           return;
         }
 
-        const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const fileExt = selectedFile.name.split(".").pop();
+        const fileName = `${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
         const filePath = `project-materials/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('project-materials')
+          .from("project-materials")
           .upload(filePath, selectedFile);
 
         if (uploadError) {
           throw uploadError;
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('project-materials')
-          .getPublicUrl(filePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("project-materials").getPublicUrl(filePath);
 
         additionalMaterialsUrl = publicUrl;
         setCurrentFileName(fileName);
@@ -213,13 +222,28 @@ export default function ParticipantDashboard() {
         };
       });
 
-      const dataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          [blob.type]: blob,
-        }),
-      ]);
+      // Get the project URL that the QR code represents
+      const projectUrl = `${window.location.origin}/project/${projectId}`;
+
+      // Try modern clipboard API first
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        const blob = await (await fetch(dataUrl)).blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob,
+          }),
+        ]);
+      } catch (clipboardError) {
+        // Fallback for mobile: copy the URL instead
+        await navigator.clipboard.writeText(projectUrl);
+        toast({
+          title: "Copied Project URL",
+          description:
+            "QR code image copying not supported on this device. Project URL copied instead.",
+        });
+        return;
+      }
 
       toast({
         title: "Success",
@@ -406,7 +430,9 @@ export default function ParticipantDashboard() {
                     </span>
                   </div>
                   <div>
-                    <span className="font-bold text-gray-800">Submitted by:</span>
+                    <span className="font-bold text-gray-800">
+                      Submitted by:
+                    </span>
                     <div className="ml-4 space-y-1 mt-1">
                       <div>
                         <span className="font-bold text-gray-600">Name:</span>{" "}
@@ -476,7 +502,8 @@ export default function ParticipantDashboard() {
                       {projectData.project_description}
                     </p>
                   </div>
-                  {(projectData.project_url || projectData.additional_materials_url) && (
+                  {(projectData.project_url ||
+                    projectData.additional_materials_url) && (
                     <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                       <h3 className="text-lg font-semibold text-blue-900">
                         Project Resources
@@ -583,40 +610,46 @@ export default function ParticipantDashboard() {
                       Additional Materials
                     </label>
                     <div className="space-y-2">
-                      {!selectedFile && editedData?.additional_materials_url && currentFileName && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <Download className="w-4 h-4 text-gray-600" />
-                          <a
-                            href={editedData.additional_materials_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline text-sm"
-                          >
-                            {currentFileName}
-                          </a>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              setEditedData((prev) => ({
-                                ...prev!,
-                                additional_materials_url: null,
-                              }));
-                              setCurrentFileName(null);
-                            }}
-                            className="px-2 py-1 ml-2"
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      )}
-                      {(!editedData?.additional_materials_url || selectedFile) && (
+                      {!selectedFile &&
+                        editedData?.additional_materials_url &&
+                        currentFileName && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Download className="w-4 h-4 text-gray-600" />
+                            <a
+                              href={editedData.additional_materials_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 underline text-sm"
+                            >
+                              {currentFileName}
+                            </a>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setEditedData((prev) => ({
+                                  ...prev!,
+                                  additional_materials_url: null,
+                                }));
+                                setCurrentFileName(null);
+                              }}
+                              className="px-2 py-1 ml-2"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
+                      {(!editedData?.additional_materials_url ||
+                        selectedFile) && (
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
                             {!editedData?.additional_materials_url ? (
                               <input
-                                key={editedData?.additional_materials_url || 'new-file'}
+                                key={
+                                  editedData?.additional_materials_url ||
+                                  "new-file"
+                                }
                                 type="file"
                                 onChange={(e) => {
                                   const files = e.target.files;
@@ -638,11 +671,12 @@ export default function ParticipantDashboard() {
                                 type="button"
                                 variant="outline"
                                 onClick={() => {
-                                  const input = document.createElement('input');
-                                  input.type = 'file';
-                                  input.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+                                  const input = document.createElement("input");
+                                  input.type = "file";
+                                  input.accept = ".pdf,.ppt,.pptx,.doc,.docx";
                                   input.onchange = (e) => {
-                                    const files = (e.target as HTMLInputElement).files;
+                                    const files = (e.target as HTMLInputElement)
+                                      .files;
                                     if (files && files.length > 0) {
                                       setSelectedFile(files[0]);
                                       setEditedData((prev) => ({
@@ -666,10 +700,18 @@ export default function ParticipantDashboard() {
                               size="sm"
                               onClick={() => {
                                 setSelectedFile(null);
-                                setCurrentFileName(projectData?.additional_materials_url ? getFileNameFromUrl(projectData.additional_materials_url) : null);
+                                setCurrentFileName(
+                                  projectData?.additional_materials_url
+                                    ? getFileNameFromUrl(
+                                        projectData.additional_materials_url
+                                      )
+                                    : null
+                                );
                                 setEditedData((prev) => ({
                                   ...prev!,
-                                  additional_materials_url: projectData?.additional_materials_url || null,
+                                  additional_materials_url:
+                                    projectData?.additional_materials_url ||
+                                    null,
                                 }));
                               }}
                               className="px-2 py-1"

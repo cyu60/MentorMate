@@ -101,7 +101,10 @@ export default function FeedbackPage() {
       console.error("Error synthesizing feedback:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to synthesize feedback. Please try again later.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to synthesize feedback. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -203,11 +206,13 @@ export default function FeedbackPage() {
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-gray-800">
-                      {item.mentor_name}
+                      {item.mentor_name || "Anonymous Mentor"}
                     </span>
-                    <span className="text-sm text-gray-500">
-                      ({item.mentor_email})
-                    </span>
+                    {item.mentor_email && (
+                      <span className="text-sm text-gray-500">
+                        ({item.mentor_email})
+                      </span>
+                    )}
                   </div>
                   <p className="mt-2 text-gray-700">{item.feedback_text}</p>
                 </div>
