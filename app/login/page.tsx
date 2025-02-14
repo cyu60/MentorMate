@@ -39,9 +39,11 @@ function LoginContent() {
       if (session) {
         const returnUrl = localStorage.getItem('returnUrl');
         if (returnUrl) {
+          console.log("returnUrl found:", returnUrl);
           localStorage.removeItem('returnUrl');
           router.push(returnUrl);
         } else {
+          console.log("No returnUrl, redirecting to /participant");
           router.push("/participant");
         }
       }
@@ -111,6 +113,7 @@ function LoginContent() {
         localStorage.removeItem('returnUrl');
         router.push(returnUrl);
       } else {
+        console.log("No returnUrl, redirecting to /participant after sign in");
         router.push("/participant");
       }
     }
@@ -134,6 +137,7 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
+    localStorage.setItem('returnUrl', '/select');
     const returnUrl = localStorage.getItem('returnUrl');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const options = {
