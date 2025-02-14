@@ -76,7 +76,7 @@ export function LandingHero() {
               </Button>
               </div>
             </DialogTrigger>
-            <DialogContent className="m-2 rounded-md">
+            <DialogContent className="m-1 rounded-md">
               <DialogHeader>
               <DialogTitle>Welcome!</DialogTitle>
               <DialogDescription>
