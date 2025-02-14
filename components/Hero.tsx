@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
 
 export function Hero() {
   const router = useRouter();
@@ -34,6 +35,28 @@ export function Hero() {
       localStorage.removeItem('redirectToParticipant'); // Clean up immediately if we can redirect right away
     }
   };
+
+  const [hasSession, setHasSession] = useState(false);
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error checking session:", error);
+        return;
+      }
+      if (session) {
+        setHasSession(true);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    if (hasSession) {
+      router.push("/mentor");
+    }
+  }, [hasSession, router]);
 
   return (
     <div className="relative flex flex-col overflow-hidden bg-artistic">
@@ -84,19 +107,8 @@ export function Hero() {
                     Continue Without Login
                   </Button>
                   <Button
-                    onClick={async () => {
-                      localStorage.setItem('redirectToMentor', 'true');
-                      const { data: { session }, error } = await supabase.auth.getSession();
-                      if (error) {
-                        console.error("Error checking session:", error);
-                        return;
-                      }
-                      if (!session) {
-                        router.push("/mentor/login");
-                      } else {
-                        router.push("/mentor");
-                        localStorage.removeItem('redirectToMentor');
-                      }
+                    onClick={() => {
+                      router.push("/mentor/login");
                     }}
                     className="bg-blue-900 text-white"
                   >
