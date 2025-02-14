@@ -235,6 +235,7 @@ export default function ParticipantDashboard() {
           }),
         ]);
       } catch (clipboardError) {
+        console.error("Error copying QR Code:", clipboardError);
         // Fallback for mobile: copy the URL instead
         await navigator.clipboard.writeText(projectUrl);
         toast({
