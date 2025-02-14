@@ -662,26 +662,17 @@ export default function FeedbackForm({
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
-              <label
-                htmlFor="feedback"
-                className="block text-sm font-medium text-blue-900 mb-2"
-              >
-                Leave Your Feedback
-              </label>
-              <div className="relative">
-                <TextareaAutosize
-                  id="feedback"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="Enter your feedback here"
-                  required
-                  minRows={4}
-                  className="w-full bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-md p-2 pr-32"
-                />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                <label
+                  htmlFor="feedback"
+                  className="block text-sm font-medium text-blue-900"
+                >
+                  Leave Your Feedback
+                </label>
                 <Button
                   type="button"
                   onClick={toggleListening}
-                  className={`absolute right-2 top-2 p-2 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-2 z-10 shadow-sm border border-blue-100 ${
+                  className={`mt-2 sm:mt-0 self-start sm:self-auto p-2 rounded-full hover:bg-blue-100 transition-colors flex items-center gap-2 z-10 shadow-sm border border-blue-100 ${
                     isListening ? "bg-blue-100" : "bg-blue-50"
                   }`}
                   title={isListening ? "Stop recording" : "Start voice input"}
@@ -701,6 +692,17 @@ export default function FeedbackForm({
                     <Mic className="h-5 w-5 text-blue-500" />
                   )}
                 </Button>
+              </div>
+              <div className="relative">
+                <TextareaAutosize
+                  id="feedback"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Enter your feedback here"
+                  required
+                  minRows={4}
+                  className="w-full bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-md p-2"
+                />
               </div>
               {currentTranscript && (
                 <div className="mt-2 text-sm text-gray-500 italic">

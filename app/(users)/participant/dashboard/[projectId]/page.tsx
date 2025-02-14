@@ -370,7 +370,7 @@ export default function ParticipantDashboard() {
                   <Button
                     onClick={handleCopyQR}
                     variant="outline"
-                    className="flex items-center gap-2"
+                    className="hidden md:flex items-center gap-2"
                   >
                     <Copy className="w-4 h-4" />
                     Copy
