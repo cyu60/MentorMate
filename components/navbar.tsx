@@ -52,7 +52,7 @@ export function Navbar() {
       console.error("Error signing out:", error);
     } else {
       setSession(null);
-      router.push("/");
+      await router.push("/");
     }
   };
 
