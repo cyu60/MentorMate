@@ -153,7 +153,7 @@ export default function ParticipantPage() {
   }, [session, fetchProjects]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
       <Navbar />
       <ReturnUrlHandler />
       <div className="flex flex-col flex-grow">
