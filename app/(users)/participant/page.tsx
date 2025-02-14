@@ -156,7 +156,7 @@ export default function ParticipantPage() {
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
       <Navbar />
       <ReturnUrlHandler />
-      <div className="flex flex-col flex-grow">
+      <div>
         <main className="container mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
             Participant Dashboard
