@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, ExternalLink, Download } from "lucide-react";
 import Link from "next/link";
 
-// Web Speech API types
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -78,6 +77,8 @@ export default function FeedbackForm({
   projectDescription,
   projectLeadEmail,
   projectLeadName,
+  project_url,
+  additional_materials_url,
 }: {
   projectId: string;
   projectName: string;
@@ -86,6 +87,8 @@ export default function FeedbackForm({
   projectLeadName: string;
   userName?: string;
   userEmail?: string;
+  project_url?: string | null;
+  additional_materials_url?: string | null;
 }) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -107,12 +110,10 @@ export default function FeedbackForm({
     new Set(["original"])
   );
 
-  // Log usedSuggestions changes
   useEffect(() => {
     console.log("usedSuggestions updated:", Array.from(usedSuggestions));
   }, [usedSuggestions]);
 
-  // Initialize speech recognition
   useEffect(() => {
     if (typeof window !== "undefined") {
       type SpeechRecognitionWindow = {
@@ -250,7 +251,6 @@ export default function FeedbackForm({
       const originalFeedback =
         localStorage.getItem("originalFeedback") || feedback;
 
-      // Common words to filter out
       const commonWords = new Set([
         "the",
         "be",
@@ -346,7 +346,6 @@ export default function FeedbackForm({
         "very",
       ]);
 
-      // Helper function to get significant words (excluding common words)
       const getSignificantWords = (text: string): string[] => {
         return text
           .toLowerCase()
@@ -354,7 +353,6 @@ export default function FeedbackForm({
           .filter((word) => !commonWords.has(word) && word.length > 2);
       };
 
-      // Helper function to find consecutive matching words
       const findConsecutiveMatches = (
         source: string[],
         target: string[]
@@ -457,7 +455,6 @@ export default function FeedbackForm({
         }
       }
 
-      // If no tags were validated, it's completely original
       if (validatedTags.size === 0) {
         validatedTags.add("original");
       }
@@ -483,7 +480,6 @@ export default function FeedbackForm({
         modifier_field: Array.from(usedSuggestions),
       };
 
-      // First get the project UUID
       const { data: projectData, error: projectError } = await supabaseClient
         .from("projects")
         .select("id")
@@ -497,7 +493,6 @@ export default function FeedbackForm({
 
       console.log("Found project:", projectData);
 
-      // Then submit feedback with the project UUID and let Supabase handle id generation
       const { data, error } = await supabaseClient.from("feedback").insert([
         {
           project_id: projectData.id,
@@ -579,22 +574,56 @@ export default function FeedbackForm({
       transition={{ duration: 0.5 }}
       className="w-full mx-auto px-4"
     >
-      {/* Project Details */}
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg">
         <div className="p-4">
           <h2 className="text-blue-900 text-2xl font-semibold">
             {projectName}
           </h2>
           <p className="text-black text-md">{projectDescription}</p>
-          <p className="text-black text-sm">
-            <strong>Lead Name:</strong> {projectLeadName}
-          </p>
-          <p className="text-black text-sm">
-            <strong>Lead Email:</strong> {projectLeadEmail}
-          </p>
+          <p className="text-black text-sm font-bold">Submitted by:</p>
+          <div className="ml-4 space-y-1 mt-1">
+            <p className="text-black text-sm">
+              <span className="font-bold text-gray-600">Name:</span>{" "}
+              <span className="text-gray-700">{projectLeadName}</span>
+            </p>
+            <p className="text-black text-sm">
+              <span className="font-bold text-gray-600">Email:</span>{" "}
+              <span className="text-gray-700">{projectLeadEmail}</span>
+            </p>
+          </div>
         </div>
 
-        {/* Sign in notice */}
+        {(project_url || additional_materials_url) && (
+          <div className="p-4 space-y-2">
+            {project_url && (
+              <div className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-gray-600" />
+                <a
+                  href={project_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  View Project Repository
+                </a>
+              </div>
+            )}
+            {additional_materials_url && (
+              <div className="flex items-center gap-2">
+                <Download className="w-4 h-4 text-gray-600" />
+                <a
+                  href={additional_materials_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  Download Project Materials
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
         {!session && (
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mx-4 flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-blue-600">
@@ -617,7 +646,6 @@ export default function FeedbackForm({
           </div>
         )}
 
-        {/* Feedback Section */}
         <div className="space-y-4 p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="mb-6 text-gray-800">
@@ -681,7 +709,6 @@ export default function FeedbackForm({
               )}
             </div>
 
-            {/* AI Improvement Button */}
             {!hasImprovedWithAI && (
               <Button
                 type="button"
@@ -703,7 +730,6 @@ export default function FeedbackForm({
               </Button>
             )}
 
-            {/* AI Suggestions */}
             {aiSuggestions && (
               <Card className="bg-blue-50 border-blue-200 mt-4 p-4 rounded-lg">
                 <h3 className="text-blue-900 text-lg font-semibold mb-4">
@@ -796,7 +822,6 @@ export default function FeedbackForm({
               </Card>
             )}
 
-            {/* Submit Button */}
             {showSubmitButton && !isSubmitting && (
               <Button
                 type="submit"

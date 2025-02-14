@@ -7,10 +7,11 @@ import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Edit2, X, Download, Copy } from "lucide-react";
+import { ChevronLeft, Edit2, X, Download, Copy, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import UserSearch from "../../../../../components/UserSearch";
@@ -22,6 +23,8 @@ interface ProjectData {
   lead_email: string;
   project_description: string;
   teammates: string[];
+  project_url?: string | null;
+  additional_materials_url?: string | null;
 }
 
 export default function ParticipantDashboard() {
@@ -30,10 +33,28 @@ export default function ParticipantDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
 
-  // Fetch available users
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+  const getFileNameFromUrl = (url: string) => {
+    const pathParts = url.split('/');
+    const fileName = pathParts[pathParts.length - 1];
+    return decodeURIComponent(fileName.split('?')[0]);
+  };
+
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('saved') === 'true') {
+      toast({
+        title: "Success",
+        description: "Project information updated successfully",
+      });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     console.log("Fetching users...");
     const fetchUsers = async () => {
       const { data, error } = await supabase
@@ -72,6 +93,9 @@ export default function ParticipantDashboard() {
       } else {
         setProjectData(data);
         setEditedData(data);
+        if (data.additional_materials_url) {
+          setCurrentFileName(getFileNameFromUrl(data.additional_materials_url));
+        }
       }
 
       setIsLoading(false);
@@ -93,6 +117,38 @@ export default function ParticipantDashboard() {
     if (!editedData) return;
 
     try {
+      let additionalMaterialsUrl = editedData.additional_materials_url;
+
+      if (selectedFile) {
+        if (selectedFile.size > MAX_FILE_SIZE) {
+          toast({
+            title: "Error",
+            description: "File size must be less than 10MB",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `project-materials/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('project-materials')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('project-materials')
+          .getPublicUrl(filePath);
+
+        additionalMaterialsUrl = publicUrl;
+        setCurrentFileName(fileName);
+      }
+
       const { error } = await supabase
         .from("projects")
         .update({
@@ -101,17 +157,20 @@ export default function ParticipantDashboard() {
           lead_email: editedData.lead_email,
           project_description: editedData.project_description,
           teammates: editedData.teammates,
+          project_url: editedData.project_url || null,
+          additional_materials_url: additionalMaterialsUrl,
         })
         .eq("id", projectId);
 
       if (error) throw error;
 
-      setProjectData(editedData);
-      setIsEditing(false);
-      toast({
-        title: "Success",
-        description: "Project information updated successfully",
+      setProjectData({
+        ...editedData,
+        additional_materials_url: additionalMaterialsUrl,
       });
+      setIsEditing(false);
+      setSelectedFile(null);
+      window.location.href = `${window.location.pathname}?saved=true`;
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error updating project:", error.message);
@@ -132,19 +191,16 @@ export default function ParticipantDashboard() {
       const svg = document.querySelector("#project-qr-code");
       if (!svg) throw new Error("QR Code SVG not found");
 
-      // Create a canvas element
       const canvas = document.createElement("canvas");
       canvas.width = svg.clientWidth;
       canvas.height = svg.clientHeight;
 
-      // Convert SVG to a data URL
       const svgData = new XMLSerializer().serializeToString(svg);
       const svgBlob = new Blob([svgData], {
         type: "image/svg+xml;charset=utf-8",
       });
       const svgUrl = URL.createObjectURL(svgBlob);
 
-      // Create an image from the SVG
       const img = new Image();
       img.src = svgUrl;
 
@@ -184,19 +240,16 @@ export default function ParticipantDashboard() {
       const svg = document.querySelector("#project-qr-code");
       if (!svg) throw new Error("QR Code SVG not found");
 
-      // Create a canvas element
       const canvas = document.createElement("canvas");
       canvas.width = svg.clientWidth;
       canvas.height = svg.clientHeight;
 
-      // Convert SVG to a data URL
       const svgData = new XMLSerializer().serializeToString(svg);
       const svgBlob = new Blob([svgData], {
         type: "image/svg+xml;charset=utf-8",
       });
       const svgUrl = URL.createObjectURL(svgBlob);
 
-      // Create an image from the SVG
       const img = new Image();
       img.src = svgUrl;
 
@@ -209,12 +262,11 @@ export default function ParticipantDashboard() {
         };
       });
 
-      // Create sanitized filename from project name
       const sanitizedProjectName = projectData?.project_name
         ?.toLowerCase()
-        .replace(/[^a-z0-9]/g, "-") // Replace non-alphanumeric chars with hyphens
-        .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
-        .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
 
       const link = document.createElement("a");
       link.download = `${sanitizedProjectName}-feedback-qr-code.png`;
@@ -259,6 +311,7 @@ export default function ParticipantDashboard() {
 
   return (
     <div>
+      <Toaster />
       <Navbar />
       <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <div className="w-full max-w-4xl">
@@ -343,7 +396,7 @@ export default function ParticipantDashboard() {
               </div>
 
               {!isEditing ? (
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div>
                     <span className="font-bold text-gray-800">
                       Project Name:
@@ -353,16 +406,21 @@ export default function ParticipantDashboard() {
                     </span>
                   </div>
                   <div>
-                    <span className="font-bold text-gray-800">Lead Name:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-gray-800">Lead Email:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_email}
-                    </span>
+                    <span className="font-bold text-gray-800">Submitted by:</span>
+                    <div className="ml-4 space-y-1 mt-1">
+                      <div>
+                        <span className="font-bold text-gray-600">Name:</span>{" "}
+                        <span className="text-gray-700">
+                          {projectData.lead_name}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-600">Email:</span>{" "}
+                        <span className="text-gray-700">
+                          {projectData.lead_email}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <span className="font-bold text-gray-800">Teammates:</span>{" "}
@@ -418,6 +476,39 @@ export default function ParticipantDashboard() {
                       {projectData.project_description}
                     </p>
                   </div>
+                  {(projectData.project_url || projectData.additional_materials_url) && (
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                      <h3 className="text-lg font-semibold text-blue-900">
+                        Project Resources
+                      </h3>
+                      {projectData.project_url && (
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={projectData.project_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            View Project Repository
+                          </a>
+                        </div>
+                      )}
+                      {projectData.additional_materials_url && (
+                        <div className="flex items-center gap-2">
+                          <Download className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={projectData.additional_materials_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Download Project Materials
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -436,33 +527,162 @@ export default function ParticipantDashboard() {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Submitted by:
+                    </label>
+                    <div className="ml-4 space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-1">
+                          Name
+                        </label>
+                        <Input
+                          value={editedData?.lead_name}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev!,
+                              lead_name: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-1">
+                          Email
+                        </label>
+                        <Input
+                          type="email"
+                          value={editedData?.lead_email}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev!,
+                              lead_email: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Lead Name
+                      Project URL (Optional)
                     </label>
                     <Input
-                      value={editedData?.lead_name}
+                      type="url"
+                      value={editedData?.project_url || ""}
                       onChange={(e) =>
                         setEditedData((prev) => ({
                           ...prev!,
-                          lead_name: e.target.value,
+                          project_url: e.target.value,
                         }))
                       }
+                      placeholder="Github/Devpost"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Lead Email
+                      Additional Materials
                     </label>
-                    <Input
-                      type="email"
-                      value={editedData?.lead_email}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          lead_email: e.target.value,
-                        }))
-                      }
-                    />
+                    <div className="space-y-2">
+                      {!selectedFile && editedData?.additional_materials_url && currentFileName && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <Download className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={editedData.additional_materials_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline text-sm"
+                          >
+                            {currentFileName}
+                          </a>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setEditedData((prev) => ({
+                                ...prev!,
+                                additional_materials_url: null,
+                              }));
+                              setCurrentFileName(null);
+                            }}
+                            className="px-2 py-1 ml-2"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      )}
+                      {(!editedData?.additional_materials_url || selectedFile) && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            {!editedData?.additional_materials_url ? (
+                              <input
+                                key={editedData?.additional_materials_url || 'new-file'}
+                                type="file"
+                                onChange={(e) => {
+                                  const files = e.target.files;
+                                  if (files && files.length > 0) {
+                                    const file = files[0];
+                                    setSelectedFile(file);
+                                    setCurrentFileName(file.name);
+                                    setEditedData((prev) => ({
+                                      ...prev!,
+                                      additional_materials_url: null,
+                                    }));
+                                  }
+                                }}
+                                accept=".pdf,.ppt,.pptx,.doc,.docx"
+                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                              />
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = '.pdf,.ppt,.pptx,.doc,.docx';
+                                  input.onchange = (e) => {
+                                    const files = (e.target as HTMLInputElement).files;
+                                    if (files && files.length > 0) {
+                                      setSelectedFile(files[0]);
+                                      setEditedData((prev) => ({
+                                        ...prev!,
+                                        additional_materials_url: null,
+                                      }));
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                                className="w-full"
+                              >
+                                Choose New File
+                              </Button>
+                            )}
+                          </div>
+                          {selectedFile && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                setCurrentFileName(projectData?.additional_materials_url ? getFileNameFromUrl(projectData.additional_materials_url) : null);
+                                setEditedData((prev) => ({
+                                  ...prev!,
+                                  additional_materials_url: projectData?.additional_materials_url || null,
+                                }));
+                              }}
+                              className="px-2 py-1"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Upload pitch deck or other project materials (max 10MB)
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

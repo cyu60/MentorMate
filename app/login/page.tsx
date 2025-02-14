@@ -81,10 +81,9 @@ function LoginContent() {
         const { error: profileError } = await supabase
           .from('user_profiles')
           .upsert({
-            id: data.user.id,
             email: data.user.email,
-            username: data.user.email?.split('@')[0],
-            updated_at: new Date().toISOString()
+            display_name: data.user.email?.split('@')[0],
+            created_at: new Date().toISOString()
           });
 
         if (profileError) {
@@ -179,7 +178,6 @@ function LoginContent() {
             </div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -201,7 +199,6 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -223,7 +220,6 @@ function LoginContent() {
               </div>
             </div>
 
-            {/* Options */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
