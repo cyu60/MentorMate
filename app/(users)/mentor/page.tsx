@@ -1,21 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
+import { motion } from "framer-motion";
+import { Camera } from "lucide-react";
 
 export default function MentorPage() {
   const router = useRouter();
 
   useEffect(() => {
     // Check for return URL and redirect if exists
-    const returnUrl = localStorage.getItem('returnUrl');
+    const returnUrl = localStorage.getItem("returnUrl");
     if (returnUrl) {
-      localStorage.removeItem('returnUrl');
+      localStorage.removeItem("returnUrl");
       router.push(returnUrl);
     }
   }, [router]);
@@ -24,7 +24,7 @@ export default function MentorPage() {
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
       <ReturnUrlHandler />
-      <div className="relative z-10 container mx-auto">
+      <div className="relative z-10 container mx-auto py-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
           Mentor Dashboard
         </h1>
@@ -32,20 +32,21 @@ export default function MentorPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-6 px-4 sm:px-6 md:px-8 lg:px-40"
+          className="flex justify-center"
         >
-          <Card className="bg-white backdrop-blur-md border-blue-200/20">
-            <CardContent className="p-4 sm:p-6">
-              <Button
-                onClick={() => router.push("/mentor/scan")}
-                className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                Continue to Scan
-              </Button>
-            </CardContent>
-          </Card>
+          <button
+            type="button"
+            onClick={() => router.push("/mentor/scan")}
+            className="relative block w-full max-w-md rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            <Camera className="mx-auto h-12 w-12 text-gray-400" />
+            <span className="mt-2 block text-sm font-semibold text-gray-900">
+              Start Scanning
+            </span>
+          </button>
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 }
