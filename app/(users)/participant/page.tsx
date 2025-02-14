@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
@@ -39,7 +39,6 @@ export default function ParticipantPage() {
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects");
   const [session, setSession] = useState<Session | null>(null);
 
-  // First fetch the session
   useEffect(() => {
     const fetchSession = async () => {
       const {
@@ -54,7 +53,6 @@ export default function ParticipantPage() {
         router.push("/");
       } else {
         setSession(session);
-        // Check for return URL and redirect if exists
         const returnUrl = localStorage.getItem("returnUrl");
         if (returnUrl) {
           localStorage.removeItem("returnUrl");
@@ -65,35 +63,59 @@ export default function ParticipantPage() {
     fetchSession();
   }, [router]);
 
-  // Once the session is available, fetch the projects from Supabase
-  useEffect(() => {
-    const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
       if (!session) return;
       setIsLoading(true);
 
-      // First get the user's display name from user_profiles
-      const { data: userProfile, error: profileError } = await supabase
+      console.log("Fetching projects for email:", session.user.email);
+      
+      let userProfile;
+      const { data: existingProfile, error: profileError } = await supabase
         .from("user_profiles")
-        .select("display_name")
+        .select()
         .eq("email", session.user.email)
         .single();
 
-      if (profileError) {
+      if (profileError && profileError.code === 'PGRST116') {
+        const { data: newProfile, error: createError } = await supabase
+          .from("user_profiles")
+          .insert({
+            email: session.user.email,
+            display_name: session.user.email?.split('@')[0],
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Error creating user profile:", createError);
+          setIsLoading(false);
+          return;
+        }
+        userProfile = newProfile;
+      } else if (profileError) {
         console.error("Error fetching user profile:", profileError);
         setIsLoading(false);
         return;
+      } else {
+        userProfile = existingProfile;
       }
 
-      // Fetch both owned projects and projects where user is a teammate
+      console.log("User profile:", userProfile);
+
       const { data: ownedProjects, error: ownedError } = await supabase
         .from("projects")
         .select("*")
         .eq("lead_email", session.user.email);
 
+      console.log("Owned projects:", ownedProjects);
+
       const { data: teammateProjects, error: teammateError } = await supabase
         .from("projects")
         .select("*")
         .contains("teammates", [userProfile.display_name]);
+
+      console.log("Teammate projects:", teammateProjects);
 
       if (ownedError) {
         console.error("Error fetching owned projects:", ownedError);
@@ -124,9 +146,11 @@ export default function ParticipantPage() {
       );
 
       setIsLoading(false);
-    };
+    }, [session, setIsLoading, setExistingProjects]);
+
+  useEffect(() => {
     fetchProjects();
-  }, [session]);
+  }, [session, fetchProjects]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
@@ -138,7 +162,6 @@ export default function ParticipantPage() {
             Participant Dashboard
           </h1>
 
-          {/* Navigation for Projects / Submit Project */}
           <div className="flex justify-center gap-4">
             <Button
               onClick={() => setActiveTab("projects")}
@@ -162,7 +185,6 @@ export default function ParticipantPage() {
             </Button>
           </div>
 
-          {/* Loading / Projects Section */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
@@ -223,7 +245,6 @@ export default function ParticipantPage() {
                       <div className="text-center space-y-3">
                         <h3 className="text-xl font-semibold text-gray-700">
                           No Projects Yet
-                          {/* {JSON.stringify(existingProjects)} */}
                         </h3>
                         <p className="text-gray-500 max-w-sm">
                           Start your journey by creating your first project. It
@@ -253,6 +274,11 @@ export default function ParticipantPage() {
                       <ProjectSubmissionFormComponent
                         userEmail={session?.user?.email}
                         leadName={session?.user?.user_metadata?.full_name}
+                        onProjectSubmitted={() => {
+                          console.log("Project submitted, fetching updated projects...");
+                          setActiveTab("projects");
+                          fetchProjects();
+                        }}
                       />
                     </CardContent>
                   </Card>

@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface FeedbackItem {
   id: string;
@@ -27,27 +29,16 @@ export default function FeedbackPage() {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  /*
-  useEffect(() => {
-    const runInsertFunction = async () =>
-      try {
-        const { data, error } = await supabase.rpc('insert'); // Call the function
-        if (error) throw error;
-        console.log('public insert executed successfully:', data);
-      } catch (error: any) {
-        console.error('Error calling the supabase_rpc:', error.message);
-      }
-    };
-    runInsertFunction();
-  }, []);
-*/
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const [synthesis, setSynthesis] = useState<string | null>(null);
+  const { toast } = useToast();
+
   useEffect(() => {
     const fetchData = async () => {
       if (!projectId) return;
 
       setIsLoading(true);
 
-      // Fetch project data
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("*")
@@ -62,7 +53,6 @@ export default function FeedbackPage() {
 
       setProjectData(projectData);
 
-      // Fetch feedback
       const { data: feedbackData, error: feedbackError } = await supabase
         .from("feedback")
         .select("*")
@@ -71,7 +61,12 @@ export default function FeedbackPage() {
 
       if (feedbackError) {
         console.error("Error fetching feedback:", feedbackError);
-        setFeedback([]); // Clear feedback on error
+        setFeedback([]);
+        toast({
+          title: "Error",
+          description: "Failed to fetch feedback. Please try again later.",
+          variant: "destructive",
+        });
       } else {
         setFeedback(feedbackData);
       }
@@ -80,7 +75,39 @@ export default function FeedbackPage() {
     };
 
     fetchData();
-  }, [projectId]);
+  }, [projectId, toast]);
+
+  const handleSynthesizeFeedback = async () => {
+    try {
+      setIsSynthesizing(true);
+      setSynthesis(null);
+
+      const response = await fetch("/api/feedback/synthesize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: projectId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to synthesize feedback");
+      }
+
+      setSynthesis(data.synthesis);
+    } catch (error) {
+      console.error("Error synthesizing feedback:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to synthesize feedback. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSynthesizing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -104,10 +131,8 @@ export default function FeedbackPage() {
     );
   }
 
-  // const fullUrl = `${window.location.origin}/project/${projectId}`;
-
   const getInitials = (name: string | null) => {
-    if (!name) return "?"; // Return a fallback for null/undefined names
+    if (!name) return "?";
     const names = name.trim().split(" ");
     const initials = names.map((n) => n[0]).join("");
     return initials.toUpperCase();
@@ -120,14 +145,49 @@ export default function FeedbackPage() {
         Feedback for {projectData.project_name}
       </h1>
       <div className="w-full max-w-4xl px-4 sm:px-0 mb-6 mx-auto">
-        <Link href={`/participant/dashboard/${projectId}`}>
-          <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span>Project Details</span>
+        <div className="flex justify-between items-center">
+          <Link href={`/participant/dashboard/${projectId}`}>
+            <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Project Details</span>
+            </Button>
+          </Link>
+          <Button
+            onClick={handleSynthesizeFeedback}
+            disabled={isLoading || isSynthesizing || feedback.length === 0}
+            className="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            {isSynthesizing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Synthesizing...
+              </>
+            ) : (
+              "Synthesize Feedback with AI"
+            )}
           </Button>
-        </Link>
+        </div>
       </div>
       <div className="w-full max-w-2xl mx-auto">
+        {synthesis && (
+          <Card className="mb-8 bg-blue-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-xl text-blue-900">
+                AI Feedback Synthesis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="prose max-w-none">
+                {synthesis.split("\n").map((line, index) => (
+                  <p key={index} className="mb-4">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {feedback.length > 0 ? (
           <ul className="space-y-6">
             {feedback.map((item) => (
@@ -135,13 +195,11 @@ export default function FeedbackPage() {
                 key={item.id}
                 className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow backdrop-blur-md"
               >
-                {/* Avatar */}
                 <div className="flex-shrink-0">
                   <div className="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-white font-bold">
                     {getInitials(item.mentor_name)}
                   </div>
                 </div>
-                {/* Comment Content */}
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-gray-800">
