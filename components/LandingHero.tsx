@@ -101,63 +101,6 @@ export function LandingHero() {
               </div>
             </DialogContent>
             </Dialog>
-
-          {/* <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto button-gradient text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-gray-700"
-              onClick={handleParticipantClick}
-            >
-              I&apos;m a Participant
-            </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto bg-transparent border-2 border-blue-900 font-semibold py-3 px-6 rounded-full hover:bg-blue-900/30 transition-all duration-300"
-                >
-                  I&apos;m a Mentor/Judge
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Welcome Mentor!</DialogTitle>
-                  <DialogDescription>
-                    Would you like to continue with an account? Creating an account allows you to save and track your mentoring history and allows users to interact with your feedback.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col sm:flex-row gap-4 justify-end mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      router.push("/mentor");
-                    }}
-                  >
-                    Continue Without Login
-                  </Button>
-                  <Button
-                    onClick={async () => {
-                      localStorage.setItem('redirectToMentor', 'true');
-                      const { data: { session }, error } = await supabase.auth.getSession();
-                      if (error) {
-                        console.error("Error checking session:", error);
-                        return;
-                      }
-                      if (!session) {
-                        router.push("/mentor/login");
-                      } else {
-                        router.push("/mentor");
-                        localStorage.removeItem('redirectToMentor');
-                      }
-                    }}
-                    className="bg-blue-900 text-white"
-                  >
-                    Login
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog> */}
           </div>
         </div>
 
