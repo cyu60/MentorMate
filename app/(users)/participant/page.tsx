@@ -13,13 +13,23 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Project {
   id: string;
@@ -39,6 +49,7 @@ export default function ParticipantPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects");
   const [session, setSession] = useState<Session | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -67,94 +78,116 @@ export default function ParticipantPage() {
   }, [router]);
 
   const fetchProjects = useCallback(async () => {
-      if (!session) return;
-      setIsLoading(true);
+    if (!session) return;
+    setIsLoading(true);
 
-      console.log("Fetching projects for email:", session.user.email);
-      
-      let userProfile;
-      const { data: existingProfile, error: profileError } = await supabase
+    console.log("Fetching projects for email:", session.user.email);
+
+    let userProfile;
+    const { data: existingProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select()
+      .eq("email", session.user.email)
+      .single();
+
+    if (profileError && profileError.code === "PGRST116") {
+      const { data: newProfile, error: createError } = await supabase
         .from("user_profiles")
+        .insert({
+          email: session.user.email,
+          display_name: session.user.email?.split("@")[0],
+          created_at: new Date().toISOString(),
+        })
         .select()
-        .eq("email", session.user.email)
         .single();
 
-      if (profileError && profileError.code === 'PGRST116') {
-        const { data: newProfile, error: createError } = await supabase
-          .from("user_profiles")
-          .insert({
-            email: session.user.email,
-            display_name: session.user.email?.split('@')[0],
-            created_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error("Error creating user profile:", createError);
-          setIsLoading(false);
-          return;
-        }
-        userProfile = newProfile;
-      } else if (profileError) {
-        console.error("Error fetching user profile:", profileError);
+      if (createError) {
+        console.error("Error creating user profile:", createError);
         setIsLoading(false);
         return;
-      } else {
-        userProfile = existingProfile;
       }
-
-      console.log("User profile:", userProfile);
-
-      const { data: ownedProjects, error: ownedError } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("lead_email", session.user.email);
-
-      console.log("Owned projects:", ownedProjects);
-
-      const { data: teammateProjects, error: teammateError } = await supabase
-        .from("projects")
-        .select("*")
-        .contains("teammates", [userProfile.display_name]);
-
-      console.log("Teammate projects:", teammateProjects);
-
-      if (ownedError) {
-        console.error("Error fetching owned projects:", ownedError);
-      }
-      if (teammateError) {
-        console.error("Error fetching teammate projects:", teammateError);
-      }
-
-      const owned = (ownedProjects || []).map((p) => ({
-        ...p,
-        isTeammate: false,
-      }));
-      const teammate = (teammateProjects || []).map((p) => ({
-        ...p,
-        isTeammate: true,
-      }));
-
-      const allProjects = [...owned, ...teammate].filter(
-        (project, index, self) =>
-          index === self.findIndex((p) => p.id === project.id)
-      );
-
-      setExistingProjects(
-        allProjects.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-      );
-      console.log("Fetched projects:", allProjects);
-
+      userProfile = newProfile;
+    } else if (profileError) {
+      console.error("Error fetching user profile:", profileError);
       setIsLoading(false);
-    }, [session, setIsLoading, setExistingProjects]);
+      return;
+    } else {
+      userProfile = existingProfile;
+    }
+
+    console.log("User profile:", userProfile);
+
+    const { data: ownedProjects, error: ownedError } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("lead_email", session.user.email);
+
+    console.log("Owned projects:", ownedProjects);
+
+    const { data: teammateProjects, error: teammateError } = await supabase
+      .from("projects")
+      .select("*")
+      .contains("teammates", [userProfile.display_name]);
+
+    console.log("Teammate projects:", teammateProjects);
+
+    if (ownedError) {
+      console.error("Error fetching owned projects:", ownedError);
+    }
+    if (teammateError) {
+      console.error("Error fetching teammate projects:", teammateError);
+    }
+
+    const owned = (ownedProjects || []).map((p) => ({
+      ...p,
+      isTeammate: false,
+    }));
+    const teammate = (teammateProjects || []).map((p) => ({
+      ...p,
+      isTeammate: true,
+    }));
+
+    const allProjects = [...owned, ...teammate].filter(
+      (project, index, self) =>
+        index === self.findIndex((p) => p.id === project.id)
+    );
+
+    setExistingProjects(
+      allProjects.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+    );
+    console.log("Fetched projects:", allProjects);
+
+    setIsLoading(false);
+  }, [session, setIsLoading, setExistingProjects]);
 
   useEffect(() => {
     fetchProjects();
   }, [session, fetchProjects]);
+
+  const handleDeleteClick = (projectId: string) => {
+    setProjectToDelete(projectId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!projectToDelete || !session?.user?.email) return;
+
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", projectToDelete)
+      .eq("lead_email", session.user.email);
+
+    if (error) {
+      console.error("Error deleting project:", error);
+    } else {
+      fetchProjects();
+    }
+
+    setProjectToDelete(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
@@ -215,11 +248,26 @@ export default function ParticipantPage() {
                                 <CardTitle className="text-blue-900 text-xl font-semibold">
                                   {project.project_name}
                                 </CardTitle>
-                                {project.isTeammate && (
-                                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
-                                    Team Member
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  {project.isTeammate && (
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+                                      Team Member
+                                    </span>
+                                  )}
+                                  {project.lead_email ===
+                                    session?.user?.email && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                                      onClick={() =>
+                                        handleDeleteClick(project.id)
+                                      }
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                               <CardDescription className="text-gray-600 text-sm mt-2">
                                 <TextGenerateEffect
@@ -279,7 +327,9 @@ export default function ParticipantPage() {
                         userEmail={session?.user?.email}
                         leadName={session?.user?.user_metadata?.full_name}
                         onProjectSubmitted={() => {
-                          console.log("Project submitted, fetching updated projects...");
+                          console.log(
+                            "Project submitted, fetching updated projects..."
+                          );
                           setActiveTab("projects");
                           fetchProjects();
                         }}
@@ -290,11 +340,34 @@ export default function ParticipantPage() {
               )}
             </>
           )}
-        <div className="mt-16">
-          <Footer />
-        </div>
+          <div className="mt-16">
+            <Footer />
+          </div>
         </main>
       </div>
+      <AlertDialog
+        open={!!projectToDelete}
+        onOpenChange={() => setProjectToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              project and remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
