@@ -57,7 +57,7 @@ export function Navbar() {
     } else {
       setSession(null);
       localStorage.removeItem('returnUrl'); // Clear returnUrl on sign out
-      await router.push("/");
+      window.location.href = "/";
     }
   };
 

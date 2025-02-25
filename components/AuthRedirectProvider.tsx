@@ -22,7 +22,7 @@ export function AuthRedirectProvider({
       if (session && !error) {
         if (shouldRedirectToParticipant) {
           localStorage.removeItem('redirectToParticipant');
-          router.push('/participant');
+          router.push('/');
         } else if (shouldRedirectToMentor) {
           localStorage.removeItem('redirectToMentor');
           router.push('/mentor');
@@ -35,7 +35,7 @@ export function AuthRedirectProvider({
       if (event === 'SIGNED_IN' && session) {
         if (shouldRedirectToParticipant) {
           localStorage.removeItem('redirectToParticipant');
-          router.push('/participant');
+          router.push('/');
         } else if (shouldRedirectToMentor) {
           localStorage.removeItem('redirectToMentor');
           router.push('/mentor');

@@ -5,37 +5,8 @@ import Image from "next/image";
 import { ArrowRight, Users, Lightbulb, Target } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 export function LandingHero() {
-  const router = useRouter();
-  
-  const handleParticipantClick = async () => {
-    localStorage.setItem('redirectToParticipant', 'true');
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
-    if (error) {
-      console.error("Error checking session:", error);
-      return;
-    }
-    if (!session) {
-      router.push("/login");
-    } else {
-      router.push("/participant");
-      localStorage.removeItem('redirectToParticipant'); // Clean up immediately if we can redirect right away
-    }
-  };
 
   return (
     <div className="min-h-screen bg-artistic py-2 px-4 sm:px-6 lg:px-8">
@@ -65,42 +36,14 @@ export function LandingHero() {
             words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
             className="text-xl text-blue-100 max-w-3xl mx-auto font-light"
           />
-            <Dialog>
-            <DialogTrigger asChild>
-              <div>
+            <Link href="/select">
               <Button
                 className="inline-flex items-center px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
               >
                 Get Started
                 <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
               </Button>
-              </div>
-            </DialogTrigger>
-            <DialogContent className="p-1rounded-md">
-              <DialogHeader>
-              <DialogTitle>Welcome!</DialogTitle>
-              <DialogDescription>
-                Are you a participant or a mentor/judge? Please select an option to proceed.
-              </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col sm:flex-row gap-4 justify-end">
-              <Button
-                onClick={handleParticipantClick}
-                className="bg-blue-900 text-white"
-              >
-                I&apos;m a Participant
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                router.push("/mentor/login");
-                }}
-              >
-                I&apos;m a Mentor/Judge
-              </Button>
-              </div>
-            </DialogContent>
-            </Dialog>
+            </Link>
           </div>
         </div>
 
