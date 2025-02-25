@@ -1,8 +1,8 @@
 import type React from "react"
-import { HackathonHeader } from "../../../components/hackathon-header"
-import { HackathonNav } from "../../../components/hackathon-nav"
-import { JournalSection } from "../../../components/journal-section"
-import ToolsSection from "../../../components/tools-section"
+import { HackathonHeader } from "@/components/hackathon-header"
+import { HackathonNav } from "@/components/hackathon-nav"
+import { JournalSection } from "@/components/journal-section"
+import ToolsSection from "@/components/tools-section"
 
 export default function HackathonLayout({
   children,
@@ -29,4 +29,3 @@ export default function HackathonLayout({
     </div>
   )
 }
-
