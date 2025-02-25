@@ -4,8 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Menu, Home, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
 
 const sidebarItems = [
@@ -84,20 +83,22 @@ export function Sidebar() {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
           <Button variant="outline" size="icon" className="md:hidden">
             <Menu className="h-6 w-6" />
           </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[240px] sm:w-[300px]">
-          {renderSidebarItems()}
-        </SheetContent>
-      </Sheet>
-      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:border-r">
-        <ScrollArea className="flex-grow">
+        </DialogTrigger>
+        <DialogContent className="w-[240px] sm:w-[300px] p-0">
+          <div className="p-4">
+            {renderSidebarItems()}
+          </div>
+        </DialogContent>
+      </Dialog>
+      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:border-r bg-background">
+        <div className="flex-grow overflow-y-auto">
           <div className="p-4">{renderSidebarItems()}</div>
-        </ScrollArea>
+        </div>
       </aside>
     </>
   )

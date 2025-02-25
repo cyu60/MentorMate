@@ -9,6 +9,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { LandingHero } from "@/components/LandingHero"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
+import { Sidebar } from "@/components/sidebar"
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import { supabase } from "@/lib/supabase"
 
@@ -91,7 +92,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <Sidebar />
+      <div className="container mx-auto px-4 py-8 md:pl-72">
         <h1 className="text-4xl font-bold mb-8">MentorMates</h1>
 
         {/* Reflections Section */}
