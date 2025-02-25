@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Menu, Home, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
 
 const sidebarItems = [
+  { name: "Events", href: "/events", icon: Calendar },
   { name: "Home", href: "/", icon: Home },
   { name: "Events", href: "/events", icon: Calendar },
   { name: "My Projects", href: "/my-projects", icon: Folder },
@@ -31,55 +32,57 @@ export function Sidebar() {
     setExpandedItem(expandedItem === name ? null : name)
   }
 
-  const renderSidebarItems = () => (
-    <nav className="flex flex-col space-y-2">
-      {sidebarItems.map((item) => (
-        <div key={item.href}>
-          {item.subItems ? (
-            <Button
-              variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => toggleExpand(item.name)}
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              {item.name}
-              {expandedItem === item.name ? (
-                <ChevronDown className="ml-auto h-4 w-4" />
-              ) : (
-                <ChevronRight className="ml-auto h-4 w-4" />
-              )}
-            </Button>
-          ) : (
-            <Link href={item.href}>
+  const renderSidebarItems = () => {
+    return (
+      <nav className="flex flex-col space-y-2">
+        {sidebarItems.map((item, index) => (
+          <div key={`${item.href}-${index}`}>
+            {item.subItems ? (
               <Button
-                variant={pathname === item.href ? "secondary" : "ghost"}
+                variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
                 className="w-full justify-start"
-                onClick={() => setOpen(false)}
+                onClick={() => toggleExpand(item.name)}
               >
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.name}
+                {expandedItem === item.name ? (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                )}
               </Button>
-            </Link>
-          )}
-          {item.subItems && expandedItem === item.name && (
-            <div className="ml-4 mt-2 space-y-2">
-              {item.subItems.map((subItem) => (
-                <Link key={subItem.href} href={subItem.href}>
-                  <Button
-                    variant={pathname === subItem.href ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                    onClick={() => setOpen(false)}
-                  >
-                    {subItem.name}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </nav>
-  )
+            ) : (
+              <Link href={item.href}>
+                <Button
+                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => setOpen(false)}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.name}
+                </Button>
+              </Link>
+            )}
+            {item.subItems && expandedItem === item.name && (
+              <div className="ml-4 mt-2 space-y-2">
+                {item.subItems.map((subItem) => (
+                  <Link key={subItem.href} href={subItem.href}>
+                    <Button
+                      variant={pathname === subItem.href ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => setOpen(false)}
+                    >
+                      {subItem.name}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
+    )
+  }
 
   return (
     <>
@@ -103,4 +106,3 @@ export function Sidebar() {
     </>
   )
 }
-
