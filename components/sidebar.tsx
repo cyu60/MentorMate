@@ -1,0 +1,105 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Menu, Home, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
+
+const sidebarItems = [
+  { name: "Home", href: "/", icon: Home },
+  { name: "Events", href: "/events", icon: Calendar },
+  { name: "My Projects", href: "/my-projects", icon: Folder },
+  {
+    name: "Feedback",
+    href: "/feedback",
+    icon: MessageSquare,
+    subItems: [
+      { name: "Received", href: "/feedback/received" },
+      { name: "Given", href: "/feedback/given" },
+    ],
+  },
+]
+
+export function Sidebar() {
+  const [open, setOpen] = useState(false)
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const pathname = usePathname()
+
+  const toggleExpand = (name: string) => {
+    setExpandedItem(expandedItem === name ? null : name)
+  }
+
+  const renderSidebarItems = () => (
+    <nav className="flex flex-col space-y-2">
+      {sidebarItems.map((item) => (
+        <div key={item.href}>
+          {item.subItems ? (
+            <Button
+              variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => toggleExpand(item.name)}
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
+              {expandedItem === item.name ? (
+                <ChevronDown className="ml-auto h-4 w-4" />
+              ) : (
+                <ChevronRight className="ml-auto h-4 w-4" />
+              )}
+            </Button>
+          ) : (
+            <Link href={item.href}>
+              <Button
+                variant={pathname === item.href ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => setOpen(false)}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.name}
+              </Button>
+            </Link>
+          )}
+          {item.subItems && expandedItem === item.name && (
+            <div className="ml-4 mt-2 space-y-2">
+              {item.subItems.map((subItem) => (
+                <Link key={subItem.href} href={subItem.href}>
+                  <Button
+                    variant={pathname === subItem.href ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => setOpen(false)}
+                  >
+                    {subItem.name}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </nav>
+  )
+
+  return (
+    <>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="md:hidden">
+            <Menu className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+          {renderSidebarItems()}
+        </SheetContent>
+      </Sheet>
+      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:border-r">
+        <ScrollArea className="flex-grow">
+          <div className="p-4">{renderSidebarItems()}</div>
+        </ScrollArea>
+      </aside>
+    </>
+  )
+}
+
