@@ -223,7 +223,7 @@ export default function ParticipantDashboard() {
       });
 
       // Get the project URL that the QR code represents
-      const projectUrl = `${window.location.origin}/project/${projectId}`;
+      const projectUrl = `${window.location.origin}/my-projects/${projectId}`;
 
       // Try modern clipboard API first
       try {
@@ -332,7 +332,7 @@ export default function ParticipantDashboard() {
     );
   }
 
-  const fullUrl = `${window.location.origin}/project/${projectId}`;
+  const fullUrl = `${window.location.origin}/my-projects/${projectId}`;
 
   return (
     <div>
@@ -348,7 +348,7 @@ export default function ParticipantDashboard() {
         </div>
 
         <div className="w-full max-w-4xl px-4 sm:px-0 mb-6">
-          <Link href="/participant">
+          <Link href="/my-projects">
             <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
               <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Dashboard</span>
@@ -769,7 +769,7 @@ export default function ParticipantDashboard() {
                 {fullUrl}
               </a>
             </p>
-            <Link href={`/participant/feedback/${projectId}`}>
+            <Link href={`/my-projects/${projectId}/feedback`}>
               <Button className="mt-4 w-full md:w-auto button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                 See Feedback
               </Button>

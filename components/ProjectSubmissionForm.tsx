@@ -181,7 +181,7 @@ export function ProjectSubmissionFormComponent({
       form.reset();
 
       onProjectSubmitted?.();
-      router.push(`/participant/dashboard/${data[0].id}`);
+      router.push(`/my-projects/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);
       toast({

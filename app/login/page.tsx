@@ -38,15 +38,7 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        const returnUrl = localStorage.getItem('returnUrl');
-        if (returnUrl) {
-          console.log("returnUrl found:", returnUrl);
-          localStorage.removeItem('returnUrl');
-          router.push(returnUrl);
-        } else {
-          console.log("No returnUrl, redirecting to /participant");
-          router.push("/participant");
-        }
+        router.push("/select");
       }
     };
 
@@ -94,7 +86,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/participant");
+      router.push("/select");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -109,14 +101,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      const returnUrl = localStorage.getItem('returnUrl');
-      if (returnUrl) {
-        localStorage.removeItem('returnUrl');
-        router.push(returnUrl);
-      } else {
-        console.log("No returnUrl, redirecting to /participant after sign in");
-        router.push("/participant");
-      }
+      router.push("/select");
     }
   };
 

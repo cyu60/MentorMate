@@ -20,7 +20,7 @@ export function SelectHero() {
     if (!session) {
       router.push("/login");
     } else {
-      router.push("/");
+      router.push("/my-projects");
       localStorage.removeItem('redirectToParticipant'); // Clean up immediately if we can redirect right away
     }
   };

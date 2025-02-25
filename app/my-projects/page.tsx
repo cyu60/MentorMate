@@ -42,8 +42,8 @@ interface Project {
   isTeammate?: boolean;
 }
 
-export default function ParticipantPage() {
-  console.log("ParticipantPage component is rendering");
+export default function MyProjectsPage() {
+  console.log("MyProjectsPage component is rendering");
   const router = useRouter();
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +66,7 @@ export default function ParticipantPage() {
         router.push("/select");
       } else {
         setSession(session);
-        console.log("Session in participant page:", session);
+        console.log("Session in my projects page:", session);
         const returnUrl = localStorage.getItem("returnUrl");
         if (returnUrl) {
           localStorage.removeItem("returnUrl");
@@ -196,7 +196,7 @@ export default function ParticipantPage() {
       <div>
         <main className="container mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
-            Participant Dashboard
+            My Projects
           </h1>
 
           <div className="flex justify-center gap-4">
@@ -281,7 +281,7 @@ export default function ParticipantPage() {
                             </CardHeader>
                             <CardContent>
                               <Link
-                                href={`/participant/dashboard/${project.id}`}
+                                href={`/my-projects/${project.id}`}
                               >
                                 <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                                   View Project

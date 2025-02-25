@@ -47,7 +47,7 @@ export function Navbar() {
         console.log("Setting returnUrl:", currentPath); // Add logging
       }
     }
-    router.push("/login");
+    router.push("/select");
   };
 
   const handleSignOutClick = async () => {

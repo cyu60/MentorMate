@@ -633,7 +633,7 @@ export default function FeedbackForm({
               </span>
             </div>
             <Link
-              href="/login"
+              href="/select"
               className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors"
               onClick={() => {
                 if (typeof window !== "undefined") {

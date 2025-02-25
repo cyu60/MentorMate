@@ -183,7 +183,7 @@ const AboutPage: React.FC = () => {
         {/* Call to Action */}
         <div className="text-center mt-16">
           <Link
-            href="/login?mode=signup"
+            href="/select"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
           >
             Get Started
