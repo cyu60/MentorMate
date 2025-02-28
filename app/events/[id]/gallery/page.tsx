@@ -113,11 +113,6 @@ export default function GalleryPage() {
                   Be the first to submit a project for this event!
                 </p>
               </div>
-              <Link href={`/events/${eventId}/projects`}>
-                <Button className="button-gradient text-white font-semibold py-6 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
-                  Submit First Project 🚀
-                </Button>
-              </Link>
             </div>
           )}
         </motion.div>

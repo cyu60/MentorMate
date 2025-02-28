@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
 interface Event {
-  event_id: string // UUID
+  event_id: string
   event_name: string
   event_date: string
   location: string

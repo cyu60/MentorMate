@@ -41,7 +41,7 @@ export function CancelRegistration({ eventId }: CancelRegistrationProps) {
       }
 
       router.refresh()
-      window.location.reload() // Force a full page refresh to update all components
+      window.location.reload()
     } catch (error) {
       console.error('Error canceling registration:', error)
     } finally {

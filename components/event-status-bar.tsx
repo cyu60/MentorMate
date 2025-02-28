@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase"
 import { CancelRegistration } from "@/components/cancel-registration"
 
 interface EventStatusBarProps {
-  eventId: string // UUID
+  eventId: string
 }
 
 export function EventStatusBar({ eventId }: EventStatusBarProps) {

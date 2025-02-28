@@ -4,14 +4,25 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import QRCode from "react-qr-code"
 import { Button } from "@/components/ui/button"
-import { notFound } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import {
   Edit2,
   X,
   Download,
   Copy,
   ExternalLink,
+  Trash2
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
@@ -36,6 +47,7 @@ interface ProjectDashboardSectionProps {
 }
 
 export default function ProjectDashboardSection({ eventId, projectId }: ProjectDashboardSectionProps) {
+  const router = useRouter()
   const [projectData, setProjectData] = useState<ProjectData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
@@ -43,6 +55,32 @@ export default function ProjectDashboardSection({ eventId, projectId }: ProjectD
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [currentFileName, setCurrentFileName] = useState<string | null>(null)
   const [availableUsers, setAvailableUsers] = useState<string[]>([])
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId)
+
+      if (error) throw error
+
+      toast({
+        title: "Project deleted",
+        description: "Your project has been successfully deleted",
+      })
+
+      router.push(`/events/${eventId}/gallery`)
+    } catch (error) {
+      console.error("Error deleting project:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete project",
+        variant: "destructive",
+      })
+    }
+  }
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024
 
@@ -361,14 +399,24 @@ export default function ProjectDashboardSection({ eventId, projectId }: ProjectD
               Project Details
             </h2>
             {!isEditing ? (
-              <Button
-                onClick={handleEdit}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Edit2 className="w-4 h-4" />
-                Edit
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleEdit}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => setShowDeleteDialog(true)}
+                  variant="destructive"
+                  size="icon"
+                  className="h-9 w-9"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Button
@@ -729,6 +777,26 @@ export default function ProjectDashboardSection({ eventId, projectId }: ProjectD
           )}
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your project.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

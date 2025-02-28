@@ -1,10 +1,11 @@
 "use client"
 
-"use client"
-
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 
 const GoalSection = dynamic(() => import("@/components/goal-section"), {
   ssr: false,
@@ -44,11 +45,23 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
       <Suspense fallback={<div>Loading goals...</div>}>
         <GoalSection eventId={eventId} />
       </Suspense>
-      {projectId && (
-        <Suspense fallback={<div>Loading project...</div>}>
+      <Suspense fallback={<div>Loading project...</div>}>
+        {projectId ? (
           <ProjectDashboardSection eventId={eventId} projectId={projectId} />
-        </Suspense>
-      )}
+        ) : (
+          <Card className="p-6">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <h3 className="text-xl font-semibold text-gray-700">No Project Yet</h3>
+              <p className="text-gray-500 text-center">Get started by submitting your project!</p>
+              <Link href={`/events/${eventId}/projects`}>
+                <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                  Submit Project
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        )}
+      </Suspense>
       <Suspense fallback={<div>Loading tools...</div>}>
         <ToolsSection />
       </Suspense>

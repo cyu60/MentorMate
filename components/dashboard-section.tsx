@@ -8,7 +8,6 @@ export default function DashboardSection() {
       </CardHeader>
       <CardContent>
         <p>Welcome to your hackathon dashboard. Here's an overview of your progress and upcoming tasks.</p>
-        {/* Add dashboard content, such as progress bars, upcoming deadlines, etc. */}
       </CardContent>
     </Card>
   )
