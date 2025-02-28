@@ -51,7 +51,6 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return
       }
 
-      // Get user profile by email since that's the unique identifier
       const { data: profile, error: fetchError } = await supabase
         .from('user_profiles')
         .select()

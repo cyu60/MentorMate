@@ -82,6 +82,16 @@ export function ProjectSubmissionFormComponent({
     },
   });
 
+  // Update form when props change
+  useEffect(() => {
+    if (leadName) {
+      form.setValue('leadName', leadName);
+    }
+    if (userEmail) {
+      form.setValue('leadEmail', userEmail);
+    }
+  }, [leadName, userEmail, form]);
+
   const [allUsers, setAllUsers] = useState<string[]>([]);
 
   useEffect(() => {
@@ -238,14 +248,21 @@ export function ProjectSubmissionFormComponent({
                 name="leadName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm sm:text-base">
+                    <FormLabel className="text-sm sm:text-base flex items-center gap-2">
                       Name
+                      {leadName && (
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                          Auto-filled
+                        </span>
+                      )}
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="John Doe"
                         {...field}
-                        className="text-sm sm:text-base p-2 sm:p-3"
+                        className={`text-sm sm:text-base p-2 sm:p-3 ${
+                          leadName ? 'bg-muted/50' : ''
+                        }`}
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />
@@ -257,15 +274,22 @@ export function ProjectSubmissionFormComponent({
                 name="leadEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm sm:text-base">
+                    <FormLabel className="text-sm sm:text-base flex items-center gap-2">
                       Email
+                      {userEmail && (
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                          Auto-filled
+                        </span>
+                      )}
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="johndoe@example.com"
                         {...field}
-                        className="text-sm sm:text-base p-2 sm:p-3"
+                        className={`text-sm sm:text-base p-2 sm:p-3 ${
+                          userEmail ? 'bg-muted/50' : ''
+                        }`}
                       />
                     </FormControl>
                     <FormMessage className="text-xs sm:text-sm" />

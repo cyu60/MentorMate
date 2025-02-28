@@ -17,7 +17,18 @@ export default function ProjectSubmissionPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUserEmail(session.user.email || null);
-        setUserName(session.user.user_metadata?.full_name || null);
+        setUserName(session.user.user_metadata?.full_name || session.user.user_metadata?.name || null);
+
+        // Get user profile data
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUserName(profile.display_name || session.user.user_metadata?.full_name || null);
+        }
       }
     };
     getUser();

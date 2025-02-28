@@ -348,10 +348,10 @@ export default function ProjectDashboard() {
         </div>
 
         <div className="w-full max-w-4xl px-4 sm:px-0 mb-6">
-          <Link href={`/my-projects/${projectId}`}>
+          <Link href="/my-projects">
             <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 text-sm sm:text-base">
               <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Back to Project</span>
+              <span>Back to My Projects</span>
             </Button>
           </Link>
         </div>
