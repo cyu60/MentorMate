@@ -18,7 +18,7 @@ export default async function EventsPage() {
       <h1 className="text-3xl font-bold mb-8">Upcoming Events</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {eventsList.map((event) => (
-          <Link href={`/events/${event.event_id}`} key={event.event_id}>
+          <Link href={`/events/${event.event_id}/overview`} key={event.event_id}>
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
                 <CardTitle>{event.event_name}</CardTitle>
