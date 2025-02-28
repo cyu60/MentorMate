@@ -191,7 +191,6 @@ export default function MyProjectsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
-      <Navbar />
       <ReturnUrlHandler />
       <div>
         <main className="container mx-auto">
@@ -340,9 +339,6 @@ export default function MyProjectsPage() {
               )}
             </>
           )}
-          <div className="mt-16">
-            <Footer />
-          </div>
         </main>
       </div>
       <AlertDialog

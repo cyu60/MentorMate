@@ -4,6 +4,7 @@ import "./globals.css"
 import { Providers } from "@/components/Providers"
 import { Navbar } from "@/components/navbar"
 import { Sidebar } from "@/components/sidebar"
+import { Footer } from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,6 +28,7 @@ export default function RootLayout({
               <Sidebar />
               <main className="flex-1 md:pl-64">
                 {children}
+                <Footer />
               </main>
             </div>
           </div>
