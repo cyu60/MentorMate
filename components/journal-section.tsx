@@ -11,6 +11,14 @@ import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { useParams } from "next/navigation"
 import { Pencil, CheckCircle2, XCircle } from "lucide-react"
+import { Session } from "@supabase/supabase-js"
+
+type SupabaseSessionResponse = {
+  data: {
+    session: Session | null;
+  };
+  error: Error | null;
+} | null
 
 interface JournalEntry {
   id: string
@@ -40,14 +48,14 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
   const [editedContent, setEditedContent] = useState("")
-  const [session, setSession] = useState<any>(null)
+  const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     if (eventId) {
       const initSession = async () => {
-        const { data: sessionData } = await supabase.auth.getSession()
-        setSession(sessionData)
+        const sessionResponse = await supabase.auth.getSession()
+        setSessionData(sessionResponse)
         fetchEntries()
       }
       initSession()
@@ -338,7 +346,7 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
                           )}
                         </div>
                       </div>
-                      {entry.user_id === session?.session?.user?.id && (
+                      {entry.user_id === sessionData?.data?.session?.user?.id && (
                         <div className="flex items-center gap-2">
                           {entry.status === 'in_progress' && (
                             <Button

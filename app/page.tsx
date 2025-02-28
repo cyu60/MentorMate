@@ -10,6 +10,7 @@ import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistratio
 import { Footer } from "@/components/footer"
 import { LandingHero } from "@/components/LandingHero"
 import { supabase } from "@/lib/supabase"
+import { Session } from "@supabase/supabase-js"
 
 const reflections = [
   {
@@ -42,7 +43,7 @@ const achievements = [
 ]
 
 export default function HomePage() {
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

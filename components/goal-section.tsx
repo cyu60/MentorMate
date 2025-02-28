@@ -4,17 +4,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { useParams } from "next/navigation"
-import { Pencil, Check, X, CheckCircle2, XCircle } from "lucide-react"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Pencil, CheckCircle2, XCircle } from "lucide-react"
 
 interface GoalSectionProps {
   eventId?: string // Make optional since we'll get from URL if not provided
@@ -51,11 +45,37 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
   const [editedContent, setEditedContent] = useState("")
   const { toast } = useToast()
 
+  const fetchGoals = useCallback(async () => {
+    const { data: session } = await supabase.auth.getSession()
+    if (!session?.session?.user?.id) return
+
+    const { data, error } = await supabase
+      .from("platform_engagement")
+      .select("*")
+      .eq("event_id", eventId)
+      .eq("type", "goal")
+      .eq("user_id", session.session.user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      toast({
+        title: "Error fetching goals",
+        description: "Please try again later",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (data) {
+      setGoals(data)
+    }
+  }, [eventId, toast])
+
   useEffect(() => {
     if (eventId) {
       fetchGoals()
     }
-  }, [eventId])
+  }, [eventId, fetchGoals])
 
   const incrementPulse = async (userEmail: string) => {
     // First get current pulse value
@@ -86,32 +106,6 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
         description: updateError.message || "Please try again later",
         variant: "destructive",
       })
-    }
-  }
-
-  const fetchGoals = async () => {
-    const { data: session } = await supabase.auth.getSession()
-    if (!session?.session?.user?.id) return
-
-    const { data, error } = await supabase
-      .from("platform_engagement")
-      .select("*")
-      .eq("event_id", eventId)
-      .eq("type", "goal")
-      .eq("user_id", session.session.user.id)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      toast({
-        title: "Error fetching goals",
-        description: "Please try again later",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (data) {
-      setGoals(data)
     }
   }
 

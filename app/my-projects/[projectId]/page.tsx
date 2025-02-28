@@ -17,6 +17,7 @@ interface Project {
   lead_email: string;
   project_url?: string;
   additional_materials_url?: string;
+  event_id: string;
 }
 
 export default function ProjectPage({ params }: { params: Promise<{ projectId: string }> }) {
@@ -105,6 +106,7 @@ export default function ProjectPage({ params }: { params: Promise<{ projectId: s
             projectLeadName={project.lead_name}
             project_url={project.project_url}
             additional_materials_url={project.additional_materials_url}
+            eventId={project.event_id}
           />
         </div>
       </div>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
-import { CancelRegistration } from "@/components/cancel-registration"
 
 interface JoinEventButtonProps {
   eventId: string

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Menu, Home, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
+import { Menu, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
 
 const sidebarItems = [
   { name: "Events", href: "/events", icon: Calendar },

@@ -4,19 +4,18 @@ import { HackathonNav } from "@/components/hackathon-nav"
 import { createSupabaseClient } from "@/app/utils/supabase/server"
 import { notFound } from "next/navigation"
 import { EventStatusBar } from "@/components/event-status-bar"
-import { CancelRegistration } from "@/components/cancel-registration"
 import { JoinEventButton } from "@/components/join-event-button"
 
 interface LayoutProps {
-  children: React.ReactNode
-  params: { id: string }
+  children: React.ReactNode;
+  params: Promise<{ id: string }>;
 }
 
 export default async function HackathonLayout({
   children,
   params,
 }: LayoutProps) {
-  const { id } = await Promise.resolve(params)
+  const { id } = await params
   const supabase = createSupabaseClient()
 
   // Fetch event details

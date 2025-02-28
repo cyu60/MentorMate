@@ -12,7 +12,6 @@ import {
   Edit2,
   X,
   Download,
-  Copy,
   ExternalLink,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";

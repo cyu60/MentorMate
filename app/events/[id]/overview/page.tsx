@@ -63,7 +63,11 @@ const defaultRules: Rule[] = [
   }
 ]
 
-export default async function EventOverviewPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params)
   const supabase = createSupabaseClient()
   

@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/FeedbackForm";
-import type { Session } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
 
 interface ProjectData {
@@ -21,8 +20,8 @@ interface ProjectData {
 export default function ProjectFeedbackPage() {
   const params = useParams();
   const projectId = params.projectId as string;
+  const eventId = params.id as string;
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -43,20 +42,7 @@ export default function ProjectFeedbackPage() {
       setProjectData(data);
     };
 
-    const fetchSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Error fetching session:", error);
-      } else {
-        setSession(session);
-      }
-    };
-
     fetchProjectData();
-    fetchSession();
   }, [projectId]);
 
   if (!projectData) {
@@ -84,10 +70,9 @@ export default function ProjectFeedbackPage() {
             projectDescription={projectData.project_description}
             projectLeadEmail={projectData.lead_email}
             projectLeadName={projectData.lead_name}
-            userName={session?.user?.user_metadata?.full_name}
-            userEmail={session?.user?.email}
             project_url={projectData.project_url}
             additional_materials_url={projectData.additional_materials_url}
+            eventId={eventId}
           />
         </div>
       </div>

@@ -3,9 +3,6 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
-import QRCode from "react-qr-code"
-import { toast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
 
 interface MyProjectSectionProps {
   eventId: string

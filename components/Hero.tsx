@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 
 export function Hero() {
-  const router = useRouter();
   const [userName, setUserName] = useState("");
 
   useEffect(() => {

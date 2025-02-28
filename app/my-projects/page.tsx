@@ -13,10 +13,8 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from "@/components/navbar";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 
 interface Project {

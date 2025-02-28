@@ -15,12 +15,12 @@ export default function AuthCodeError() {
         
         {error === 'missing_email' ? (
           <p className="mb-6 text-gray-600">
-            We couldn't complete your mentor registration because no email address was found. 
-            Please ensure you're using an account with a valid email address.
+            We couldn&apos;t complete your mentor registration because no email address was found.
+            Please ensure you&apos;re using an account with a valid email address.
           </p>
         ) : (
           <p className="mb-6 text-gray-600">
-            We encountered an error while trying to authenticate your account. 
+            We encountered an error while trying to authenticate your account.
             This could be due to an expired or invalid authentication code.
           </p>
         )}

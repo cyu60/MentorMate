@@ -1,13 +1,11 @@
-import DashboardContent from "@/components/dashboard-content"
+"use client";
 
-interface PageProps {
-  params: { id: string }
-}
+import { useParams } from "next/navigation";
+import DashboardContent from "@/components/dashboard-content";
 
-export default async function DashboardPage({
-  params,
-}: PageProps) {
-  const { id } = await Promise.resolve(params)
+export default function DashboardPage() {
+  const params = useParams()
+  const id = params.id as string
 
   return <DashboardContent eventId={id} />
 }
