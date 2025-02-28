@@ -1,43 +1,60 @@
 'use client'
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 interface Participant {
-  id: string
+  uid: string
   display_name: string | null
   email: string
-  avatar_url: string | null
 }
 
 export default function ParticipantsPage() {
   const [participants, setParticipants] = useState<Participant[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
+  const router = useRouter()
 
   useEffect(() => {
-    async function fetchParticipants() {
+    async function checkSessionAndFetchParticipants() {
       try {
+        // Check if user is authenticated
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Error checking session:', sessionError)
+          router.push('/login')
+          return
+        }
+
+        if (!session) {
+          router.push('/login')
+          return
+        }
+
+        // Fetch participants if authenticated
         const { data, error } = await supabase
           .from('user_profiles')
-          .select('id, display_name, email, avatar_url')
+          .select('uid, display_name, email')
 
-        if (error) throw error
-
-        setParticipants(data)
+        if (error) {
+          console.error('Error fetching participants:', error.message)
+          setParticipants(null)
+        } else {
+          setParticipants(data)
+        }
       } catch (err) {
-        console.error('Error fetching participants:', err)
-        setError('Failed to load participants')
+        console.error('Error:', err)
+        setParticipants(null)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchParticipants()
-  }, [supabase])
+    checkSessionAndFetchParticipants()
+  }, [router])
 
   if (isLoading) {
     return (
@@ -49,11 +66,11 @@ export default function ParticipantsPage() {
     )
   }
 
-  if (error) {
+  if (!participants) {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-red-500">{error}</div>
+          <div className="text-red-500">Failed to load participants</div>
         </CardContent>
       </Card>
     )
@@ -62,14 +79,13 @@ export default function ParticipantsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Participants ({participants?.length || 0})</CardTitle>
+        <CardTitle>Participants ({participants.length})</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          {participants?.map((participant) => (
-            <div key={participant.id} className="flex items-center space-x-4">
+          {participants.map((participant) => (
+            <div key={participant.uid} className="flex items-center space-x-4">
               <Avatar>
-                <AvatarImage src={participant.avatar_url || '/placeholder.svg'} />
                 <AvatarFallback>
                   {participant.display_name?.[0] || participant.email[0].toUpperCase()}
                 </AvatarFallback>

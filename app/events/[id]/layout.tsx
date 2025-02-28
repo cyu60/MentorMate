@@ -4,6 +4,9 @@ import { HackathonNav } from "@/components/hackathon-nav"
 import { JournalSection } from "@/components/journal-section"
 import { createSupabaseClient } from "@/app/utils/supabase/server"
 import { notFound } from "next/navigation"
+import { EventStatusBar } from "@/components/event-status-bar"
+import { CancelRegistration } from "@/components/cancel-registration"
+import { JoinEventButton } from "@/components/join-event-button"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -28,9 +31,38 @@ export default async function HackathonLayout({
     notFound()
   }
 
+  // Check if user has joined
+  const { data: { session } } = await supabase.auth.getSession()
+  let hasJoined = false
+
+  if (session) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select()
+      .eq('uid', session.user.id)
+      .maybeSingle()
+
+    if (profile) {
+      const events = profile.events || []
+      hasJoined = events.includes(id)
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      <HackathonHeader name={event.event_name} />
+      <div className="flex flex-col">
+        <div>
+          <HackathonHeader name={event.event_name} />
+        </div>
+        <EventStatusBar eventId={id} />
+      </div>
+      {!hasJoined && (
+        <div className="bg-white border-b">
+          <div className="container mx-auto py-2 px-6 flex justify-end">
+            <JoinEventButton eventId={id} eventName={event.event_name} />
+          </div>
+        </div>
+      )}
       <HackathonNav id={id} />
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto">

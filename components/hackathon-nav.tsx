@@ -5,13 +5,15 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { name: "Tools", href: "/tools" },
   { name: "Overview", href: "/overview" },
-  { name: "My Dashboard", href: "/dashboard" },
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Projects", href: "/projects/list" },
+  { name: "Submit Project", href: "/projects" },
   { name: "Participants", href: "/participants" },
-  { name: "Rules", href: "/rules" },
+  { name: "Tools", href: "/tools" },
   { name: "Gallery", href: "/gallery" },
   { name: "Feed", href: "/feed" },
+  { name: "Rules", href: "/rules" },
 ]
 
 export function HackathonNav({ id }: { id: string }) {
@@ -41,4 +43,3 @@ export function HackathonNav({ id }: { id: string }) {
     </nav>
   )
 }
-

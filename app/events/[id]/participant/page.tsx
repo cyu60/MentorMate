@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,13 @@ interface Project {
   created_at: string;
   teammates?: string[];
   isTeammate?: boolean;
+  event_id: string;
 }
 
 export default function ParticipantPage() {
-  console.log("ParticipantPage component is rendering");
   const router = useRouter();
+  const params = useParams();
+  const eventId = params.id as string;
   const [existingProjects, setExistingProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"projects" | "submit">("projects");
@@ -66,12 +68,6 @@ export default function ParticipantPage() {
         router.push("/select");
       } else {
         setSession(session);
-        console.log("Session in participant page:", session);
-        const returnUrl = localStorage.getItem("returnUrl");
-        if (returnUrl) {
-          localStorage.removeItem("returnUrl");
-          router.push(returnUrl);
-        }
       }
     };
     fetchSession();
@@ -80,8 +76,6 @@ export default function ParticipantPage() {
   const fetchProjects = useCallback(async () => {
     if (!session) return;
     setIsLoading(true);
-
-    console.log("Fetching projects for email:", session.user.email);
 
     let userProfile;
     const { data: existingProfile, error: profileError } = await supabase
@@ -115,21 +109,17 @@ export default function ParticipantPage() {
       userProfile = existingProfile;
     }
 
-    console.log("User profile:", userProfile);
-
     const { data: ownedProjects, error: ownedError } = await supabase
       .from("projects")
       .select("*")
-      .eq("lead_email", session.user.email);
-
-    console.log("Owned projects:", ownedProjects);
+      .eq("lead_email", session.user.email)
+      .eq("event_id", eventId);
 
     const { data: teammateProjects, error: teammateError } = await supabase
       .from("projects")
       .select("*")
+      .eq("event_id", eventId)
       .contains("teammates", [userProfile.display_name]);
-
-    console.log("Teammate projects:", teammateProjects);
 
     if (ownedError) {
       console.error("Error fetching owned projects:", ownedError);
@@ -158,10 +148,9 @@ export default function ParticipantPage() {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
     );
-    console.log("Fetched projects:", allProjects);
 
     setIsLoading(false);
-  }, [session, setIsLoading, setExistingProjects]);
+  }, [session, eventId, setIsLoading, setExistingProjects]);
 
   useEffect(() => {
     fetchProjects();
@@ -254,8 +243,7 @@ export default function ParticipantPage() {
                                       Team Member
                                     </span>
                                   )}
-                                  {project.lead_email ===
-                                    session?.user?.email && (
+                                  {project.lead_email === session?.user?.email && (
                                     <Button
                                       variant="ghost"
                                       size="icon"
@@ -281,7 +269,7 @@ export default function ParticipantPage() {
                             </CardHeader>
                             <CardContent>
                               <Link
-                                href={`/participant/dashboard/${project.id}`}
+                                href={`/events/${eventId}/projects/${project.id}`}
                               >
                                 <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                                   View Project
@@ -326,10 +314,8 @@ export default function ParticipantPage() {
                       <ProjectSubmissionFormComponent
                         userEmail={session?.user?.email}
                         leadName={session?.user?.user_metadata?.full_name}
+                        eventId={eventId}
                         onProjectSubmitted={() => {
-                          console.log(
-                            "Project submitted, fetching updated projects..."
-                          );
                           setActiveTab("projects");
                           fetchProjects();
                         }}
