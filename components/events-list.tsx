@@ -29,7 +29,7 @@ export function EventsList({ events }: EventsListProps) {
         const { data } = await supabase
           .from('user_profiles')
           .select('events')
-          .eq('uid', session.user.id)
+          .eq('email', session.user.email)
           .single()
 
         if (data?.events && Array.isArray(data.events)) {

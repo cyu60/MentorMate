@@ -47,7 +47,7 @@ export default function GalleryPage() {
   }, [eventId]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-8 px-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
         <Link href={`/events/${eventId}/projects`}>
