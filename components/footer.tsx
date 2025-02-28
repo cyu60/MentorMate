@@ -4,10 +4,10 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="w-full">
-      <div className="mx-auto max-w-7xl mt-8 px-6 flex flex-col items-center justify-center lg:px-8">
+    <footer className="w-full bg-none">
+      <div className="mx-auto max-w-7xl px-6 py-4 flex flex-col items-center justify-center lg:px-8">
         <div className="flex flex-col items-center">
-          <div className="flex justify-center space-x-4 text-sm text-gray-600">
+          <div className="flex justify-center space-x-4 text-sm text-gray-600/90">
             <Link href="/about" className="hover:text-gray-800">
               About
             </Link>
@@ -15,7 +15,7 @@ export function Footer() {
               Privacy Policy
             </Link>
           </div>
-          <p className="mt-4 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600/80">
             &copy; 2025 Mentor Mate, All rights reserved.
           </p>
         </div>

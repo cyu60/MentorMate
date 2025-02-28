@@ -12,12 +12,14 @@ export default async function EventsPage() {
   const eventsList = events || []
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Upcoming Events</h1>
-      <EventsList events={eventsList} />
-      {eventsList.length === 0 && (
-        <p className="text-center text-muted-foreground">No upcoming events found.</p>
-      )}
+    <div className="min-h-full">
+      <div className="container mx-auto py-8 px-4 sm:px-20">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center">Upcoming Events</h1>
+        <EventsList events={eventsList} />
+        {eventsList.length === 0 && (
+          <p className="text-center text-muted-foreground">No upcoming events found.</p>
+        )}
+      </div>
     </div>
   )
 }

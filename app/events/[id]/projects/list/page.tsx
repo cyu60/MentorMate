@@ -54,7 +54,7 @@ export default function ProjectsListPage() {
       <Navbar />
       <main className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-8 px-4">
-          <h1 className="text-3xl sm:text-4xl font-bold">Event Projects</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">Event Projects</h1>
           <Link href={`/events/${eventId}/projects`}>
             <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
               <Plus className="h-5 w-5" />

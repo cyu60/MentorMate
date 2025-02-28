@@ -17,7 +17,6 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 
 interface Project {
@@ -87,71 +86,69 @@ export default function MyProjectsPage() {
   }, [session]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80 pb-10">
+    <div className="min-h-full">
       <ReturnUrlHandler />
-      <div>
-        <main className="container mx-auto pt-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">
-            My Projects
-          </h1>
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center">
+          My Projects
+        </h1>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-16"
-            >
-              {projects.length > 0 ? (
-                <>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4 sm:px-20">
-                    {projects.map((project) => (
-                      <Card key={project.id}>
-                        <CardHeader>
-                          <div className="flex justify-between items-start gap-2">
-                            <CardTitle className="text-blue-900 text-xl font-semibold">
-                              {project.project_name}
-                            </CardTitle>
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
-                              {project.lead_email === session?.user?.email ? 'Owner' : 'Team Member'}
-                            </span>
-                          </div>
-                          <div className="mt-2">
-                            <CardDescription className="text-gray-600 text-sm">
-                              {project.project_description.slice(0, 100) + "..."}
-                            </CardDescription>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <Link href={`/my-projects/${project.id}/dashboard`}>
-                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                              View Project
-                            </Button>
-                          </Link>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center space-y-4 mt-12 px-4">
-                  <div className="text-center space-y-3">
-                    <h3 className="text-xl font-semibold text-gray-700">
-                      No Projects Found
-                    </h3>
-                    <p className="text-gray-500 max-w-sm">
-                      You are not currently part of any projects.
-                    </p>
-                  </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8"
+          >
+            {projects.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4 sm:px-20">
+                  {projects.map((project) => (
+                    <Card key={project.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start gap-2">
+                          <CardTitle className="text-blue-900 text-xl font-semibold">
+                            {project.project_name}
+                          </CardTitle>
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+                            {project.lead_email === session?.user?.email ? 'Owner' : 'Team Member'}
+                          </span>
+                        </div>
+                        <div className="mt-2">
+                          <CardDescription className="text-gray-600 text-sm">
+                            {project.project_description.slice(0, 100) + "..."}
+                          </CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Link href={`/my-projects/${project.id}/dashboard`}>
+                          <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                            View Project
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              )}
-            </motion.div>
-          )}
-        </main>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center space-y-4 mt-12 px-4">
+                <div className="text-center space-y-3">
+                  <h3 className="text-xl font-semibold text-gray-700">
+                    No Projects Found
+                  </h3>
+                  <p className="text-gray-500 max-w-sm">
+                    You are not currently part of any projects.
+                  </p>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );

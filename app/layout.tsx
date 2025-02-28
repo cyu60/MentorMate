@@ -3,7 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
 import { Navbar } from "@/components/navbar"
-import { Sidebar } from "@/components/sidebar"
+import { AuthProvider } from "@/components/AuthProvider"
 import { Footer } from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -22,14 +22,21 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="min-h-screen">
+          <div className="min-h-screen flex flex-col">
             <Navbar />
-            <div className="flex pt-[72px]"> {/* Add padding-top to account for fixed navbar */}
-              <Sidebar />
-              <main className="flex-1 md:pl-64">
-                {children}
-                <Footer />
-              </main>
+            <div className="flex flex-1 pt-[72px]">
+              <AuthProvider>
+                <main className="flex-1 flex flex-col">
+                  <div className="flex-1 flex flex-col bg-gradient-to-b from-white via-white to-blue-50/60">
+                    <div className="flex-1">
+                      {children}
+                    </div>
+                    <div className="mt-auto">
+                      <Footer />
+                    </div>
+                  </div>
+                </main>
+              </AuthProvider>
             </div>
           </div>
         </Providers>
