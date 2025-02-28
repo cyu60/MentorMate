@@ -4,17 +4,18 @@ import { HackathonNav } from "@/components/hackathon-nav"
 import { JournalSection } from "@/components/journal-section"
 import ToolsSection from "@/components/tools-section"
 
-export default function HackathonLayout({
+export default async function HackathonLayout({
   children,
   params,
 }: {
   children: React.ReactNode
   params: { id: string }
 }) {
+  const eventId = params.id
   return (
     <div className="min-h-screen flex flex-col">
       <HackathonHeader name="TreeHacks 2025" />
-      <HackathonNav id={params.id} />
+      <HackathonNav id={eventId} />
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

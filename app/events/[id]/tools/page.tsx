@@ -46,7 +46,7 @@ export default function ToolsPage() {
                 </div>
                 <p className="text-gray-600 mb-6 flex-grow">{tool.description}</p>
                 <Button 
-                  onClick={() => router.push(tool.href)}
+                  onClick={() => router.push(`./${tool.href}`)}
                   className="w-full bg-black text-white hover:bg-black/90"
                 >
                   Launch Tool

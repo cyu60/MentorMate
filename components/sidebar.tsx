@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Menu, Home, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
 
 const sidebarItems = [
-  { name: "Events", href: "/events", icon: Calendar },
   { name: "Home", href: "/", icon: Home },
   { name: "Events", href: "/events", icon: Calendar },
   { name: "My Projects", href: "/my-projects", icon: Folder },
@@ -98,7 +97,7 @@ export function Sidebar() {
           </div>
         </DialogContent>
       </Dialog>
-      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 md:border-r bg-background">
+      <aside className="hidden md:flex md:flex-col md:fixed md:top-[72px] md:bottom-0 md:w-64 md:border-r bg-background">
         <div className="flex-grow overflow-y-auto">
           <div className="p-4">{renderSidebarItems()}</div>
         </div>

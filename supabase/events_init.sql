@@ -1,13 +1,13 @@
 -- Create events table with all fields including JSON data
 create table events (
-  id uuid default gen_random_uuid() primary key,
-  name text not null,
-  date text not null,
+  event_id uuid default gen_random_uuid() primary key,
+  event_name text not null,
+  event_date text not null,
   location text not null,
-  description text not null,
-  schedule jsonb not null default '[]'::jsonb,
-  prizes jsonb not null default '[]'::jsonb,
-  resources jsonb not null default '[]'::jsonb,
+  event_description text not null,
+  event_schedule jsonb not null default '[]'::jsonb,
+  event_prizes jsonb not null default '[]'::jsonb,
+  event_resources jsonb not null default '[]'::jsonb,
   created_at timestamp with time zone default now()
 );
 
@@ -21,7 +21,7 @@ create policy "Enable read access for all users" on events
   using (true);
 
 -- Insert sample data
-insert into events (name, date, location, description, schedule, prizes, resources) values
+insert into events (event_name, event_date, location, event_description, event_schedule, event_prizes, event_resources) values
 (
   'TreeHacks 2025',
   'February 27-29, 2025',
