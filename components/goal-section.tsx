@@ -236,7 +236,7 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
 
   return (
     <>
-      <Card>
+      <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Goals</CardTitle>
           <Button

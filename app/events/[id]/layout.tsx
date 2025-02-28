@@ -1,7 +1,6 @@
 import type React from "react"
 import { HackathonHeader } from "@/components/hackathon-header"
 import { HackathonNav } from "@/components/hackathon-nav"
-import { JournalSection } from "@/components/journal-section"
 import { createSupabaseClient } from "@/app/utils/supabase/server"
 import { notFound } from "next/navigation"
 import { EventStatusBar } from "@/components/event-status-bar"
@@ -65,13 +64,8 @@ export default async function HackathonLayout({
       )}
       <HackathonNav id={id} />
       <main className="flex-1 bg-gray-50">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3">{children}</div>
-            <div className="lg:col-span-1 space-y-6">
-              <JournalSection />
-            </div>
-          </div>
+        <div className="container mx-auto py-6 px-4">
+          {children}
         </div>
       </main>
     </div>

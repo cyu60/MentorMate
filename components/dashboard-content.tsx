@@ -10,6 +10,9 @@ import { Card } from "@/components/ui/card"
 const GoalSection = dynamic(() => import("@/components/goal-section"), {
   ssr: false,
 })
+const JournalSection = dynamic(() => import("@/components/journal-section"), {
+  ssr: false,
+})
 const ProjectDashboardSection = dynamic(() => import("@/components/project-dashboard-section"), {
   ssr: false,
 })
@@ -44,6 +47,9 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
     <div className="space-y-6">
       <Suspense fallback={<div>Loading goals...</div>}>
         <GoalSection eventId={eventId} />
+      </Suspense>
+      <Suspense fallback={<div>Loading journal...</div>}>
+        <JournalSection eventId={eventId} />
       </Suspense>
       <Suspense fallback={<div>Loading project...</div>}>
         {projectId ? (
