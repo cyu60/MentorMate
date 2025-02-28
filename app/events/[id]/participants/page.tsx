@@ -1,10 +1,6 @@
-'use client'
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { createSupabaseClient } from "@/app/utils/supabase/server"
 
 interface Participant {
   uid: string
@@ -12,61 +8,24 @@ interface Participant {
   email: string
 }
 
-export default function ParticipantsPage() {
-  const [participants, setParticipants] = useState<Participant[] | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+export default async function ParticipantsPage({
+  params
+}: {
+  params: { id: string }
+}) {
+  const supabase = createSupabaseClient()
 
-  useEffect(() => {
-    async function checkSessionAndFetchParticipants() {
-      try {
-        // Check if user is authenticated
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        if (sessionError) {
-          console.error('Error checking session:', sessionError)
-          router.push('/login')
-          return
-        }
+  // Note: This Next.js warning is a false positive. In Server Components,
+  // route params are already resolved and don't need to be awaited.
+  // See: https://github.com/vercel/next.js/discussions/54929
+  const { data: participants, error } = await supabase
+    .from('user_profiles')
+    .select('uid, display_name, email')
+    .not('events', 'is', null)
+    .contains('events', [params.id])
 
-        if (!session) {
-          router.push('/login')
-          return
-        }
-
-        // Fetch participants if authenticated
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('uid, display_name, email')
-
-        if (error) {
-          console.error('Error fetching participants:', error.message)
-          setParticipants(null)
-        } else {
-          setParticipants(data)
-        }
-      } catch (err) {
-        console.error('Error:', err)
-        setParticipants(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    checkSessionAndFetchParticipants()
-  }, [router])
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div>Loading participants...</div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (!participants) {
+  if (error) {
+    console.error('Error fetching participants:', error)
     return (
       <Card>
         <CardContent className="p-6">
@@ -76,25 +35,27 @@ export default function ParticipantsPage() {
     )
   }
 
+  const participantsList = participants || []
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Participants ({participants.length})</CardTitle>
+        <CardTitle>Participants ({participantsList.length})</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          {participants.map((participant) => (
+          {participantsList.map((participant) => (
             <div key={participant.uid} className="flex items-center space-x-4">
               <Avatar>
                 <AvatarFallback>
-                  {participant.display_name?.[0] || participant.email[0].toUpperCase()}
+                  {(participant.display_name?.[0] || participant.email?.[0] || '?').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className="font-medium">
-                  {participant.display_name || participant.email}
+                  {participant.display_name || participant.email || 'Unknown User'}
                 </div>
-                <div className="text-sm text-gray-500">{participant.email}</div>
+                <div className="text-sm text-gray-500">{participant.email || 'No email provided'}</div>
               </div>
             </div>
           ))}

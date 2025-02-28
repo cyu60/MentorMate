@@ -7,13 +7,11 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { name: "Overview", href: "/overview" },
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Projects", href: "/projects/list" },
-  { name: "Submit Project", href: "/projects" },
+  { name: "Projects", href: "/gallery" },
   { name: "Participants", href: "/participants" },
   { name: "Tools", href: "/tools" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Feed", href: "/feed" },
-  { name: "Rules", href: "/rules" },
+  { name: "Feed", href: "/feed" }
 ]
 
 export function HackathonNav({ id }: { id: string }) {

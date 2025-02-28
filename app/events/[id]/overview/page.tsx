@@ -24,6 +24,11 @@ interface Resource {
   link: string
 }
 
+interface Rule {
+  title: string
+  items: string[]
+}
+
 interface Event {
   event_id: string
   event_name: string
@@ -34,7 +39,29 @@ interface Event {
   event_prizes: Prize[]
   event_resources: Resource[]
   created_at: string
+  rules: Rule[]
 }
+
+const defaultRules: Rule[] = [
+  {
+    title: "General Rules",
+    items: [
+      "All work must be completed during the hackathon",
+      "Teams can have up to 4 members",
+      "Projects must be original work",
+      "Use of open source libraries and APIs is allowed"
+    ]
+  },
+  {
+    title: "Submission Requirements",
+    items: [
+      "Project must be submitted before the deadline",
+      "Include a demo video",
+      "Provide access to source code",
+      "Complete project documentation"
+    ]
+  }
+]
 
 export default async function EventOverviewPage({ params }: { params: { id: string } }) {
   const { id } = await Promise.resolve(params)
@@ -65,6 +92,27 @@ export default async function EventOverviewPage({ params }: { params: { id: stri
             <Badge variant="secondary">{typedEvent.location}</Badge>
           </div>
           <p className="text-muted-foreground">{typedEvent.event_description}</p>
+        </CardContent>
+      </Card>
+
+      {/* Rules */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Rules</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(typedEvent.rules || defaultRules).map((rule, index) => (
+              <div key={index}>
+                <h3 className="font-semibold mb-2">{rule.title}</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  {rule.items.map((item, itemIndex) => (
+                    <li key={itemIndex}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

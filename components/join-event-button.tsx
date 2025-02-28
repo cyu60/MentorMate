@@ -25,8 +25,8 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         const { data: profile } = await supabase
           .from('user_profiles')
           .select()
-          .eq('uid', session.user.id)
-          .maybeSingle()
+          .eq('email', session.user.email)
+          .single()
 
         if (profile) {
           const events = profile.events || []
@@ -51,30 +51,15 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return
       }
 
+      // Get user profile by email since that's the unique identifier
       const { data: profile, error: fetchError } = await supabase
         .from('user_profiles')
         .select()
-        .eq('uid', session.user.id)
-        .maybeSingle()
+        .eq('email', session.user.email)
+        .single()
 
       if (fetchError) {
         console.error('Error fetching user profile:', fetchError.message)
-        return
-      }
-
-      if (!profile) {
-        const { error: createError } = await supabase
-          .from('user_profiles')
-          .insert([{ uid: session.user.id, events: [eventId] }])
-
-        if (createError) {
-          console.error('Error creating user profile:', createError.message)
-          return
-        }
-
-        setHasJoined(true)
-        router.refresh()
-        router.push(`/events/${eventId}/overview`)
         return
       }
 
@@ -88,7 +73,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
       const { error: updateError } = await supabase
         .from('user_profiles')
         .update({ events: [...currentEvents, eventId] })
-        .eq('uid', session.user.id)
+        .eq('email', session.user.email)
 
       if (updateError) {
         console.error('Error updating profile:', updateError.message)

@@ -1,62 +1,127 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
+"use client";
 
-const projects = [
-  {
-    id: 1,
-    title: "EcoTrack",
-    description: "A mobile app that helps users track and reduce their carbon footprint.",
-    image: "/placeholder.svg?text=EcoTrack",
-    tags: ["Mobile", "Environment", "React Native"],
-  },
-  {
-    id: 2,
-    title: "MediConnect",
-    description: "An AI-powered platform connecting patients with suitable clinical trials.",
-    image: "/placeholder.svg?text=MediConnect",
-    tags: ["AI", "Healthcare", "Web"],
-  },
-  {
-    id: 3,
-    title: "LearnLingo",
-    description: "An interactive language learning game using AR technology.",
-    image: "/placeholder.svg?text=LearnLingo",
-    tags: ["AR", "Education", "Mobile"],
-  },
-]
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Loader2, Plus } from "lucide-react";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { motion } from "framer-motion";
 
-export default function GalleryPage() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Project Gallery</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {projects.map((project) => (
-          <Card key={project.id}>
-            <Image
-              src={project.image || "/placeholder.svg"}
-              alt={project.title}
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover rounded-t-lg"
-            />
-            <CardHeader>
-              <CardTitle>{project.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">{project.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
+interface Project {
+  id: string;
+  project_name: string;
+  project_description: string;
+  lead_name: string;
+  teammates?: string[];
+  event_id: string;
 }
 
+export default function GalleryPage() {
+  const params = useParams();
+  const eventId = params.id as string;
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("event_id", eventId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching projects:", error);
+      } else {
+        setProjects(data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchProjects();
+  }, [eventId]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
+        <Link href={`/events/${eventId}/projects`}>
+          <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+            <Plus className="h-5 w-5" />
+            Submit Project
+          </Button>
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {projects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 relative flex items-center justify-center">
+                    <h3 className="text-2xl font-bold text-white text-center px-4">{project.project_name}</h3>
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-xl">{project.lead_name}&apos;s Team</CardTitle>
+                    <div className="text-gray-600 mt-2">
+                      <TextGenerateEffect
+                        words={project.project_description.slice(0, 100) + "..."}
+                        className="text-md font-light"
+                      />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        {project.teammates?.map((teammate, index) => (
+                          <Badge key={index} variant="secondary">
+                            {teammate}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Link href={`/events/${eventId}/projects/${project.id}`}>
+                      <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                        View Details
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center space-y-4 mt-12">
+              <div className="text-center space-y-3">
+                <h3 className="text-xl font-semibold text-gray-700">
+                  No Projects Yet
+                </h3>
+                <p className="text-gray-500 max-w-sm">
+                  Be the first to submit a project for this event!
+                </p>
+              </div>
+              <Link href={`/events/${eventId}/projects`}>
+                <Button className="button-gradient text-white font-semibold py-6 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
+                  Submit First Project 🚀
+                </Button>
+              </Link>
+            </div>
+          )}
+        </motion.div>
+      )}
+    </div>
+  );
+}

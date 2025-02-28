@@ -81,12 +81,12 @@ export default function ProjectsListPage() {
                       <CardTitle className="text-blue-900 text-xl font-semibold">
                         {project.project_name}
                       </CardTitle>
-                      <CardDescription className="text-gray-600 text-sm mt-2">
+                      <div className="text-gray-600 text-sm mt-2">
                         <TextGenerateEffect
                           words={project.project_description.slice(0, 100) + "..."}
                           className="text-md font-light"
                         />
-                      </CardDescription>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2 mb-4">
