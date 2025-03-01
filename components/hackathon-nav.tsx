@@ -18,8 +18,8 @@ export function HackathonNav({ id }: { id: string }) {
   const basePath = `/events/${id}`;
 
   return (
-    <nav className="border-b bg-white sticky top-0 z-10">
-      <div className="container mx-auto px-4 overflow-x-auto">
+    <nav className="border-b bg-white sticky top-0 z-10 w-full">
+      <div className="w-full overflow-x-auto">
         <div className="flex space-x-8">
           {navItems.map((item) => (
             <Link

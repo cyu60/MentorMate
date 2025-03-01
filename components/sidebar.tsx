@@ -9,23 +9,36 @@ import {
   Menu,
   Calendar,
   Folder,
-  MessageSquare,
+  // MessageSquare,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
-const sidebarItems = [
+type SidebarSubItem = {
+  name: string;
+  href: string;
+};
+
+type SidebarItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  subItems?: SidebarSubItem[];
+};
+
+const sidebarItems: SidebarItem[] = [
   { name: "Events", href: "/events", icon: Calendar },
   { name: "My Projects", href: "/my-projects", icon: Folder },
-  {
-    name: "Feedback",
-    href: "/feedback",
-    icon: MessageSquare,
-    subItems: [
-      // { name: "Received", href: "/feedback/received" },
-      { name: "Given", href: "/feedback/given" },
-    ],
-  },
+  // {
+  //   name: "Feedback",
+  //   href: "/feedback",
+  //   icon: MessageSquare,
+  //   subItems: [
+  //     // { name: "Received", href: "/feedback/received" },
+  //     { name: "Given", href: "/feedback/given" },
+  //   ],
+  // },
 ];
 
 export function Sidebar() {

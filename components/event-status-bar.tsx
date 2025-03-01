@@ -39,9 +39,9 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
   if (!hasJoined) return null;
 
   return (
-    <div className="bg-green-600 text-white py-1.5">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
+    <div className="bg-green-600 text-white py-1.5 w-full">
+      <div className="w-full flex justify-between items-center">
+        <div className="flex items-center gap-2 pl-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -56,7 +56,9 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
           </svg>
           <span>You are participating in this event</span>
         </div>
-        <CancelRegistration eventId={eventId} />
+        <div className="pr-4">
+          <CancelRegistration eventId={eventId} />
+        </div>
       </div>
     </div>
   );

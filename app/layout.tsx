@@ -24,7 +24,7 @@ export default function RootLayout({
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar />
-            <div className="flex flex-1">
+            <div className="flex flex-1 pt-16">
               <AuthProvider>
                 <main className="flex-1 flex flex-col">
                   <div className="flex-1 flex flex-col bg-gradient-to-b from-white via-white to-blue-50/60">
