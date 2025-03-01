@@ -103,7 +103,7 @@ export function LandingHero() {
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               <span className="block">Ready to start your journey?</span>
               <span className="block text-blue-200 mt-2">
-                Join MentorMates today.
+                Join MentorMate today.
               </span>
             </h2>
 
