@@ -74,7 +74,7 @@ export function Navbar() {
               height={40}
               className="object-contain"
             />
-            <span className="font-bold text-xl text-blue-900">MentorMates</span>
+            <span className="font-bold text-xl text-blue-900">MentorMate</span>
           </Link>
 
           {/* Menu items */}

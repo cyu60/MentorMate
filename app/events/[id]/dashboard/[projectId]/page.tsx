@@ -337,7 +337,7 @@ export default function ParticipantDashboard() {
     <div>
       <Toaster />
       <Navbar />
-      <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10">
+      <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10 mt-10">
         <div className="w-full max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-6">
             <span className="bg-clip-text text-transparent bg-black">

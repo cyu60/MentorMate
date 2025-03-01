@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 export default function ReceivedFeedbackPage() {
   return (
-    <>
+    <div className="p-4">
       <h1 className="text-4xl font-bold mb-8">Received Feedback</h1>
       <div className="grid gap-6">
         <Card>
@@ -16,6 +16,6 @@ export default function ReceivedFeedbackPage() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   )
 }

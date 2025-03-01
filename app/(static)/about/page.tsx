@@ -24,7 +24,7 @@ const AboutPage: React.FC = () => {
         {/* Introductory Text */}
         <div className="bg-white/70 shadow-lg p-6 rounded-xl transition-shadow hover:shadow-2xl">
           <p className="mx-auto text-md text-gray-800 text-justify">
-            MentorMates investigates how generative AI can enhance formative feedback in educational contexts, with a special focus on hackathons and project-based learning. Our research explores the intersection of AI and pedagogy to understand how automated systems can provide meaningful, personalized feedback that drives student growth. By studying the core elements of effective feedback and their implementation through AI, we aim to develop solutions that scale high-quality mentorship while maintaining the human touch that makes feedback impactful.
+            MentorMate investigates how generative AI can enhance formative feedback in educational contexts, with a special focus on hackathons and project-based learning. Our research explores the intersection of AI and pedagogy to understand how automated systems can provide meaningful, personalized feedback that drives student growth. By studying the core elements of effective feedback and their implementation through AI, we aim to develop solutions that scale high-quality mentorship while maintaining the human touch that makes feedback impactful.
           </p>
         </div>
 
