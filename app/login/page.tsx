@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
 import Image from "next/image";
-import { Footer } from "@/components/footer";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -345,7 +344,6 @@ export default function LoginPage() {
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />
       </Suspense>
-      <Footer />
     </ div>
   );
 }
