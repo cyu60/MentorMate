@@ -46,7 +46,6 @@ import { motion } from "framer-motion";
 import { Loader2, Bot, Mic, MicOff } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
-import { Footer } from "@/components/footer";
 
 interface AISuggestions {
   "more specific": string;
@@ -839,7 +838,6 @@ export default function FeedbackForm({
           </form>
         </div>
       </div>
-      <Footer />
     </motion.div>
   );
 }

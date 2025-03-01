@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
@@ -16,7 +15,7 @@ export default function MentorPage() {
     console.log("returnUrl:", returnUrl);
     if (returnUrl) {
       localStorage.removeItem("returnUrl");
-      console.log("Redirecting to:", returnUrl); 
+      console.log("Redirecting to:", returnUrl);
       router.push(returnUrl);
     }
   }, [router]);
@@ -47,7 +46,6 @@ export default function MentorPage() {
           </button>
         </motion.div>
       </div>
-      <Footer />
     </div>
   );
 }
