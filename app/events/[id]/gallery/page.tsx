@@ -71,15 +71,24 @@ export default function GalleryPage() {
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
-                <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <Card
+                  key={project.id}
+                  className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                >
                   <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-500 relative flex items-center justify-center">
-                    <h3 className="text-2xl font-bold text-white text-center px-4">{project.project_name}</h3>
+                    <h3 className="text-2xl font-bold text-white text-center px-4">
+                      {project.project_name}
+                    </h3>
                   </div>
                   <CardHeader>
-                    <CardTitle className="text-xl">{project.lead_name}&apos;s Team</CardTitle>
+                    <CardTitle className="text-xl">
+                      {project.lead_name}&apos;s Team
+                    </CardTitle>
                     <div className="text-gray-600 mt-2">
                       <TextGenerateEffect
-                        words={project.project_description.slice(0, 100) + "..."}
+                        words={
+                          project.project_description.slice(0, 100) + "..."
+                        }
                         className="text-md font-light"
                       />
                     </div>
@@ -94,7 +103,7 @@ export default function GalleryPage() {
                         ))}
                       </div>
                     </div>
-                    <Link href={`/events/${eventId}/projects/${project.id}`}>
+                    <Link href={`/my-projects/${project.id}`} target="_blank">
                       <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                         View Details
                       </Button>

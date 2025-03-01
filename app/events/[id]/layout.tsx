@@ -1,10 +1,10 @@
-import type React from "react"
-import { HackathonHeader } from "@/components/hackathon-header"
-import { HackathonNav } from "@/components/hackathon-nav"
-import { createSupabaseClient } from "@/app/utils/supabase/server"
-import { notFound } from "next/navigation"
-import { EventStatusBar } from "@/components/event-status-bar"
-import { JoinEventButton } from "@/components/join-event-button"
+import type React from "react";
+import { HackathonHeader } from "@/components/hackathon-header";
+import { HackathonNav } from "@/components/hackathon-nav";
+import { createSupabaseClient } from "@/app/utils/supabase/server";
+import { notFound } from "next/navigation";
+import { EventStatusBar } from "@/components/event-status-bar";
+import { JoinEventButton } from "@/components/join-event-button";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,34 +15,36 @@ export default async function HackathonLayout({
   children,
   params,
 }: LayoutProps) {
-  const { id } = await params
-  const supabase = createSupabaseClient()
+  const { id } = await params;
+  const supabase = createSupabaseClient();
 
   // Fetch event details
   const { data: event } = await supabase
     .from("events")
     .select("event_name")
     .eq("event_id", id)
-    .single()
+    .single();
 
   if (!event) {
-    notFound()
+    notFound();
   }
 
   // Check if user has joined
-  const { data: { session } } = await supabase.auth.getSession()
-  let hasJoined = false
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  let hasJoined = false;
 
   if (session) {
     const { data: profile } = await supabase
-      .from('user_profiles')
+      .from("user_profiles")
       .select()
-      .eq('uid', session.user.id)
-      .maybeSingle()
+      .eq("uid", session.user.id)
+      .maybeSingle();
 
     if (profile) {
-      const events = profile.events || []
-      hasJoined = events.includes(id)
+      const events = profile.events || [];
+      hasJoined = events.includes(id);
     }
   }
 
@@ -68,5 +70,5 @@ export default async function HackathonLayout({
         </div>
       </main>
     </div>
-  )
+  );
 }

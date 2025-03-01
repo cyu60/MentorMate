@@ -5,7 +5,6 @@ export function HackathonHeader({ name }: { name: string }) {
           <h1 className="text-4xl font-bold text-center">{name}</h1>
         </div>
       </div>
-    )
-  }
-  
-  
+    </div>
+  );
+}

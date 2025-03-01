@@ -18,23 +18,23 @@ type SupabaseSessionResponse = {
     session: Session | null;
   };
   error: Error | null;
-} | null
+} | null;
 
 interface JournalEntry {
-  id: string
-  user_id: string
-  event_id: string
-  type: 'journal'
-  content: string
-  display_name: string
-  created_at: string
-  is_private?: boolean
-  tags?: string[]
-  status?: 'in_progress' | 'completed'
+  id: string;
+  user_id: string;
+  event_id: string;
+  type: "journal";
+  content: string;
+  display_name: string;
+  created_at: string;
+  is_private?: boolean;
+  tags?: string[];
+  status?: "in_progress" | "completed";
 }
 
 interface JournalSectionProps {
-  eventId?: string
+  eventId?: string;
 }
 
 export default function JournalSection({ eventId: propEventId }: JournalSectionProps) {
@@ -54,201 +54,200 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
   useEffect(() => {
     if (eventId) {
       const initSession = async () => {
-        const sessionResponse = await supabase.auth.getSession()
-        setSessionData(sessionResponse)
-        fetchEntries()
-      }
-      initSession()
+        const sessionResponse = await supabase.auth.getSession();
+        setSessionData(sessionResponse);
+        fetchEntries();
+      };
+      initSession();
     }
-  }, [eventId])
+  }, [eventId]);
 
   const incrementPulse = async (userEmail: string) => {
     const { data: profiles, error: fetchError } = await supabase
-      .from('user_profiles')
-      .select('pulse')
-      .eq('email', userEmail)
-      .single()
+      .from("user_profiles")
+      .select("pulse")
+      .eq("email", userEmail)
+      .single();
 
     if (fetchError) {
-      console.error('Error fetching pulse:', fetchError)
-      return
+      console.error("Error fetching pulse:", fetchError);
+      return;
     }
 
-    const currentPulse = profiles?.pulse || 0
-    const newPulse = currentPulse + 1
+    const currentPulse = profiles?.pulse || 0;
+    const newPulse = currentPulse + 1;
 
     const { error: updateError } = await supabase
-      .from('user_profiles')
+      .from("user_profiles")
       .update({ pulse: newPulse })
-      .eq('email', userEmail)
+      .eq("email", userEmail);
 
     if (updateError) {
-      console.error('Error updating pulse:', updateError)
+      console.error("Error updating pulse:", updateError);
       toast({
         title: "Error updating pulse",
         description: updateError.message || "Please try again later",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const fetchEntries = async () => {
-    const { data: session } = await supabase.auth.getSession()
-    if (!session?.session?.user?.id) return
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user?.id) return;
 
     const { data, error } = await supabase
       .from("platform_engagement")
       .select("*")
       .eq("event_id", eventId)
       .eq("type", "journal")
-      .or(`is_private.eq.false,and(is_private.eq.true,user_id.eq.${session.session.user.id})`)
-      .order("created_at", { ascending: false })
+      .eq("user_id", session.session.user.id)
+      .order("created_at", { ascending: false });
 
     if (error) {
       toast({
         title: "Error fetching journal entries",
         description: "Please try again later",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (data) {
-      setEntries(data)
+      setEntries(data);
     }
-  }
+  };
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()])
-      setNewTag("")
+      setTags([...tags, newTag.trim()]);
+      setNewTag("");
     }
-  }
+  };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove))
-  }
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
 
   const handleSubmitEntry = async () => {
-    if (!entry.trim()) return
+    if (!entry.trim()) return;
 
-    const { data: session } = await supabase.auth.getSession()
+    const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user?.id || !session.session.user.email) {
       toast({
         title: "Authentication error",
         description: "Please sign in to create journal entries",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
-    const { error } = await supabase
-      .from("platform_engagement")
-      .insert([
-        {
-          event_id: eventId,
-          user_id: session.session.user.id,
-          type: "journal",
-          content: entry.trim(),
-          display_name: session.session.user.user_metadata.full_name,
-          is_private: isPrivate,
-          tags: tags.length > 0 ? tags : undefined,
-          status: 'in_progress'
-        }
-      ])
+    const { error } = await supabase.from("platform_engagement").insert([
+      {
+        event_id: eventId,
+        user_id: session.session.user.id,
+        type: "journal",
+        content: entry.trim(),
+        display_name: session.session.user.user_metadata.full_name,
+        is_private: isPrivate,
+        tags: tags.length > 0 ? tags : undefined,
+        status: "in_progress",
+      },
+    ]);
 
     if (error) {
       toast({
         title: "Error saving journal entry",
         description: error.message || "Please try again later",
         variant: "destructive",
-      })
-      setIsSubmitting(false)
-      return
+      });
+      setIsSubmitting(false);
+      return;
     }
 
-    await incrementPulse(session.session.user.email)
+    await incrementPulse(session.session.user.email);
 
-    setIsSubmitting(false)
+    setIsSubmitting(false);
     toast({
       title: "Journal entry saved",
       description: "Your entry has been saved successfully",
-    })
-    
-    setEntry("")
-    setIsPrivate(false)
-    setTags([])
-    fetchEntries()
-  }
+    });
 
-  const handleToggleStatus = async (entry: JournalEntry) => {
-    const newStatus = entry.status === 'completed' ? 'in_progress' : 'completed'
-    const { data: session } = await supabase.auth.getSession()
-    if (!session?.session?.user?.id || !session.session.user.email) return
+    setEntry("");
+    setIsPrivate(false);
+    setTags([]);
+    fetchEntries();
+  };
 
-    const { error } = await supabase
-      .from("platform_engagement")
-      .update({ status: newStatus })
-      .eq("id", entry.id)
+  // const handleToggleStatus = async (entry: JournalEntry) => {
+  //   const newStatus =
+  //     entry.status === "completed" ? "in_progress" : "completed";
+  //   const { data: session } = await supabase.auth.getSession();
+  //   if (!session?.session?.user?.id || !session.session.user.email) return;
 
-    if (error) {
-      toast({
-        title: "Error updating status",
-        description: error.message || "Please try again later",
-        variant: "destructive",
-      })
-      return
-    }
+  //   const { error } = await supabase
+  //     .from("platform_engagement")
+  //     .update({ status: newStatus })
+  //     .eq("id", entry.id);
 
-    // Increment pulse when entry is completed
-    if (newStatus === 'completed') {
-      await incrementPulse(session.session.user.email)
-    }
+  //   if (error) {
+  //     toast({
+  //       title: "Error updating status",
+  //       description: error.message || "Please try again later",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
 
-    fetchEntries()
-  }
+  //   // Increment pulse when entry is completed
+  //   if (newStatus === "completed") {
+  //     await incrementPulse(session.session.user.email);
+  //   }
+
+  //   fetchEntries();
+  // };
 
   const handleEditEntry = (journalEntry: JournalEntry) => {
-    setEditingEntryId(journalEntry.id)
-    setEditedContent(journalEntry.content)
-    setIsPrivate(journalEntry.is_private || false)
-    setTags(journalEntry.tags || [])
-  }
+    setEditingEntryId(journalEntry.id);
+    setEditedContent(journalEntry.content);
+    setIsPrivate(journalEntry.is_private || false);
+    setTags(journalEntry.tags || []);
+  };
 
   const handleSaveEdit = async (entryId: string) => {
-    if (!editedContent.trim()) return
+    if (!editedContent.trim()) return;
 
     const { error } = await supabase
       .from("platform_engagement")
       .update({
         content: editedContent.trim(),
         is_private: isPrivate,
-        tags: tags.length > 0 ? tags : undefined
+        tags: tags.length > 0 ? tags : undefined,
       })
-      .eq("id", entryId)
+      .eq("id", entryId);
 
     if (error) {
       toast({
         title: "Error updating entry",
         description: error.message || "Please try again later",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     toast({
       title: "Entry updated",
       description: "Your changes have been saved",
-    })
+    });
 
-    setEditingEntryId(null)
-    setEditedContent("")
-    setIsPrivate(false)
-    setTags([])
-    fetchEntries()
-  }
+    setEditingEntryId(null);
+    setEditedContent("");
+    setIsPrivate(false);
+    setTags([]);
+    fetchEntries();
+  };
 
   return (
     <div className="space-y-8">
@@ -269,7 +268,11 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
           <Textarea
             placeholder="Write your journal entry here..."
             value={editingEntryId ? editedContent : entry}
-            onChange={(e) => editingEntryId ? setEditedContent(e.target.value) : setEntry(e.target.value)}
+            onChange={(e) =>
+              editingEntryId
+                ? setEditedContent(e.target.value)
+                : setEntry(e.target.value)
+            }
             className="min-h-[150px] resize-none"
           />
 
