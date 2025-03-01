@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Footer } from "@/components/footer";
 import { LandingHero } from "@/components/LandingHero";
@@ -124,37 +121,37 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold mb-8">MentorMates</h1>
 
         {/* Reflections Section */
-  <section className="mb-12">
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-2xl font-semibold">My Reflections</h2>
-      <Button className="bg-black text-white hover:bg-black/90">
-        <Plus className="w-4 h-4 mr-2" />
-        Add Reflection
-      </Button>
-    </div>
-    <div className="grid gap-6 md:grid-cols-2">
-      {reflections.map((reflection) => (
-        <Card key={reflection.id}>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle>{reflection.title}</CardTitle>
-              <span className="text-sm text-gray-500">{reflection.date}</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-gray-600">{reflection.content}</p>
-            <div className="flex gap-2">
-              {reflection.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </section>;
+  // <section className="mb-12">
+  //   <div className="flex items-center justify-between mb-6">
+  //     <h2 className="text-2xl font-semibold">My Reflections</h2>
+  //     <Button className="bg-black text-white hover:bg-black/90">
+  //       <Plus className="w-4 h-4 mr-2" />
+  //       Add Reflection
+  //     </Button>
+  //   </div>
+  //   <div className="grid gap-6 md:grid-cols-2">
+  //     {reflections.map((reflection) => (
+  //       <Card key={reflection.id}>
+  //         <CardHeader>
+  //           <div className="flex justify-between items-start">
+  //             <CardTitle>{reflection.title}</CardTitle>
+  //             <span className="text-sm text-gray-500">{reflection.date}</span>
+  //           </div>
+  //         </CardHeader>
+  //         <CardContent>
+  //           <p className="mb-4 text-gray-600">{reflection.content}</p>
+  //           <div className="flex gap-2">
+  //             {reflection.tags.map((tag) => (
+  //               <Badge key={tag} variant="secondary">
+  //                 {tag}
+  //               </Badge>
+  //             ))}
+  //           </div>
+  //         </CardContent>
+  //       </Card>
+  //     ))}
+  //   </div>
+  // </section>;
 
   {
     /* Learning Progress Section */

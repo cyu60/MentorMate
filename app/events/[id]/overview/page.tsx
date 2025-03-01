@@ -122,84 +122,90 @@ export default async function EventOverviewPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Schedule */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Schedule</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {typedEvent.event_schedule.map(
-              (day: ScheduleDay, index: number) => (
-                <div key={index}>
-                  <h3 className="font-semibold text-lg mb-3">{day.time}</h3>
-                  <div className="space-y-2">
-                    {day.events.map(
-                      (scheduleEvent: ScheduleEvent, eventIndex: number) => (
-                        <div
-                          key={eventIndex}
-                          className="flex justify-between items-center py-2 border-b last:border-0"
-                        >
-                          <span>{scheduleEvent.name}</span>
-                          <span className="text-muted-foreground">
-                            {scheduleEvent.time}
-                          </span>
-                        </div>
-                      )
-                    )}
+      {/* Schedule - only show if there are schedule items */}
+      {typedEvent.event_schedule && typedEvent.event_schedule.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Schedule</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {typedEvent.event_schedule.map(
+                (day: ScheduleDay, index: number) => (
+                  <div key={index}>
+                    <h3 className="font-semibold text-lg mb-3">{day.time}</h3>
+                    <div className="space-y-2">
+                      {day.events.map(
+                        (scheduleEvent: ScheduleEvent, eventIndex: number) => (
+                          <div
+                            key={eventIndex}
+                            className="flex justify-between items-center py-2 border-b last:border-0"
+                          >
+                            <span>{scheduleEvent.name}</span>
+                            <span className="text-muted-foreground">
+                              {scheduleEvent.time}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                )
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Prizes */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Prizes & Tracks</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {typedEvent.event_prizes.map((prize: Prize, index: number) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{prize.track}</CardTitle>
-                  <div className="text-xl font-bold text-primary">
-                    {prize.prize}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{prize.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Prizes - only show if there are prizes */}
+      {typedEvent.event_prizes && typedEvent.event_prizes.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Prizes & Tracks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {typedEvent.event_prizes.map((prize: Prize, index: number) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{prize.track}</CardTitle>
+                    <div className="text-xl font-bold text-primary">
+                      {prize.prize}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{prize.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Resources */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Important Links</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {typedEvent.event_resources.map(
-              (resource: Resource, index: number) => (
-                <a
-                  key={index}
-                  href={resource.link}
-                  className="flex items-center justify-center p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
-                >
-                  {resource.name}
-                </a>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Resources - only show if there are resources */}
+      {typedEvent.event_resources && typedEvent.event_resources.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Important Links</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {typedEvent.event_resources.map(
+                (resource: Resource, index: number) => (
+                  <a
+                    key={index}
+                    href={resource.link}
+                    className="flex items-center justify-center p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+                  >
+                    {resource.name}
+                  </a>
+                )
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
