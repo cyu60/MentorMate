@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { Footer } from "@/components/footer";
 import { LandingHero } from "@/components/LandingHero";
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
@@ -69,7 +68,6 @@ export default function HomePage() {
       <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
         <LandingHero />
         <ServiceWorkerRegistration />
-        <Footer />
       </div>
     );
   }
@@ -113,7 +111,6 @@ export default function HomePage() {
         </motion.div>
       </div>
       <ServiceWorkerRegistration />
-      <Footer />
     </div>
   ); /*}
 

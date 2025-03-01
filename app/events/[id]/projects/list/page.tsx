@@ -10,7 +10,6 @@ import { Loader2, Plus } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 
 interface Project {
   id: string;
@@ -135,7 +134,6 @@ export default function ProjectsListPage() {
           </motion.div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }
