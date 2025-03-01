@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Menu, Calendar, Folder, MessageSquare, ChevronDown, ChevronRight } from "lucide-react"
+import { Menu, Calendar, Folder, MessageSquare, ChevronDown, ChevronUp } from "lucide-react"
 
 const sidebarItems = [
   { name: "Events", href: "/events", icon: Calendar },
@@ -46,7 +46,7 @@ export function Sidebar() {
                 {expandedItem === item.name ? (
                   <ChevronDown className="ml-auto h-4 w-4" />
                 ) : (
-                  <ChevronRight className="ml-auto h-4 w-4" />
+                  <ChevronUp className="ml-auto h-4 w-4" />
                 )}
               </Button>
             ) : (

@@ -98,7 +98,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
     <Button
       onClick={handleJoinEvent}
       disabled={isLoading}
-      className="bg-blue-600 hover:bg-blue-700"
+      className="bg-blue-700 hover:bg-blue-800"
     >
       {isLoading ? "Joining..." : `Join ${eventName}`}
     </Button>
