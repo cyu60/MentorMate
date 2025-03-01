@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import Link from "next/link";
 
 const supabase = createClient(
@@ -296,7 +295,6 @@ export default function MentorLoginPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

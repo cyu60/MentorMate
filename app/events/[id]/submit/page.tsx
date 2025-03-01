@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
 
@@ -68,7 +67,6 @@ export default function SubmitPage() {
           </motion.div>
 
           <div className="mt-16">
-            <Footer />
           </div>
         </main>
       </div>

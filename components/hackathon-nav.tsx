@@ -4,18 +4,35 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-const navItems = [
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+
+const publicNavItems = [
   { name: "Overview", href: "/overview" },
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Participants", href: "/participants" },
-  { name: "Tools", href: "/tools" },
+  { name: "Participants", href: "/participants/public" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Feed", href: "/feed" }
+  { name: "Feed", href: "/feed/public" }
+]
+
+const privateNavItems = [
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Tools", href: "/tools" }
 ]
 
 export function HackathonNav({ id }: { id: string }) {
   const pathname = usePathname()
   const basePath = `/events/${id}`
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setIsAuthenticated(!!session)
+    }
+    checkAuth()
+  }, [])
+
+  const navItems = [...publicNavItems, ...(isAuthenticated ? privateNavItems : [])]
 
   return (
     <nav className="border-b bg-white sticky top-0 z-10">

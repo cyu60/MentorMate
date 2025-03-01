@@ -53,6 +53,15 @@ const formSchema = z.object({
         message: "File size must be less than 10MB",
       }
     ),
+  backgroundImage: z
+    .custom<FileList>()
+    .optional()
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      {
+        message: "File size must be less than 10MB",
+      }
+    ),
 });
 
 export function ProjectSubmissionFormComponent({
@@ -68,6 +77,7 @@ export function ProjectSubmissionFormComponent({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedBackgroundImage, setSelectedBackgroundImage] = useState<File | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -127,8 +137,9 @@ export function ProjectSubmissionFormComponent({
     setIsSubmitting(true);
     try {
       let additionalMaterialsUrl = null;
+      let backgroundImageUrl = null;
 
-      // Upload file if provided
+      // Upload additional materials if provided
       if (values.additionalMaterials && values.additionalMaterials.length > 0) {
         const file = values.additionalMaterials[0];
         const fileExt = file.name.split('.').pop();
@@ -150,6 +161,28 @@ export function ProjectSubmissionFormComponent({
         additionalMaterialsUrl = publicUrl;
       }
 
+      // Upload background image if provided
+      if (values.backgroundImage && values.backgroundImage.length > 0) {
+        const file = values.backgroundImage[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `project-backgrounds/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('project-materials')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('project-materials')
+          .getPublicUrl(filePath);
+
+        backgroundImageUrl = publicUrl;
+      }
+
       const { data, error } = await supabase
         .from("projects")
         .insert({
@@ -160,6 +193,7 @@ export function ProjectSubmissionFormComponent({
           teammates: values.teammates,
           project_url: values.projectUrl || null,
           additional_materials_url: additionalMaterialsUrl,
+          background_image_url: backgroundImageUrl,
           event_id: eventId,
         })
         .select();
@@ -194,7 +228,7 @@ export function ProjectSubmissionFormComponent({
       form.reset();
 
       onProjectSubmitted?.();
-      router.push(`/events/${eventId}/projects/${data[0].id}`);
+      router.push(`/events/${eventId}/projects/public/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);
       toast({
@@ -339,6 +373,58 @@ export function ProjectSubmissionFormComponent({
                 </FormControl>
                 <FormDescription className="text-xs sm:text-sm">
                   GitHub repository or Devpost submission URL
+                </FormDescription>
+                <FormMessage className="text-xs sm:text-sm" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="backgroundImage"
+            render={({ field: { onChange, name, onBlur, ref } }) => (
+              <FormItem>
+                <FormLabel className="text-sm sm:text-base">
+                  Project Background Image (Optional)
+                </FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      name={name}
+                      ref={ref}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          setSelectedBackgroundImage(files[0]);
+                          onChange(files);
+                        }
+                      }}
+                      accept="image/*"
+                      className="flex-1 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                    />
+                    {selectedBackgroundImage && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedBackgroundImage(null);
+                          onChange(undefined);
+                          const fileInput = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+                          if (fileInput) {
+                            fileInput.value = '';
+                          }
+                        }}
+                        className="px-2 py-1"
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </FormControl>
+                <FormDescription className="text-xs sm:text-sm">
+                  Upload an image to be used as your project&apos;s background (max 10MB)
                 </FormDescription>
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>

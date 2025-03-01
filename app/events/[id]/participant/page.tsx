@@ -17,7 +17,6 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
 import {
   AlertDialog,
@@ -281,7 +280,6 @@ export default function ParticipantPage() {
             </motion.div>
           )}
           <div className="mt-16">
-            <Footer />
           </div>
         </main>
       </div>

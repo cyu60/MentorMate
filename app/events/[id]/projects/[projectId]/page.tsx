@@ -30,6 +30,7 @@ interface ProjectData {
   teammates: string[];
   project_url?: string | null;
   additional_materials_url?: string | null;
+  background_image_url?: string | null;
 }
 
 export default function ProjectDetails() {
@@ -231,7 +232,16 @@ export default function ProjectDetails() {
           </Link>
         </div>
 
-        <div className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl">
+        <div
+          className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl relative overflow-hidden"
+          style={{
+            backgroundImage: projectData.background_image_url
+              ? `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${projectData.background_image_url})`
+              : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           <div className="flex flex-col md:flex-row items-start gap-8">
             <div className="flex flex-col items-center w-full md:w-auto md:items-start">
               <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">

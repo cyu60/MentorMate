@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import FeedbackForm from "@/components/FeedbackForm";
@@ -110,7 +109,6 @@ export default function ProjectPage({ params }: { params: Promise<{ projectId: s
           />
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
