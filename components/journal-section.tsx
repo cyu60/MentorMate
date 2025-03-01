@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,32 @@ export default function JournalSection({
     useState<SupabaseSessionResponse | null>(null);
   const { toast } = useToast();
 
+  const fetchEntries = useCallback(async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user?.id) return;
+
+    const { data, error } = await supabase
+      .from("platform_engagement")
+      .select("*")
+      .eq("event_id", eventId)
+      .eq("type", "journal")
+      .eq("user_id", session.session.user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error fetching journal entries",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data) {
+      setEntries(data);
+    }
+  }, [eventId, toast]);
+
   useEffect(() => {
     if (eventId) {
       const initSession = async () => {
@@ -61,7 +87,7 @@ export default function JournalSection({
       };
       initSession();
     }
-  }, [eventId]);
+  }, [eventId, fetchEntries]);
 
   const incrementPulse = async (userEmail: string) => {
     const { data: profiles, error: fetchError } = await supabase
@@ -90,32 +116,6 @@ export default function JournalSection({
         description: updateError.message || "Please try again later",
         variant: "destructive",
       });
-    }
-  };
-
-  const fetchEntries = async () => {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user?.id) return;
-
-    const { data, error } = await supabase
-      .from("platform_engagement")
-      .select("*")
-      .eq("event_id", eventId)
-      .eq("type", "journal")
-      .eq("user_id", session.session.user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast({
-        title: "Error fetching journal entries",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (data) {
-      setEntries(data);
     }
   };
 

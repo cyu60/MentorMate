@@ -1,13 +1,10 @@
 // import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 export function SubmissionConfirmation({
   projectName,
 }: {
   projectName: string;
 }) {
-  const router = useRouter();
-
   return (
     <div className="flex flex-col justify-center items-center min-h-screen text-center space-y-6">
       <h2 className="text-3xl font-bold text-blue-900">Feedback Submitted</h2>

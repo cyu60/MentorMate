@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Sidebar } from "@/components/sidebar";
@@ -18,12 +18,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     /^\/public-project($|\/.*$)/, // Matches /public-project and all its sub-routes
   ];
 
-  // Helper function to check if the current path is public
-  const isPublicPath = (path: string) => {
-    return PUBLIC_PATH_PATTERNS.some((pattern) =>
-      typeof pattern === "string" ? pattern === path : pattern.test(path)
-    );
-  };
+  // Wrap isPublicPath in useCallback to prevent recreation on each render
+  const isPublicPath = useCallback(
+    (path: string) => {
+      return PUBLIC_PATH_PATTERNS.some((pattern) =>
+        typeof pattern === "string" ? pattern === path : pattern.test(path)
+      );
+    },
+    [PUBLIC_PATH_PATTERNS]
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -55,10 +58,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, [pathname, router, isPublicPath]);
-
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
 
   if (isLoading) {
     return null; // Or a loading spinner
