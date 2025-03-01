@@ -11,10 +11,9 @@ import {
   Folder,
   // MessageSquare,
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
-
 
 type SidebarSubItem = {
   name: string;

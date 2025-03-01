@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { supabase } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
-import { useParams } from "next/navigation"
-import { Pencil, CheckCircle2, XCircle } from "lucide-react"
-import { Session } from "@supabase/supabase-js"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
+import { Pencil, X, Loader2 } from "lucide-react";
+import { Session } from "@supabase/supabase-js";
 
 type SupabaseSessionResponse = {
   data: {
@@ -30,26 +29,28 @@ interface JournalEntry {
   created_at: string;
   is_private?: boolean;
   tags?: string[];
-  status?: "in_progress" | "completed";
 }
 
 interface JournalSectionProps {
   eventId?: string;
 }
 
-export default function JournalSection({ eventId: propEventId }: JournalSectionProps) {
-  const params = useParams()
-  const eventId = propEventId || (params.id as string)
-  const [entries, setEntries] = useState<JournalEntry[]>([])
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [newTag, setNewTag] = useState("")
-  const [tags, setTags] = useState<string[]>([])
-  const [entry, setEntry] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
-  const [editedContent, setEditedContent] = useState("")
-  const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null)
-  const { toast } = useToast()
+export default function JournalSection({
+  eventId: propEventId,
+}: JournalSectionProps) {
+  const params = useParams();
+  const eventId = propEventId || (params.id as string);
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [newTag, setNewTag] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [entry, setEntry] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [sessionData, setSessionData] =
+    useState<SupabaseSessionResponse | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (eventId) {
@@ -153,7 +154,6 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
         display_name: session.session.user.user_metadata.full_name,
         is_private: isPrivate,
         tags: tags.length > 0 ? tags : undefined,
-        status: "in_progress",
       },
     ]);
 
@@ -181,72 +181,58 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
     fetchEntries();
   };
 
-  // const handleToggleStatus = async (entry: JournalEntry) => {
-  //   const newStatus =
-  //     entry.status === "completed" ? "in_progress" : "completed";
-  //   const { data: session } = await supabase.auth.getSession();
-  //   if (!session?.session?.user?.id || !session.session.user.email) return;
-
-  //   const { error } = await supabase
-  //     .from("platform_engagement")
-  //     .update({ status: newStatus })
-  //     .eq("id", entry.id);
-
-  //   if (error) {
-  //     toast({
-  //       title: "Error updating status",
-  //       description: error.message || "Please try again later",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
-
-  //   // Increment pulse when entry is completed
-  //   if (newStatus === "completed") {
-  //     await incrementPulse(session.session.user.email);
-  //   }
-
-  //   fetchEntries();
-  // };
-
-  const handleEditEntry = (journalEntry: JournalEntry) => {
-    setEditingEntryId(journalEntry.id);
-    setEditedContent(journalEntry.content);
-    setIsPrivate(journalEntry.is_private || false);
-    setTags(journalEntry.tags || []);
+  const handleEditEntry = (entry: JournalEntry) => {
+    setEditingId(entry.id);
+    setEditContent(entry.content);
+    setIsPrivate(entry.is_private || false);
+    setTags(entry.tags || []);
   };
 
-  const handleSaveEdit = async (entryId: string) => {
-    if (!editedContent.trim()) return;
+  const handleUpdateEntry = async () => {
+    if (!editContent.trim() || !editingId) return;
+
+    setIsSubmitting(true);
 
     const { error } = await supabase
       .from("platform_engagement")
       .update({
-        content: editedContent.trim(),
+        content: editContent.trim(),
         is_private: isPrivate,
         tags: tags.length > 0 ? tags : undefined,
       })
-      .eq("id", entryId);
+      .eq("id", editingId);
 
     if (error) {
+      console.error("Error updating entry:", error);
       toast({
-        title: "Error updating entry",
-        description: error.message || "Please try again later",
+        title: "Error",
+        description: "Failed to update journal entry",
         variant: "destructive",
       });
-      return;
+    } else {
+      toast({
+        title: "Success",
+        description: "Journal entry updated",
+      });
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === editingId
+            ? {
+                ...entry,
+                content: editContent.trim(),
+                is_private: isPrivate,
+                tags: tags.length > 0 ? tags : undefined,
+              }
+            : entry
+        )
+      );
+      setEditingId(null);
+      setEditContent("");
+      setIsPrivate(false);
+      setTags([]);
     }
 
-    toast({
-      title: "Entry updated",
-      description: "Your changes have been saved",
-    });
-
-    setEditingEntryId(null);
-    setEditedContent("");
-    setIsPrivate(false);
-    setTags([]);
-    fetchEntries();
+    setIsSubmitting(false);
   };
 
   return (
@@ -255,97 +241,129 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
       <div className="rounded-md bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-semibold">Journal</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Write down your thoughts, track your progress, and share insights with others.
+          Write down your thoughts, track your progress, and share insights with
+          others.
         </p>
       </div>
 
       {/* Create / Edit Entry Section */}
       <div className="rounded-md bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-medium mb-4">
-          {editingEntryId ? "Edit Entry" : "Create a New Entry"}
-        </h3>
-        <div className="space-y-4">
-          <Textarea
-            placeholder="Write your journal entry here..."
-            value={editingEntryId ? editedContent : entry}
-            onChange={(e) =>
-              editingEntryId
-                ? setEditedContent(e.target.value)
-                : setEntry(e.target.value)
-            }
-            className="min-h-[150px] resize-none"
-          />
-
-          {/* Privacy Toggle */}
-          <div className="flex items-center gap-2">
-            <Switch
-              id="private"
-              checked={isPrivate}
-              onCheckedChange={(checked: boolean) => setIsPrivate(checked)}
-            />
-            <Label htmlFor="private">Make private</Label>
-          </div>
-
-          {/* Tag Input */}
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add a tag"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag()
-                  }
-                }}
-                className="flex-1"
-              />
+        {editingId ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Edit Journal Entry</h3>
               <Button
-                onClick={handleAddTag}
-                className="bg-black text-white hover:bg-black/90"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setEditingId(null);
+                  setEditContent("");
+                  setIsPrivate(false);
+                  setTags([]);
+                }}
               >
-                Add Tag
+                <X className="h-4 w-4" />
               </Button>
             </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-gray-100 rounded-full text-sm flex items-center gap-1"
-                  >
-                    {tag}
-                    <button
-                      onClick={() => handleRemoveTag(tag)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
+            <Textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              placeholder="What's on your mind?"
+              rows={4}
+            />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-private"
+                  checked={isPrivate}
+                  onCheckedChange={setIsPrivate}
+                />
+                <Label htmlFor="edit-private">Private</Label>
               </div>
-            )}
+              <Button
+                onClick={handleUpdateEntry}
+                disabled={isSubmitting}
+                className="button-gradient text-white"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  "Update"
+                )}
+              </Button>
+            </div>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Write your journal entry here..."
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
+              className="min-h-[150px] resize-none"
+            />
 
-          {/* Save Button */}
-          <Button
-            className="w-full bg-black text-white hover:bg-black/90"
-            onClick={editingEntryId ? () => handleSaveEdit(editingEntryId) : handleSubmitEntry}
-            disabled={
-              isSubmitting ||
-              (!editingEntryId && !entry.trim()) ||
-              (editingEntryId && !editedContent.trim()) ||
-              false
-            }
-          >
-            {isSubmitting
-              ? "Saving..."
-              : editingEntryId
-              ? "Save Changes"
-              : "Save Entry"}
-          </Button>
-        </div>
+            {/* Privacy Toggle */}
+            <div className="flex items-center gap-2">
+              <Switch
+                id="private"
+                checked={isPrivate}
+                onCheckedChange={(checked: boolean) => setIsPrivate(checked)}
+              />
+              <Label htmlFor="private">Make private</Label>
+            </div>
+
+            {/* Tag Input */}
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add a tag"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleAddTag}
+                  className="bg-black text-white hover:bg-black/90"
+                >
+                  Add Tag
+                </Button>
+              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-gray-100 rounded-full text-sm flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <Button
+              className="w-full bg-black text-white hover:bg-black/90"
+              onClick={handleSubmitEntry}
+              disabled={isSubmitting || !entry.trim()}
+            >
+              {isSubmitting ? "Saving..." : "Save Entry"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Previous Entries Section */}
@@ -361,36 +379,11 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
                     <span className="text-sm text-gray-500">
                       {new Date(entry.created_at).toLocaleString()}
                     </span>
-
-                    {entry.status === 'completed' ? (
-                      <div className="flex items-center gap-1">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <span className="text-xs font-medium text-green-600">
-                          Completed
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <XCircle className="h-4 w-4 text-red-600" />
-                        <span className="text-xs font-medium text-red-600">
-                          In Progress
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Action Buttons (Only for the Author) */}
                   {entry.user_id === sessionData?.data?.session?.user?.id && (
                     <div className="flex items-center gap-2">
-                      {entry.status === 'in_progress' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleToggleStatus(entry)}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          Mark as Complete
-                        </Button>
-                      )}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -402,15 +395,7 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
                   )}
                 </div>
 
-                <p
-                  className={
-                    entry.status === 'completed'
-                      ? 'whitespace-pre-wrap line-through text-gray-500'
-                      : 'whitespace-pre-wrap'
-                  }
-                >
-                  {entry.content}
-                </p>
+                <p className="whitespace-pre-wrap">{entry.content}</p>
 
                 {entry.tags && entry.tags.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
@@ -430,5 +415,5 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
         </div>
       )}
     </div>
-  )
+  );
 }

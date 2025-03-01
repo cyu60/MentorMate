@@ -127,7 +127,7 @@ export default function GivenFeedbackPage() {
             <p>No feedback given yet</p>
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
-  )
+  );
 }
