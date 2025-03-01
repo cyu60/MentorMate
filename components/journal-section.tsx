@@ -101,7 +101,7 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
       .select("*")
       .eq("event_id", eventId)
       .eq("type", "journal")
-      .eq("is_private", false)
+      .or(`is_private.eq.false,and(is_private.eq.true,user_id.eq.${session.session.user.id})`)
       .order("created_at", { ascending: false })
 
     if (error) {
