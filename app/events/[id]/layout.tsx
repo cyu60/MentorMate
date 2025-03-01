@@ -49,25 +49,25 @@ export default async function HackathonLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex flex-col w-full">
-        <div className="w-full">
+    <div className="min-h-screen">
+      <div className="flex flex-col">
+        <div>
           <HackathonHeader name={event.event_name} />
         </div>
         <EventStatusBar eventId={id} />
       </div>
       {!hasJoined && (
-        <div className="bg-white border-b w-full">
-          <div className="w-full pr-4 sm:pr-6 flex justify-end">
+        <div className="bg-white">
+          <div className="container mx-auto py-2 px-6 flex justify-end">
             <JoinEventButton eventId={id} eventName={event.event_name} />
           </div>
         </div>
       )}
-      <div className="w-full">
-        <HackathonNav id={id} />
-      </div>
-      <main className="bg-gray-50 w-full -pl-4">
-        <div className="w-full py-6">{children}</div>
+      <HackathonNav id={id} />
+      <main className="container mx-auto px-2 md:px-4 bg-gray-50">
+        <div className="py-6">
+          {children}
+        </div>
       </main>
     </div>
   );

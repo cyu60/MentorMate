@@ -26,9 +26,9 @@ export function HackathonNav({ id }: { id: string }) {
               key={item.name}
               href={`${basePath}${item.href}`}
               className={cn(
-                "py-4 px-1 border-b-2 text-sm font-medium transition-colors hover:border-gray-300 whitespace-nowrap",
+                "py-2 px-1 border-b-2 text-sm font-medium transition-colors hover:border-gray-300 whitespace-nowrap",
                 pathname === `${basePath}${item.href}`
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-blue-800 text-blue-800"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               )}
             >

@@ -86,7 +86,7 @@ export default function GivenFeedbackPage() {
   };
 
   return (
-    <>
+    <div className="p-4">
       <h1 className="text-4xl font-bold mb-8">Given Feedback</h1>
 
       {isLoading ? (
@@ -127,7 +127,7 @@ export default function GivenFeedbackPage() {
             <p>No feedback given yet</p>
           </CardContent>
         </Card>
-      )}
-    </>
-  );
+      </div>
+    </div>
+  )
 }

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
+
 type SidebarSubItem = {
   name: string;
   href: string;
@@ -66,7 +67,7 @@ export function Sidebar() {
                 {expandedItem === item.name ? (
                   <ChevronDown className="ml-auto h-4 w-4" />
                 ) : (
-                  <ChevronRight className="ml-auto h-4 w-4" />
+                  <ChevronUp className="ml-auto h-4 w-4" />
                 )}
               </Button>
             ) : (
