@@ -48,7 +48,8 @@ export default function JournalSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null);
+  const [sessionData, setSessionData] =
+    useState<SupabaseSessionResponse | null>(null);
   const { toast } = useToast();
 
   const fetchEntries = useCallback(async () => {
@@ -60,7 +61,7 @@ export default function JournalSection({
       .select("*")
       .eq("event_id", eventId)
       .eq("type", "journal")
-      .or(`is_private.eq.false,and(is_private.eq.true,user_id.eq.${session.session.user.id})`)
+      .eq("user_id", session.session.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {

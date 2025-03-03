@@ -9,7 +9,7 @@ import {
   Menu,
   Calendar,
   Folder,
-  // MessageSquare,
+  MessageSquare,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -30,15 +30,12 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { name: "Events", href: "/events", icon: Calendar },
   { name: "My Projects", href: "/my-projects", icon: Folder },
-  // {
-  //   name: "Feedback",
-  //   href: "/feedback",
-  //   icon: MessageSquare,
-  //   subItems: [
-  //     // { name: "Received", href: "/feedback/received" },
-  //     { name: "Given", href: "/feedback/given" },
-  //   ],
-  // },
+  {
+    name: "Feedback Given",
+    href: "/feedback/given",
+    icon: MessageSquare,
+    // subItems: [{ name: "Given", href: "/feedback/given" }],
+  },
 ];
 
 export function Sidebar() {
