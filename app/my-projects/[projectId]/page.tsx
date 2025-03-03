@@ -19,7 +19,11 @@ interface Project {
   event_id: string;
 }
 
-export default function ProjectPage({ params }: { params: Promise<{ projectId: string }> }) {
+export default function ProjectPage({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}) {
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +67,9 @@ export default function ProjectPage({ params }: { params: Promise<{ projectId: s
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Project not found</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Project not found
+            </h1>
             <Button
               onClick={() => router.push("/my-projects")}
               className="mt-4"
@@ -81,14 +87,13 @@ export default function ProjectPage({ params }: { params: Promise<{ projectId: s
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 mb-6">
-          <Button
-            onClick={() => router.push("/my-projects")}
-            variant="outline"
-          >
+          <Button onClick={() => router.push("/my-projects")} variant="outline">
             ← Back to Projects
           </Button>
           <Button
-            onClick={() => router.push(`/my-projects/${resolvedParams.projectId}/dashboard`)}
+            onClick={() =>
+              router.push(`/my-projects/${resolvedParams.projectId}/dashboard`)
+            }
             variant="outline"
             className="flex items-center gap-2"
           >

@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
+// import { Footer } from "@/components/footer";
 import UserSearch from "../../../../components/UserSearch";
 
 interface ProjectData {
@@ -775,6 +776,8 @@ export default function ProjectDashboard() {
             </Link>
           </div>
         </div>
+
+        {/* <Footer /> */}
       </div>
     </div>
   );

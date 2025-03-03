@@ -65,9 +65,6 @@ export default function SubmitPage() {
               </CardContent>
             </Card>
           </motion.div>
-
-          <div className="mt-16">
-          </div>
         </main>
       </div>
     </div>

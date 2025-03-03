@@ -227,9 +227,7 @@ export default function ParticipantPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="text-red-500 hover:text-red-700 hover:bg-red-100"
-                                  onClick={() =>
-                                    handleDeleteClick(project.id)
-                                  }
+                                  onClick={() => handleDeleteClick(project.id)}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -266,8 +264,8 @@ export default function ParticipantPage() {
                       No Projects Yet
                     </h3>
                     <p className="text-gray-500 max-w-sm">
-                      Start your journey by creating your first project. It
-                      only takes a few minutes!
+                      Start your journey by creating your first project. It only
+                      takes a few minutes!
                     </p>
                   </div>
                   <Link href={`/events/${eventId}/submit`}>
@@ -279,6 +277,7 @@ export default function ParticipantPage() {
               )}
             </motion.div>
           )}
+          <div className="mt-16"></div>
           <div className="mt-16">
           </div>
         </main>
