@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -51,6 +50,32 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
   const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null)
   const { toast } = useToast()
 
+  const fetchEntries = useCallback(async () => {
+    const { data: session } = await supabase.auth.getSession()
+    if (!session?.session?.user?.id) return
+
+    const { data, error } = await supabase
+      .from("platform_engagement")
+      .select("*")
+      .eq("event_id", eventId)
+      .eq("type", "journal")
+      .or(`is_private.eq.false,and(is_private.eq.true,user_id.eq.${session.session.user.id})`)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      toast({
+        title: "Error fetching journal entries",
+        description: "Please try again later",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (data) {
+      setEntries(data)
+    }
+  }, [eventId, toast])
+
   useEffect(() => {
     if (eventId) {
       const initSession = async () => {
@@ -60,7 +85,7 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
       }
       initSession()
     }
-  }, [eventId])
+  }, [eventId, fetchEntries])
 
   const incrementPulse = async (userEmail: string) => {
     const { data: profiles, error: fetchError } = await supabase

@@ -42,11 +42,7 @@ export function AuthProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [pathname, router]);
-
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
+  }, [pathname, router, publicPaths]);
 
   if (isLoading) {
     return null; // Or a loading spinner

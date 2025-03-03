@@ -32,7 +32,7 @@ export default function ProjectSubmissionPage() {
       }
     };
     getUser();
-  }, []);
+  }, [supabase]);
 
   return (
     <div className="container mx-auto py-8">
