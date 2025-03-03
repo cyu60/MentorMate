@@ -19,9 +19,9 @@ const ProjectDashboardSection = dynamic(
     ssr: false,
   }
 );
-// const ToolsSection = dynamic(() => import("@/components/tools-section"), {
-//   ssr: false,
-// });
+const ToolsSection = dynamic(() => import("@/components/tools-section"), {
+  ssr: false,
+});
 
 interface DashboardContentProps {
   eventId: string;
@@ -75,9 +75,9 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
           </Card>
         )}
       </Suspense>
-      {/* <Suspense fallback={<div>Loading tools...</div>}>
+      <Suspense fallback={<div>Loading tools...</div>}>
         <ToolsSection />
-      </Suspense> */}
+      </Suspense>
     </div>
   );
 }
