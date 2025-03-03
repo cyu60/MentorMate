@@ -6,10 +6,11 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { name: "Overview", href: "/overview" },
+  { name: "Dashboard", href: "/dashboard" },
   { name: "Participants", href: "/participants/public" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Feed", href: "/feed/public" }
-]
+  { name: "Feed", href: "/feed/public" },
+];
 
 export function HackathonNav({ id }: { id: string }) {
   const pathname = usePathname();
