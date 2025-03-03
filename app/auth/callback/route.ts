@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${baseUrl}/mentor`);
   } else {
     const returnUrl = searchParams.get('returnUrl');
-    const participantRedirectUrl = `${baseUrl}/participant${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
+    const participantRedirectUrl = `${baseUrl}${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
     return NextResponse.redirect(participantRedirectUrl);
   }
 }

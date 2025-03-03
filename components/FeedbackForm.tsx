@@ -46,7 +46,6 @@ import { motion } from "framer-motion";
 import { Loader2, Bot, Mic, MicOff } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "./SubmissionConfirmation";
-import { Footer } from "@/components/footer";
 
 interface AISuggestions {
   "more specific": string;
@@ -69,6 +68,17 @@ interface FeedbackData {
   positive_ai_suggestion: string;
   actionable_ai_suggestion: string;
   modifier_field: string[];
+  event_id: string;
+}
+interface FeedbackFormProps {
+  projectId: string;
+  projectName: string;
+  projectDescription: string;
+  projectLeadEmail: string;
+  projectLeadName: string;
+  project_url?: string | null;
+  additional_materials_url?: string | null;
+  eventId: string;
 }
 
 export default function FeedbackForm({
@@ -79,17 +89,8 @@ export default function FeedbackForm({
   projectLeadName,
   project_url,
   additional_materials_url,
-}: {
-  projectId: string;
-  projectName: string;
-  projectDescription: string;
-  projectLeadEmail: string;
-  projectLeadName: string;
-  userName?: string;
-  userEmail?: string;
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-}) {
+  eventId,
+}: FeedbackFormProps) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -478,6 +479,7 @@ export default function FeedbackForm({
         positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
         actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
         modifier_field: Array.from(usedSuggestions),
+        event_id: eventId,
       };
 
       const { data: projectData, error: projectError } = await supabaseClient
@@ -505,6 +507,7 @@ export default function FeedbackForm({
           specific_ai_suggestion: aiSuggestions?.["more specific"] || "",
           positive_ai_suggestion: aiSuggestions?.["more positive"] || "",
           actionable_ai_suggestion: aiSuggestions?.["more actionable"] || "",
+          event_id: eventId,
         },
       ]);
 
@@ -633,7 +636,7 @@ export default function FeedbackForm({
               </span>
             </div>
             <Link
-              href="/login"
+              href="/select"
               className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors"
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -835,7 +838,6 @@ export default function FeedbackForm({
           </form>
         </div>
       </div>
-      <Footer />
     </motion.div>
   );
 }

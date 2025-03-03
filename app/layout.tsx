@@ -1,27 +1,16 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import { Navbar } from "@/components/navbar";
+import { AuthProvider } from "@/components/AuthProvider";
+// import { Footer } from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#3b82f6",
-};
-
 export const metadata: Metadata = {
-  title: "Mentor Mate",
-  description:
-    "Streamline your project feedback process with our intuitive platform.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Mentor Mate",
-  },
+  title: "MentorMate",
+  description: "Connecting mentors and students in hackathons",
 };
 
 export default function RootLayout({
@@ -31,16 +20,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        {/* Apple Touch Icon - Specify the correct size */}
-        <link rel="apple-touch-icon" href="/mentormate.png" sizes="180x180" />
-        {/* Add additional icon sizes for better compatibility */}
-        <link rel="apple-touch-icon" href="/mentormate-192x192.png" sizes="192x192" />
-        <link rel="apple-touch-icon" href="/mentormate-512x512.png" sizes="512x512" />
-      </head>
       <body className={inter.className}>
         <Providers>
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <div className="flex flex-1 pt-16">
+              <AuthProvider>
+                <main className="flex-1 flex flex-col">
+                  <div className="flex-1 flex flex-col bg-gradient-to-b from-white via-white to-blue-50/60">
+                    <div className="flex-1">{children}</div>
+                    <div className="mt-auto">{/* <Footer /> */}</div>
+                  </div>
+                </main>
+              </AuthProvider>
+            </div>
+          </div>
         </Providers>
       </body>
     </html>

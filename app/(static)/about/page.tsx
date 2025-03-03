@@ -2,7 +2,6 @@ import type React from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 
 const AboutPage: React.FC = () => {
   return (
@@ -25,7 +24,7 @@ const AboutPage: React.FC = () => {
         {/* Introductory Text */}
         <div className="bg-white/70 shadow-lg p-6 rounded-xl transition-shadow hover:shadow-2xl">
           <p className="mx-auto text-md text-gray-800 text-justify">
-            MentorMates investigates how generative AI can enhance formative feedback in educational contexts, with a special focus on hackathons and project-based learning. Our research explores the intersection of AI and pedagogy to understand how automated systems can provide meaningful, personalized feedback that drives student growth. By studying the core elements of effective feedback and their implementation through AI, we aim to develop solutions that scale high-quality mentorship while maintaining the human touch that makes feedback impactful.
+            MentorMate investigates how generative AI can enhance formative feedback in educational contexts, with a special focus on hackathons and project-based learning. Our research explores the intersection of AI and pedagogy to understand how automated systems can provide meaningful, personalized feedback that drives student growth. By studying the core elements of effective feedback and their implementation through AI, we aim to develop solutions that scale high-quality mentorship while maintaining the human touch that makes feedback impactful.
           </p>
         </div>
 
@@ -183,7 +182,7 @@ const AboutPage: React.FC = () => {
         {/* Call to Action */}
         <div className="text-center mt-16">
           <Link
-            href="/login?mode=signup"
+            href="/select"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
           >
             Get Started
@@ -191,7 +190,6 @@ const AboutPage: React.FC = () => {
           </Link>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

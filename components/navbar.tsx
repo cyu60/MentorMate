@@ -44,10 +44,10 @@ export function Navbar() {
       const currentPath = window.location.pathname;
       if (currentPath !== "/mentor") {
         localStorage.setItem('returnUrl', currentPath);
-        console.log("Setting returnUrl:", currentPath); // Add logging
+        console.log("Setting returnUrl:", currentPath);
       }
     }
-    router.push("/login");
+    router.push("/select");
   };
 
   const handleSignOutClick = async () => {
@@ -57,25 +57,24 @@ export function Navbar() {
     } else {
       setSession(null);
       localStorage.removeItem('returnUrl'); // Clear returnUrl on sign out
-      await router.push("/");
+      window.location.href = "/";
     }
   };
 
   return (
     <>
-      <nav className="w-full bg-transparent text-blue-900">
-        <div className="flex justify-between items-center p-8 max-w-7xl mx-auto">
+      <nav className="fixed top-0 left-0 right-0 bg-white border-b z-50">
+        <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
           {/* Logo */}
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Image
-                src="/mentormate.png"
-                alt="Mentor Mate Logo"
-                width={40}
-                height={40}
-                className="object-contain"
-              />
-            </div>
+          <Link href="/" className="flex items-center gap-2 cursor-pointer">
+            <Image
+              src="/mentormate.png"
+              alt="Mentor Mate Logo"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+            <span className="font-bold text-xl text-blue-900">MentorMate</span>
           </Link>
 
           {/* Menu items */}
@@ -139,7 +138,7 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="sm:hidden bg-blue-900 text-white text-center py-4">
+          <div className="sm:hidden bg-white border-t text-center py-4">
             <Link href="/about" className="block py-2 font-semibold">
               About Us
             </Link>
