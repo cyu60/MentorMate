@@ -103,7 +103,7 @@ export default function GivenFeedbackPage() {
     <div className="container m-0 p-0 sm:p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
       <Navbar />
       <h1 className="text-3xl font-bold mb-8 text-center">
-        Feedback You've Given
+        Feedback You&apos;ve Given
       </h1>
 
       <div className="w-full max-w-4xl px-4 sm:px-0 mb-6 mx-auto">
@@ -164,10 +164,10 @@ export default function GivenFeedbackPage() {
         ) : (
           <div className="bg-white p-10 rounded-lg shadow-md text-center">
             <h3 className="text-xl font-semibold text-gray-700 mb-4">
-              You haven't given any feedback yet
+              You haven&apos;t given any feedback yet
             </h3>
             <p className="text-gray-600 mb-6">
-              When you provide feedback to projects, they'll appear here.
+              When you provide feedback to projects, they&apos;ll appear here.
             </p>
             <Link href="/events">
               <Button className="button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
