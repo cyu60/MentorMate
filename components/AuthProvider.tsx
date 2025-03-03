@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Sidebar } from "@/components/sidebar";
+
+type PathPattern = string | RegExp;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,17 +13,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Define public paths that don't require authentication
-  const BASE_PUBLIC_PATHS = ["/", "/login", "/select", "/auth/callback"];
-  const PUBLIC_PATH_PATTERNS = [
-    ...BASE_PUBLIC_PATHS,
-    /^\/public-project($|\/.*$)/, // Matches /public-project and all its sub-routes
-  ];
+  // Define public paths that don't require authentication using useMemo
+  const PUBLIC_PATH_PATTERNS = useMemo(() => {
+    const BASE_PUBLIC_PATHS = ["/", "/login", "/select", "/auth/callback"];
+    return [
+      ...BASE_PUBLIC_PATHS,
+      /^\/public-project($|\/.*$)/, // Matches /public-project and all its sub-routes
+    ];
+  }, []);
 
   // Wrap isPublicPath in useCallback to prevent recreation on each render
   const isPublicPath = useCallback(
     (path: string) => {
-      return PUBLIC_PATH_PATTERNS.some((pattern) =>
+      return PUBLIC_PATH_PATTERNS.some((pattern: PathPattern) =>
         typeof pattern === "string" ? pattern === path : pattern.test(path)
       );
     },

@@ -11,14 +11,6 @@ const navItems = [
   { name: "Feed", href: "/feed/public" }
 ]
 
-const privateNavItems = [
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Participants", href: "/participants" },
-  // { name: "Tools", href: "/tools" },
-  { name: "Gallery", href: "/gallery" },
-  { name: "Feed", href: "/feed" },
-];
-
 export function HackathonNav({ id }: { id: string }) {
   const pathname = usePathname();
   const basePath = `/events/${id}`;

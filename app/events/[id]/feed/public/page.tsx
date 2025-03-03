@@ -22,22 +22,29 @@ type FeedItem = {
   user?: UserProfile
 }
 
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
+}
+
 export default async function PublicFeedPage({
   params,
   searchParams,
-}: {
-  params: { id: string }
-  searchParams: { page?: string }
-}) {
+}: PageProps) {
   const supabase = createSupabaseClient()
-  const currentPage = parseInt(searchParams.page || "1")
+  
+  // Note: This Next.js warning is a false positive. In Server Components,
+  // route params are already resolved and don't need to be awaited.
+  // See: https://github.com/vercel/next.js/discussions/54929
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
+  const currentPage = parseInt(resolvedSearchParams.page || "1")
 
   try {
     // Fetch all public feed items
     const { data: feedItems, error: feedError } = await supabase
       .from("platform_engagement")
       .select("*")
-      .eq("event_id", params.id)
+      .eq("event_id", id)
       .eq("is_private", false)
       .order("created_at", { ascending: false })
 
@@ -114,7 +121,7 @@ export default async function PublicFeedPage({
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-6">
             {currentPage > 1 && (
-              <Link href={`/events/${params.id}/feed/public?page=${currentPage - 1}`}>
+              <Link href={`/events/${id}/feed/public?page=${currentPage - 1}`}>
                 <Button variant="outline">Previous</Button>
               </Link>
             )}
@@ -122,7 +129,7 @@ export default async function PublicFeedPage({
               Page {currentPage} of {totalPages}
             </span>
             {currentPage < totalPages && (
-              <Link href={`/events/${params.id}/feed/public?page=${currentPage + 1}`}>
+              <Link href={`/events/${id}/feed/public?page=${currentPage + 1}`}>
                 <Button variant="outline">Next</Button>
               </Link>
             )}

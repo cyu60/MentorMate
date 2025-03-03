@@ -11,17 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, X, Loader2 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
-import { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { supabase } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
-import { useParams } from "next/navigation"
-import { Pencil, CheckCircle2, XCircle } from "lucide-react"
-import { Session } from "@supabase/supabase-js"
 
 type SupabaseSessionResponse = {
   data: {
@@ -59,30 +48,12 @@ export default function JournalSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  const [sessionData, setSessionData] =
-    useState<SupabaseSessionResponse | null>(null);
+  const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null);
   const { toast } = useToast();
 
   const fetchEntries = useCallback(async () => {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user?.id) return;
-export default function JournalSection({ eventId: propEventId }: JournalSectionProps) {
-  const params = useParams()
-  const eventId = propEventId || (params.id as string)
-  const [entries, setEntries] = useState<JournalEntry[]>([])
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [newTag, setNewTag] = useState("")
-  const [tags, setTags] = useState<string[]>([])
-  const [entry, setEntry] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
-  const [editedContent, setEditedContent] = useState("")
-  const [sessionData, setSessionData] = useState<SupabaseSessionResponse | null>(null)
-  const { toast } = useToast()
-
-  const fetchEntries = useCallback(async () => {
-    const { data: session } = await supabase.auth.getSession()
-    if (!session?.session?.user?.id) return
 
     const { data, error } = await supabase
       .from("platform_engagement")
@@ -90,73 +61,6 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
       .eq("event_id", eventId)
       .eq("type", "journal")
       .or(`is_private.eq.false,and(is_private.eq.true,user_id.eq.${session.session.user.id})`)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      toast({
-        title: "Error fetching journal entries",
-        description: "Please try again later",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (data) {
-      setEntries(data)
-    }
-  }, [eventId, toast])
-
-  useEffect(() => {
-    if (eventId) {
-      const initSession = async () => {
-        const sessionResponse = await supabase.auth.getSession()
-        setSessionData(sessionResponse)
-        fetchEntries()
-      }
-      initSession()
-    }
-  }, [eventId, fetchEntries])
-
-  const incrementPulse = async (userEmail: string) => {
-    const { data: profiles, error: fetchError } = await supabase
-      .from('user_profiles')
-      .select('pulse')
-      .eq('email', userEmail)
-      .single()
-
-    if (fetchError) {
-      console.error('Error fetching pulse:', fetchError)
-      return
-    }
-
-    const currentPulse = profiles?.pulse || 0
-    const newPulse = currentPulse + 1
-
-    const { error: updateError } = await supabase
-      .from('user_profiles')
-      .update({ pulse: newPulse })
-      .eq('email', userEmail)
-
-    if (updateError) {
-      console.error('Error updating pulse:', updateError)
-      toast({
-        title: "Error updating pulse",
-        description: updateError.message || "Please try again later",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const fetchEntries = async () => {
-    const { data: session } = await supabase.auth.getSession()
-    if (!session?.session?.user?.id) return
-
-    const { data, error } = await supabase
-      .from("platform_engagement")
-      .select("*")
-      .eq("event_id", eventId)
-      .eq("type", "journal")
-      .eq("user_id", session.session.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {

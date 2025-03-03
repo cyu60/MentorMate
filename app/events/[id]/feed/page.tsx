@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createSupabaseClient } from "@/app/utils/supabase/server"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
@@ -24,22 +23,28 @@ type FeedItem = {
   user?: UserProfile
 }
 
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
+}
+
 export default async function FeedPage({
   params,
   searchParams,
-}: {
-  params: { id: string }
-  searchParams: { page?: string }
-}) {
-  const supabase = createServerComponentClient({ cookies })
-  const currentPage = parseInt(searchParams.page || "1")
+}: PageProps) {
+  const supabase = createSupabaseClient()
+  // Note: This Next.js warning is a false positive. In Server Components,
+  // route params are already resolved and don't need to be awaited.
+  // See: https://github.com/vercel/next.js/discussions/54929
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
+  const currentPage = parseInt(resolvedSearchParams.page || "1")
 
   try {
     // Fetch all feed items
     const { data: feedItems, error: feedError } = await supabase
       .from("platform_engagement")
       .select("*")
-      .eq("event_id", params.id)
+      .eq("event_id", id)
       .eq("is_private", false)
       .order("created_at", { ascending: false })
 
@@ -76,7 +81,7 @@ export default async function FeedPage({
       user: userMap.get(item.user_id)
     }))
 
-    // Handle pagination on the client side
+    // Handle pagination
     const totalItems = enrichedFeedItems.length
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -116,7 +121,7 @@ export default async function FeedPage({
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-6">
             {currentPage > 1 && (
-              <Link href={`/events/${params.id}/feed?page=${currentPage - 1}`}>
+              <Link href={`/events/${id}/feed?page=${currentPage - 1}`}>
                 <Button variant="outline">Previous</Button>
               </Link>
             )}
@@ -124,7 +129,7 @@ export default async function FeedPage({
               Page {currentPage} of {totalPages}
             </span>
             {currentPage < totalPages && (
-              <Link href={`/events/${params.id}/feed?page=${currentPage + 1}`}>
+              <Link href={`/events/${id}/feed?page=${currentPage + 1}`}>
                 <Button variant="outline">Next</Button>
               </Link>
             )}
