@@ -5,7 +5,7 @@ import React from "react";
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-16">
         <div className="bg-white/70 rounded-xl shadow-lg p-8 space-y-8">
           <h1
             className="text-3xl font-bold mb-8 cursor-pointer text-center"
