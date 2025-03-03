@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
 // import { Footer } from "@/components/footer";
 import UserSearch from "../../../../components/UserSearch";
@@ -336,7 +335,6 @@ export default function ProjectDashboard() {
 
   return (
     <div>
-      <Toaster />
       <Navbar />
       <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10">
         <div className="w-full max-w-4xl">
