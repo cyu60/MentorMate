@@ -92,7 +92,7 @@ export default function MentorLoginPage() {
       <div className="overflow-auto flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image
-            alt="MentorMate"
+            alt="MentorMates"
             src="/mentormate.png"
             width={40}
             height={40}
