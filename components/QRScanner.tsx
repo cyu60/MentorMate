@@ -14,7 +14,6 @@ export default function QRScanner() {
     if (detectedCodes.length > 0) {
       try {
         const rawValue = detectedCodes[0].rawValue;
-        // Extract the project ID from the URL
         const projectId = rawValue.split("/").pop();
 
         if (!projectId) {
@@ -25,7 +24,7 @@ export default function QRScanner() {
           title: "QR Code Scanned",
           description: "Redirecting to project page...",
         });
-        router.push(`/project/${projectId}`);
+        router.push(`/my-projects/${projectId}`);
       } catch (error) {
         console.error("Error parsing QR code:", error);
         setScanError("Invalid QR code format. Please try scanning again.");

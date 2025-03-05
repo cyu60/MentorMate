@@ -78,11 +78,6 @@ export function MentorRegistrationModal({
         });
       }
 
-      // Store in localStorage
-      localStorage.setItem("mentorId", mentorInfo.id);
-      localStorage.setItem("mentorName", mentorInfo.name);
-      localStorage.setItem("mentorEmail", mentorInfo.email);
-
       onClose(mentorInfo);
     } catch (error) {
       console.error("Error in mentor registration:", error);
