@@ -53,7 +53,7 @@ export default function SubmitPage() {
             className="mt-6 px-4 sm:px-6 md:px-8 lg:px-40"
           >
             <Card className="bg-white backdrop-blur-md border-blue-200/20">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent>
                 <ProjectSubmissionFormComponent
                   userEmail={session?.user?.email}
                   leadName={session?.user?.user_metadata?.full_name}
