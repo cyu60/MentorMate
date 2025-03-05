@@ -1,16 +1,12 @@
 "use client";
 
-// import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, Pencil, Globe, Presentation } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-export default function ToolsSection() {
-  // const router = useRouter();
-  // const params = useParams();
-  // const eventId = params.id as string;
 
+export default function ToolsSection() {
   const navigateToTool = (tool: string) => {
     toast({
       title: "Feature coming soon...",
@@ -19,37 +15,37 @@ export default function ToolsSection() {
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">My Tools</h2>
+    <Card className="p-8 shadow-xl rounded-xl">
       <Toaster />
-      <div className="flex flex-col gap-3">
+      <h2 className="text-3xl font-bold text-center mb-6">My Tools</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Button
           onClick={() => navigateToTool("brainstormer")}
-          className="bg-black text-white hover:bg-black/90 justify-start h-12"
+          className="flex items-center justify-center gap-2 bg-blue-800 text-white hover:bg-blue-900 h-16 rounded-lg transition-all"
         >
-          <Lightbulb className="w-5 h-5 mr-2" />
-          AI Brainstormer
+          <Lightbulb className="w-6 h-6" />
+          <span className="text-lg">AI Brainstormer</span>
         </Button>
         <Button
           onClick={() => navigateToTool("whiteboard")}
-          className="bg-black text-white hover:bg-black/90 justify-start h-12"
+          className="flex items-center justify-center gap-2 bg-blue-800 text-white hover:bg-blue-900 h-16 rounded-lg transition-all"
         >
-          <Pencil className="w-5 h-5 mr-2" />
-          Whiteboard
+          <Pencil className="w-6 h-6" />
+          <span className="text-lg">Whiteboard</span>
         </Button>
         <Button
           onClick={() => navigateToTool("website-builder")}
-          className="bg-black text-white hover:bg-black/90 justify-start h-12"
+          className="flex items-center justify-center gap-2 bg-blue-800 text-white hover:bg-blue-900 h-16 rounded-lg transition-all"
         >
-          <Globe className="w-5 h-5 mr-2" />
-          Website Builder
+          <Globe className="w-6 h-6" />
+          <span className="text-lg">Website Builder</span>
         </Button>
         <Button
           onClick={() => navigateToTool("presentation-builder")}
-          className="bg-black text-white hover:bg-black/90 justify-start h-12"
+          className="flex items-center justify-center gap-2 bg-blue-800 text-white hover:bg-blue-900 h-16 rounded-lg transition-all"
         >
-          <Presentation className="w-5 h-5 mr-2" />
-          Presentation Builder
+          <Presentation className="w-6 h-6" />
+          <span className="text-lg">Presentation Builder</span>
         </Button>
       </div>
     </Card>
