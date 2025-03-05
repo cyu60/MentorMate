@@ -54,8 +54,12 @@ export function Sidebar() {
           <div key={`${item.href}-${index}`}>
             {item.subItems ? (
               <Button
-                variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
-                className="w-full justify-start"
+                variant={
+                  pathname.startsWith(item.href) ? "secondary" : "ghost"
+                }
+                className={`w-full justify-start ${
+                  pathname.startsWith(item.href) ? "bg-blue-50" : ""
+                }`}
                 onClick={() => toggleExpand(item.name)}
               >
                 <item.icon className="mr-2 h-4 w-4" />
@@ -70,7 +74,9 @@ export function Sidebar() {
               <Link href={item.href}>
                 <Button
                   variant={pathname === item.href ? "secondary" : "ghost"}
-                  className="w-full justify-start"
+                  className={`w-full justify-start ${
+                    pathname === item.href ? "bg-blue-50" : ""
+                  }`}
                   onClick={() => setOpen(false)}
                 >
                   <item.icon className="mr-2 h-4 w-4" />
@@ -86,7 +92,9 @@ export function Sidebar() {
                       variant={
                         pathname === subItem.href ? "secondary" : "ghost"
                       }
-                      className="w-full justify-start"
+                      className={`w-full justify-start ${
+                        pathname === subItem.href ? "bg-blue-50" : ""
+                      }`}
                       onClick={() => setOpen(false)}
                     >
                       {subItem.name}
