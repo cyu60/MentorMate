@@ -19,7 +19,7 @@ export function HackathonNav({ id }: { id: string }) {
   return (
     <nav className="border-b bg-white sticky top-0 z-10 w-full">
       <div className="w-full overflow-x-auto">
-        <div className="flex space-x-8">
+        <div className="flex space-x-8 pl-4">
           {navItems.map((item) => (
             <Link
               key={item.name}
