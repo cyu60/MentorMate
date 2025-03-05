@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -8,8 +9,15 @@ import { UserPen, UserCheck } from "lucide-react";
 export function SelectHero() {
   const router = useRouter();
 
-  // document.body.style.overflow = "hidden";
-  
+  useEffect(() => {
+    // Disable scrolling when the component mounts
+    document.body.style.overflow = "hidden";
+    // Clean up by resetting overflow when the component unmounts
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const handleParticipantClick = async () => {
     localStorage.setItem('redirectToParticipant', 'true');
     const {

@@ -2,6 +2,7 @@ import type React from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 const AboutPage: React.FC = () => {
   return (
@@ -271,6 +272,7 @@ const AboutPage: React.FC = () => {
           </Link>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
