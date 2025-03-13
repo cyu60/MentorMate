@@ -21,8 +21,8 @@ function LoginContent() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
-    const mode = searchParams.get('mode');
-    if (mode === 'signup') {
+    const mode = searchParams.get("mode");
+    if (mode === "signup") {
       setIsSignUp(true);
     }
   }, [searchParams]);
@@ -60,7 +60,7 @@ function LoginContent() {
         email,
         password,
       });
-      
+
       if (error) {
         const errorMessage = error.message.includes("unique")
           ? "This email is already registered. Please sign in instead."
@@ -72,11 +72,11 @@ function LoginContent() {
 
       if (data?.user) {
         const { error: profileError } = await supabase
-          .from('user_profiles')
+          .from("user_profiles")
           .upsert({
             email: data.user.email,
-            display_name: data.user.email?.split('@')[0],
-            created_at: new Date().toISOString()
+            display_name: data.user.email?.split("@")[0],
+            created_at: new Date().toISOString(),
           });
 
         if (profileError) {
@@ -90,7 +90,7 @@ function LoginContent() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
       if (error) {
         const errorMessage = error.message.includes("Invalid")
@@ -122,14 +122,16 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    localStorage.setItem('returnUrl', '/select');
-    const returnUrl = localStorage.getItem('returnUrl');
+    localStorage.setItem("returnUrl", "/select");
+    const returnUrl = localStorage.getItem("returnUrl");
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const options = {
       provider,
       options: {
-        redirectTo: `${baseUrl}/auth/callback${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`
-      }
+        redirectTo: `${baseUrl}/auth/callback${
+          returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ""
+        }`,
+      },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);
     if (error) {
@@ -144,7 +146,7 @@ function LoginContent() {
   };
 
   return (
-    <div>
+    <div className="pt-16">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           alt="MentorMate"
@@ -161,9 +163,7 @@ function LoginContent() {
       <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           {error && (
-            <div className="mb-4 text-center text-sm text-red-600">
-              {error}
-            </div>
+            <div className="mb-4 text-center text-sm text-red-600">{error}</div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -317,9 +317,7 @@ function LoginContent() {
 
           {/* Toggle between Sign In and Sign Up */}
           <p className="mt-10 text-center text-sm text-gray-500">
-            {isSignUp
-              ? "Already have an account? "
-              : "Don't have an account? "}
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
             <a
               href="#"
               onClick={(e) => {
@@ -344,6 +342,6 @@ export default function LoginPage() {
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />
       </Suspense>
-    </ div>
+    </div>
   );
 }
