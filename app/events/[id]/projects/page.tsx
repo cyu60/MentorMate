@@ -29,7 +29,7 @@ export default function ProjectSubmissionPage() {
         const { data: profile } = await supabase
           .from("user_profiles")
           .select("*")
-          .eq("id", session.user.id)
+          .eq("uid", session.user.id)
           .single();
 
         if (profile) {
