@@ -65,7 +65,8 @@ export function CancelRegistration({ eventId, onCancel }: CancelRegistrationProp
 
       console.log('Successfully updated profile')
       await onCancel() // Update parent state first
-      router.refresh() // Then refresh the page
+      router.refresh() // Refresh Next.js cache
+      window.location.reload() // Force full page refresh to re-render layout
     } catch (error) {
       console.error('Error canceling registration:', error)
     } finally {

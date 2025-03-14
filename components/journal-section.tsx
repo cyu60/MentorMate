@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/app/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, X, Loader2 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+
+const supabase = createClient();
 
 type SupabaseSessionResponse = {
   data: {
@@ -18,6 +20,8 @@ type SupabaseSessionResponse = {
   };
   error: Error | null;
 } | null;
+
+const supabase = createClient();
 
 interface JournalEntry {
   id: string;
@@ -51,6 +55,7 @@ export default function JournalSection({
   const [sessionData, setSessionData] =
     useState<SupabaseSessionResponse | null>(null);
   const { toast } = useToast();
+  const supabase = createClient();
 
   const fetchEntries = useCallback(async () => {
     const { data: session } = await supabase.auth.getSession();

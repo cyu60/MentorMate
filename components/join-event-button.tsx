@@ -104,6 +104,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
 
       setHasJoined(true)
       router.refresh()
+      window.location.reload()
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error joining event:', error.message)
@@ -115,7 +116,9 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
     }
   }
 
-  if (hasJoined) return null;
+  if (hasJoined) {
+    return null
+  }
 
   return (
     <Button
