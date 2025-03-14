@@ -17,6 +17,7 @@ interface Project {
   lead_email: string
   project_url?: string | null
   additional_materials_url?: string | null
+  cover_image_url?: string | null
 }
 
 export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
@@ -35,7 +36,8 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
           lead_name,
           lead_email,
           project_url,
-          additional_materials_url
+          additional_materials_url,
+          cover_image_url
         `)
         .eq("event_id", eventId)
         .single()
@@ -62,7 +64,16 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
 
   if (!project) {
     return (
-      <Card className="p-6">
+      <Card className="overflow-hidden">
+        <div
+          className="h-[200px] w-full bg-[#000080]"
+          style={project.cover_image_url ? {
+            backgroundImage: `url(${project.cover_image_url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          } : undefined}
+        />
+        <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">My Project</h2>
           <Link href={`/events/${eventId}/submit`}>
@@ -79,16 +90,25 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">My Project</h2>
-        <Link href={`/events/${eventId}/dashboard/${project.id}`}>
-          <Button className="bg-black text-white hover:bg-black/90">
-            View Dashboard
-          </Button>
-        </Link>
-      </div>
-      <div className="space-y-6">
+    <Card className="overflow-hidden">
+      <div
+        className="h-[200px] w-full bg-[#000080]"
+        style={project.cover_image_url ? {
+          backgroundImage: `url(${project.cover_image_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      />
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold">My Project</h2>
+          <Link href={`/events/${eventId}/dashboard/${project.id}`}>
+            <Button className="bg-black text-white hover:bg-black/90">
+              View Dashboard
+            </Button>
+          </Link>
+        </div>
+        <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Name</h3>
           <p className="text-gray-700">{project.project_name}</p>

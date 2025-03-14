@@ -24,7 +24,8 @@ import { Loader2 } from "lucide-react";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-const formSchema = z.object({
+const formSchema = 
+z.object({
   projectName: z.string().min(2, {
     message: "Project name must be at least 2 characters.",
   }),
@@ -44,6 +45,15 @@ const formSchema = z.object({
     }),
   teammates: z.array(z.string()).optional(),
   projectUrl: z.string().url().optional().or(z.literal("")),
+  coverImage: z
+    .custom<FileList>()
+    .optional()
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      {
+        message: "File size must be less than 10MB",
+      }
+    ),
   additionalMaterials: z
     .custom<FileList>()
     .optional()
@@ -68,6 +78,7 @@ export function ProjectSubmissionFormComponent({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -127,6 +138,31 @@ export function ProjectSubmissionFormComponent({
     setIsSubmitting(true);
     try {
       let additionalMaterialsUrl = null;
+      let coverImageUrl = null;
+
+      // Upload cover image if provided
+      if (values.coverImage && values.coverImage.length > 0) {
+        const file = values.coverImage[0];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
+        const filePath = `project-covers/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("project-materials")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("project-materials").getPublicUrl(filePath);
+
+        coverImageUrl = publicUrl;
+      }
 
       // Upload additional materials if provided
       if (values.additionalMaterials && values.additionalMaterials.length > 0) {
@@ -161,6 +197,7 @@ export function ProjectSubmissionFormComponent({
           project_description: values.projectDescription,
           teammates: values.teammates,
           project_url: values.projectUrl || null,
+          cover_image_url: coverImageUrl,
           additional_materials_url: additionalMaterialsUrl,
           event_id: eventId,
         })
@@ -331,18 +368,72 @@ export function ProjectSubmissionFormComponent({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm sm:text-base">
-                  Project URL (Optional)
+                  GitHub Repository (Optional)
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="url"
-                    placeholder="Github/Devpost"
+                    placeholder="https://github.com/username/repository"
                     {...field}
                     className="text-sm sm:text-base p-2 sm:p-3"
                   />
                 </FormControl>
                 <FormDescription className="text-xs sm:text-sm">
-                  GitHub repository or Devpost submission URL
+                  Link to your project&apos;s GitHub repository
+                </FormDescription>
+                <FormMessage className="text-xs sm:text-sm" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="coverImage"
+            render={({ field: { onChange, name, onBlur, ref } }) => (
+              <FormItem>
+                <FormLabel className="text-sm sm:text-base">
+                  Cover Image (Optional)
+                </FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      name={name}
+                      ref={ref}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          setSelectedCoverImage(files[0]);
+                          onChange(files);
+                        }
+                      }}
+                      accept="image/*"
+                      className="flex-1 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                    />
+                    {selectedCoverImage && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCoverImage(null);
+                          onChange(undefined);
+                          const fileInput = document.querySelector(
+                            `input[name="${name}"]`
+                          ) as HTMLInputElement;
+                          if (fileInput) {
+                            fileInput.value = "";
+                          }
+                        }}
+                        className="px-2 py-1"
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </FormControl>
+                <FormDescription className="text-xs sm:text-sm">
+                  Upload a cover image for your project (max 10MB)
                 </FormDescription>
                 <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
