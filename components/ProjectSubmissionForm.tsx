@@ -24,8 +24,7 @@ import { Loader2 } from "lucide-react";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-const formSchema = 
-z.object({
+const formSchema = z.object({
   projectName: z.string().min(2, {
     message: "Project name must be at least 2 characters.",
   }),

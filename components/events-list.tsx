@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
@@ -44,22 +44,25 @@ export function EventsList({ events }: EventsListProps) {
   }, [])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto">
       {events.map((event) => (
         <Link href={`/events/${event.event_id}/overview`} key={event.event_id}>
-          <Card className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader>
+          <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+            <div className="h-[200px] w-full bg-[#000080]" />
+            <div className="p-6 space-y-4">
               <div className="flex justify-between items-start">
-                <CardTitle>{event.event_name}</CardTitle>
+                <div>
+                  <CardTitle className="text-xl font-semibold">{event.event_name}</CardTitle>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="secondary" className="text-sm">{event.event_date}</Badge>
+                    <Badge variant="outline" className="text-sm">{event.location}</Badge>
+                  </div>
+                </div>
                 {joinedEventIds.includes(event.event_id) && (
                   <Badge className="bg-green-600">Joined</Badge>
                 )}
               </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Badge variant="secondary">{event.event_date}</Badge>
-              <Badge variant="outline">{event.location}</Badge>
-            </CardContent>
+            </div>
           </Card>
         </Link>
       ))}

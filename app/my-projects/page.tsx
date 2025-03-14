@@ -5,13 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Session } from "@supabase/supabase-js";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -27,6 +21,7 @@ interface Project {
   teammates: string[];
   project_url?: string;
   additional_materials_url?: string;
+  cover_image_url?: string;
 }
 
 export default function MyProjectsPage() {
@@ -34,6 +29,7 @@ export default function MyProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
+
   useEffect(() => {
     const fetchSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -104,31 +100,38 @@ export default function MyProjectsPage() {
           >
             {projects.length > 0 ? (
               <>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4 sm:px-20">
+                <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto px-4">
                   {projects.map((project) => (
-                    <Card key={project.id}>
-                      <CardHeader>
-                        <div className="flex justify-between items-start gap-2">
-                          <CardTitle className="text-blue-900 text-xl font-semibold">
-                            {project.project_name}
-                          </CardTitle>
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
-                            {project.lead_email === session?.user?.email ? 'Owner' : 'Team Member'}
-                          </span>
+                    <Card key={project.id} className="overflow-hidden">
+                      <div 
+                        className="h-[200px] w-full bg-[#000080]"
+                        style={project.cover_image_url ? {
+                          backgroundImage: `url(${project.cover_image_url})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        } : undefined}
+                      />
+                      <div className="p-6 space-y-4">
+                        <div>
+                          <div className="flex justify-between items-start gap-2">
+                            <CardTitle className="text-xl font-semibold">
+                              {project.project_name}
+                            </CardTitle>
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+                              {project.lead_email === session?.user?.email ? 'Owner' : 'Team Member'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">Lead: {project.lead_name}</p>
                         </div>
-                        <div className="mt-2">
-                          <CardDescription className="text-gray-600 text-sm">
-                            {project.project_description.slice(0, 100) + "..."}
-                          </CardDescription>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <Link href={`/my-projects/${project.id}/dashboard`}>
+                        <CardDescription className="text-gray-600 text-sm">
+                          {project.project_description.slice(0, 100) + "..."}
+                        </CardDescription>
+                        <Link href={`/my-projects/${project.id}/dashboard`} className="block">
                           <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                             View Project
                           </Button>
                         </Link>
-                      </CardContent>
+                      </div>
                     </Card>
                   ))}
                 </div>
