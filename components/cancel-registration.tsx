@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation"
 
 interface CancelRegistrationProps {
   eventId: string
+  onCancel: () => Promise<void>
 }
 
-export function CancelRegistration({ eventId }: CancelRegistrationProps) {
+export function CancelRegistration({ eventId, onCancel }: CancelRegistrationProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -18,30 +19,53 @@ export function CancelRegistration({ eventId }: CancelRegistrationProps) {
       setIsLoading(true)
 
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
+      if (!session) {
+        console.error('No session found')
+        return
+      }
 
-      const { data: profile } = await supabase
+      console.log('Session:', session.user.email)
+
+      const { data: profile, error: fetchError } = await supabase
         .from('user_profiles')
-        .select()
-        .eq('uid', session.user.id)
-        .maybeSingle()
+        .select('*')
+        .eq('email', session.user.email)
+        .single()
 
-      if (!profile) return
+      if (fetchError) {
+        console.error('Error fetching profile:', fetchError.message)
+        return
+      }
+
+      if (!profile) {
+        console.error('No profile found')
+        return
+      }
+
+      console.log('Current profile:', profile)
+      console.log('Current events:', profile.events)
+
+      if (!Array.isArray(profile.events)) {
+        console.error('Events is not an array:', profile.events)
+        return
+      }
 
       const updatedEvents = profile.events.filter((id: string) => id !== eventId)
+      console.log('Updated events:', updatedEvents)
 
       const { error: updateError } = await supabase
         .from('user_profiles')
         .update({ events: updatedEvents })
-        .eq('uid', session.user.id)
+        .eq('email', session.user.email)
 
       if (updateError) {
         console.error('Error updating profile:', updateError.message)
         return
       }
 
-      router.refresh()
-      window.location.reload()
+      console.log('Successfully updated profile')
+      await onCancel() // Update parent state first
+      router.refresh() // Then refresh the page
     } catch (error) {
       console.error('Error canceling registration:', error)
     } finally {
