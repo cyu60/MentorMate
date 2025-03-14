@@ -50,11 +50,35 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return
       }
 
-      const { data: profile, error: fetchError } = await supabase
+      let { data: profile, error: fetchError } = await supabase
         .from('user_profiles')
         .select()
         .eq('email', session.user.email)
         .single()
+
+      if (!profile && !fetchError) {
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            email: session.user.email,
+            user_id: session.user.id,
+          })
+
+        if (insertError) {
+          console.error('Error inserting user profile:', insertError.message)
+          return
+        }
+
+        // Retry fetching the profile after insertion
+        const retryResult = await supabase
+          .from('user_profiles')
+          .select()
+          .eq('email', session.user.email)
+          .single()
+
+        profile = retryResult.data
+        fetchError = retryResult.error
+      }
 
       if (fetchError) {
         console.error('Error fetching user profile:', fetchError.message)

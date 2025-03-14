@@ -13,58 +13,63 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
+  console.log("Starting auth callback with code");
   const supabase = createSupabaseClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  
+  console.log("Exchanging code for session...");
+  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
   
   if (error) {
     console.error("Error exchanging code for session:", error);
     return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
+  console.log("Successfully exchanged code for session:", sessionData);
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData?.user) {
-    console.error("Error getting user:", userError);
+  // Get user from session data
+  if (!sessionData?.session?.user) {
+    console.error("No user data in session:", sessionData);
     return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
-  const user = userData.user;
+  const user = sessionData.session.user;
+  console.log("Session data:", sessionData);
+  console.log("User data:", user);
+  console.log("User metadata:", user.user_metadata);
   const isMentorLogin = referer.includes('/mentor');
   
-  if (isMentorLogin) {
-    const { data: existingMentor, error: mentorCheckError } = await supabase
-      .from('mentors')
-      .select('id')
-      .eq('id', user.id)
-      .single();
+  // Ensure we have required user data
+  if (!user.email) {
+    console.error("No email found for user:", user.id);
+    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error?error=missing_email`);
+  }
 
-    if (mentorCheckError && mentorCheckError.code !== 'PGRST116') {
-      console.error("Error checking mentor:", mentorCheckError);
+  if (isMentorLogin) {
+    return NextResponse.redirect(`${baseUrl}/mentor`);
+  } else {
+    console.log("Creating/updating user profile...");
+    
+    const profileData = {
+      name: user.user_metadata?.full_name || user.email.split('@')[0],
+      email: user.email,
+      events: [],
+      pulse: 0
+    };
+    console.log("Profile data:", profileData);
+
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .upsert(profileData, {
+        onConflict: 'email'
+      })
+      .select();
+
+    if (profileError) {
+      console.error("Error upserting user profile:", profileError);
       return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
     }
 
-    if (!existingMentor) {
-      if (!user.email) {
-        console.error("No email found for user:", user.id);
-        return NextResponse.redirect(`${baseUrl}/auth/auth-code-error?error=missing_email`);
-      }
+    console.log("Successfully upserted user profile:", profile);
 
-      const { error: mentorError } = await supabase
-        .from('mentors')
-        .insert({
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || user.email.split('@')[0],
-          updated_at: new Date().toISOString()
-        });
-
-      if (mentorError) {
-        console.error("Error creating mentor:", mentorError);
-        return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
-      }
-    }
-
-    return NextResponse.redirect(`${baseUrl}/mentor`);
-  } else {
     const returnUrl = searchParams.get('returnUrl');
     const participantRedirectUrl = `${baseUrl}${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
     return NextResponse.redirect(participantRedirectUrl);
