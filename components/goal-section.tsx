@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/app/utils/supabase/client";
+
+// Initialize Supabase client once at module level
+const supabase = createClient();
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, CheckCircle2, XCircle } from "lucide-react";

@@ -10,17 +10,8 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, X, Loader2 } from "lucide-react";
-import { Session } from "@supabase/supabase-js";
 
-const supabase = createClient();
-
-type SupabaseSessionResponse = {
-  data: {
-    session: Session | null;
-  };
-  error: Error | null;
-} | null;
-
+// Initialize Supabase client once at module level
 const supabase = createClient();
 
 interface JournalEntry {
@@ -52,21 +43,35 @@ export default function JournalSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  const [sessionData, setSessionData] =
-    useState<SupabaseSessionResponse | null>(null);
+  const [userProfile, setUserProfile] = useState<{ uid: string } | null>(null);
   const { toast } = useToast();
-  const supabase = createClient();
 
   const fetchEntries = useCallback(async () => {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user?.id) return;
+    if (!session?.session?.user?.email) return;
+
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { data, error } = await supabase
       .from("platform_engagement")
       .select("*")
       .eq("event_id", eventId)
       .eq("type", "journal")
-      .eq("user_id", session.session.user.id)
+      .eq("user_id", userProfile.uid)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -82,12 +87,23 @@ export default function JournalSection({
       setEntries(data);
     }
   }, [eventId, toast]);
-
   useEffect(() => {
     if (eventId) {
       const initSession = async () => {
-        const sessionResponse = await supabase.auth.getSession();
-        setSessionData(sessionResponse);
+        const { data: session } = await supabase.auth.getSession();
+        if (session?.session?.user?.email) {
+          // Get uid from user_profiles using email from auth session
+          const { data: profile } = await supabase
+            .from("user_profiles")
+            .select("uid")
+            .eq("email", session.session.user.email)
+            .single();
+
+          if (profile) {
+            setUserProfile(profile);
+          }
+        }
+
         fetchEntries();
       };
       initSession();
@@ -150,10 +166,27 @@ export default function JournalSection({
 
     setIsSubmitting(true);
 
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error } = await supabase.from("platform_engagement").insert([
       {
         event_id: eventId,
-        user_id: session.session.user.id,
+        user_id: userProfile.uid, // Use uid from user_profiles
         type: "journal",
         content: entry.trim(),
         display_name: session.session.user.user_metadata.full_name,
@@ -198,6 +231,34 @@ export default function JournalSection({
 
     setIsSubmitting(true);
 
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user?.email) {
+      toast({
+        title: "Authentication error",
+        description: "Please sign in to update journal entries",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("platform_engagement")
       .update({
@@ -205,7 +266,8 @@ export default function JournalSection({
         is_private: isPrivate,
         tags: tags.length > 0 ? tags : undefined,
       })
-      .eq("id", editingId);
+      .eq("id", editingId)
+      .eq("user_id", userProfile.uid); // Ensure we're only updating entries owned by this user
 
     if (error) {
       console.error("Error updating entry:", error);
@@ -387,7 +449,7 @@ export default function JournalSection({
                   </div>
 
                   {/* Action Buttons (Only for the Author) */}
-                  {entry.user_id === sessionData?.data?.session?.user?.id && (
+                  {entry.user_id === userProfile?.uid && (
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
