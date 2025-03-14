@@ -56,14 +56,30 @@ export default function GoalSection({
 
   const fetchGoals = useCallback(async () => {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user?.id) return;
+    if (!session?.session?.user?.email) return;
+
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { data, error } = await supabase
       .from("platform_engagement")
       .select("*")
       .eq("event_id", eventId)
       .eq("type", "goal")
-      .eq("user_id", session.session.user.id)
+      .eq("user_id", userProfile.uid)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -126,7 +142,7 @@ export default function GoalSection({
     if (!newGoal.trim()) return;
 
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user?.id || !session.session.user.email) {
+    if (!session?.session?.user?.email) {
       toast({
         title: "Authentication error",
         description: "Please sign in to set goals",
@@ -137,10 +153,27 @@ export default function GoalSection({
 
     setIsSubmitting(true);
 
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error } = await supabase.from("platform_engagement").insert([
       {
         event_id: eventId,
-        user_id: session.session.user.id,
+        user_id: userProfile.uid,
         type: "goal",
         content: newGoal.trim(),
         display_name: session.session.user.user_metadata.full_name,
@@ -180,10 +213,37 @@ export default function GoalSection({
   const handleSaveEdit = async (goalId: string) => {
     if (!editedContent.trim()) return;
 
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user?.email) {
+      toast({
+        title: "Authentication error",
+        description: "Please sign in to edit goals",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from("platform_engagement")
       .update({ content: editedContent.trim() })
-      .eq("id", goalId);
+      .eq("id", goalId)
+      .eq("user_id", userProfile.uid); // Ensure we're only updating goals owned by this user
 
     if (error) {
       toast({
@@ -207,12 +267,29 @@ export default function GoalSection({
   const handleToggleStatus = async (goal: Goal) => {
     const newStatus = goal.status === "completed" ? "in_progress" : "completed";
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user?.id || !session.session.user.email) return;
+    if (!session?.session?.user?.email) return;
+
+    // Get uid from user_profiles using email from auth session
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("uid")
+      .eq("email", session.session.user.email)
+      .single();
+
+    if (profileError || !userProfile) {
+      toast({
+        title: "Error finding user profile",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from("platform_engagement")
       .update({ status: newStatus })
-      .eq("id", goal.id);
+      .eq("id", goal.id)
+      .eq("user_id", userProfile.uid); // Ensure we're only updating goals owned by this user
 
     if (error) {
       toast({
@@ -310,15 +387,13 @@ export default function GoalSection({
                         {goal.content}
                       </span>
                       <div className="flex items-center gap-2">
-                        {goal.status === "in_progress" && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleToggleStatus(goal)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            Mark as Complete
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          onClick={() => handleToggleStatus(goal)}
+                          className={goal.status === "completed" ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"}
+                        >
+                          {goal.status === "completed" ? "Mark as Incomplete" : "Mark as Complete"}
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
