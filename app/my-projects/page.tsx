@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
+import { Footer } from "@/components/footer";
 
 interface Project {
   id: string;
@@ -84,10 +85,10 @@ export default function MyProjectsPage() {
   }, [session]);
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full bg-blue-50 pt-10">
       <ReturnUrlHandler />
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center">
+      <div className="container mx-auto">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
           My Projects
         </h1>
 
@@ -148,6 +149,7 @@ export default function MyProjectsPage() {
           </motion.div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

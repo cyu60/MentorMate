@@ -17,12 +17,12 @@ import { useParams } from "next/navigation";
 import { Pencil, CheckCircle2, XCircle } from "lucide-react";
 
 interface GoalSectionProps {
-  eventId?: string; // Make optional since we'll get from URL if not provided
+  eventId?: string; // Optional: will get from URL if not provided
 }
 
 interface Goal {
   id: string;
-  user_id: string; // UUID from auth.users
+  user_id: string;
   event_id: string;
   type: "goal" | "journal";
   content: string;
@@ -38,9 +38,7 @@ const goalRecommendations = [
   "Conduct user research with 3 target users and document key insights by [date]",
 ];
 
-export default function GoalSection({
-  eventId: propEventId,
-}: GoalSectionProps) {
+export default function GoalSection({ eventId: propEventId }: GoalSectionProps) {
   const params = useParams();
   const eventId = propEventId || (params.id as string);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -84,7 +82,6 @@ export default function GoalSection({
   }, [eventId, fetchGoals]);
 
   const incrementPulse = async (userEmail: string) => {
-    // First get current pulse value
     const { data: profiles, error: fetchError } = await supabase
       .from("user_profiles")
       .select("pulse")
@@ -99,7 +96,6 @@ export default function GoalSection({
     const currentPulse = profiles?.pulse || 0;
     const newPulse = currentPulse + 1;
 
-    // Update with new pulse value
     const { error: updateError } = await supabase
       .from("user_profiles")
       .update({ pulse: newPulse })
@@ -155,15 +151,12 @@ export default function GoalSection({
       return;
     }
 
-    // Increment pulse when goal is added
     await incrementPulse(session.session.user.email);
-
     setIsSubmitting(false);
     toast({
       title: "Goal set successfully",
       description: "Your goal has been saved",
     });
-
     setNewGoal("");
     setIsDialogOpen(false);
     fetchGoals();
@@ -220,7 +213,6 @@ export default function GoalSection({
       return;
     }
 
-    // Increment pulse when goal is completed
     if (newStatus === "completed") {
       await incrementPulse(session.session.user.email);
     }
@@ -234,47 +226,40 @@ export default function GoalSection({
 
   return (
     <>
-      <Card className="w-full">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Goals</CardTitle>
-          <Button
-            onClick={handleSetGoal}
-            className="bg-black text-white hover:bg-black/90"
-          >
+      <Card className="w-full bg-white shadow-lg rounded-xl">
+        <CardHeader className="flex flex-row items-center justify-between bg-blue-900 text-white p-4 rounded-t-xl">
+          <CardTitle className="text-2xl font-bold">Your Goals</CardTitle>
+          <Button onClick={handleSetGoal} className="bg-black hover:bg-black/90 text-white rounded-full px-4 py-2">
             Set Goal
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {goals.length === 0 ? (
             <p className="text-gray-500">
-              No goals set yet. Click the button above to set your first goal!
+              You haven't set any goals yet. Click the button above to get started!
             </p>
           ) : (
             <ul className="space-y-4">
               {goals.map((goal) => (
                 <li
                   key={goal.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border"
+                  className="flex flex-col md:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow transition-shadow"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {goal.status === "completed" ? (
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        <span className="text-sm font-medium text-green-600">
-                          Completed
-                        </span>
+                      <div className="flex items-center gap-1">
+                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                        <span className="text-sm font-semibold text-green-600">Completed</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2">
-                        <XCircle className="h-5 w-5 text-red-600" />
-                        <span className="text-sm font-medium text-red-600">
-                          In Progress
-                        </span>
+                      <div className="flex items-center gap-1">
+                        <XCircle className="h-6 w-6 text-red-600" />
+                        <span className="text-sm font-semibold text-red-600">In Progress</span>
                       </div>
                     )}
                   </div>
                   {editingGoalId === goal.id ? (
-                    <div className="flex-1 flex items-center gap-2">
+                    <div className="flex flex-col md:flex-row items-center gap-3 w-full mt-2 md:mt-0">
                       <Input
                         value={editedContent}
                         onChange={(e) => setEditedContent(e.target.value)}
@@ -283,7 +268,7 @@ export default function GoalSection({
                       <Button
                         size="sm"
                         onClick={() => handleSaveEdit(goal.id)}
-                        className="bg-black text-white hover:bg-black/90"
+                        className="bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2"
                       >
                         Save
                       </Button>
@@ -291,27 +276,22 @@ export default function GoalSection({
                         size="sm"
                         variant="outline"
                         onClick={() => setEditingGoalId(null)}
+                        className="rounded px-4 py-2"
                       >
                         Cancel
                       </Button>
                     </div>
                   ) : (
-                    <div className="flex-1 flex items-center justify-between">
-                      <span
-                        className={
-                          goal.status === "completed"
-                            ? "line-through text-gray-500"
-                            : ""
-                        }
-                      >
+                    <div className="flex flex-col md:flex-row items-center justify-between w-full mt-2 ml-2 md:mt-0">
+                      <span className={goal.status === "completed" ? "line-through text-gray-500" : "text-gray-800"}>
                         {goal.content}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3 mt-2 md:mt-0">
                         {goal.status === "in_progress" && (
                           <Button
                             size="sm"
                             onClick={() => handleToggleStatus(goal)}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2"
                           >
                             Mark as Complete
                           </Button>
@@ -320,8 +300,9 @@ export default function GoalSection({
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEditGoal(goal)}
+                          className="text-gray-600 hover:text-gray-800"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>
@@ -334,48 +315,45 @@ export default function GoalSection({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="p-6">
           <DialogHeader>
-            <DialogTitle>Set a New Goal</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Set a New Goal</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="mt-4 space-y-6">
+            <Input
+              placeholder="Enter your goal..."
+              value={newGoal}
+              onChange={(e) => setNewGoal(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSubmitGoal();
+              }}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-400"
+            />
             <div>
-              <Input
-                placeholder="Enter your goal..."
-                value={newGoal}
-                onChange={(e) => setNewGoal(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSubmitGoal();
-                  }
-                }}
-              />
-            </div>
-            <div>
-              <h4 className="text-sm font-medium mb-2">
-                Recommendations for specific and measurable goals:
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                Recommendations:
               </h4>
               <ul className="space-y-2">
-                {goalRecommendations.map((recommendation, index) => (
+                {goalRecommendations.map((rec, index) => (
                   <li
                     key={index}
-                    className="text-sm p-2 hover:bg-gray-100 rounded cursor-pointer"
-                    onClick={() => handleSelectRecommendation(recommendation)}
+                    className="p-2 rounded-md cursor-pointer hover:bg-indigo-50"
+                    onClick={() => handleSelectRecommendation(rec)}
                   >
-                    {recommendation}
+                    <span className="text-sm text-gray-600">{rec}</span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-6 flex justify-end gap-4">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={handleSubmitGoal}
               disabled={isSubmitting || !newGoal.trim()}
-              className="bg-black text-white hover:bg-black/90"
+              className="bg-black hover:bg-black/90 text-white rounded px-6 py-2"
             >
               {isSubmitting ? "Setting..." : "Set Goal"}
             </Button>

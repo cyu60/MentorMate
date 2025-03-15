@@ -100,9 +100,9 @@ export default function GivenFeedbackPage() {
   };
 
   return (
-    <div className="container m-0 p-0 sm:p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
+    <div className="container m-0 p-0 sm:p-10 bg-blue-50 min-w-full min-h-screen">
       <Navbar />
-      <h1 className="text-3xl font-bold mb-8 text-center">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
         Feedback You&apos;ve Given
       </h1>
 

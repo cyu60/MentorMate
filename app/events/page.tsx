@@ -1,5 +1,6 @@
 import { createSupabaseClient } from "@/app/utils/supabase/server"
 import { EventsList } from "@/components/events-list"
+import { Footer } from "@/components/footer"
 
 export default async function EventsPage() {
   const supabase = createSupabaseClient()
@@ -12,14 +13,17 @@ export default async function EventsPage() {
   const eventsList = events || []
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-white to-blue-100/80">
-      <div className="container mx-auto py-8 px-4 sm:px-20">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center">Upcoming Events</h1>
-        <EventsList events={eventsList} />
-        {eventsList.length === 0 && (
-          <p className="text-center text-muted-foreground">No upcoming events found.</p>
-        )}
+    <div className="min-h-[90vh] flex flex-col bg-blue-50">
+      <div className="flex-grow">
+        <div className="container mx-auto py-8 px-4 sm:px-20">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">Upcoming Events</h1>
+          <EventsList events={eventsList} />
+          {eventsList.length === 0 && (
+            <p className="text-center text-muted-foreground">No upcoming events found.</p>
+          )}
+        </div>
       </div>
+      <Footer />
     </div>
   )
 }
