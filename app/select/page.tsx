@@ -2,6 +2,7 @@
 
 import { SelectHero } from "@/components/SelectHero";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 
 export default function SelectPage() {
@@ -10,6 +11,7 @@ export default function SelectPage() {
       <Navbar />
       <SelectHero />
       <ServiceWorkerRegistration />
+      <Footer />
     </div>
   );
 }

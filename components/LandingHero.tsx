@@ -38,7 +38,7 @@ export function LandingHero() {
           />
             <Link href="/select">
               <Button
-                className="inline-flex items-center px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
+                className="inline-flex items-center mt-4 px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
               >
                 Get Started
                 <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
@@ -103,7 +103,7 @@ export function LandingHero() {
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               <span className="block">Ready to start your journey?</span>
               <span className="block text-blue-200 mt-2">
-                Join MentorMate today.
+                Join MentorMates today.
               </span>
             </h2>
 

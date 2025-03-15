@@ -92,14 +92,10 @@ export function ProjectSubmissionFormComponent({
     },
   });
 
-  // Update form when props change
+  // Update form values when props change
   useEffect(() => {
-    if (leadName) {
-      form.setValue("leadName", leadName);
-    }
-    if (userEmail) {
-      form.setValue("leadEmail", userEmail);
-    }
+    if (leadName) form.setValue("leadName", leadName);
+    if (userEmail) form.setValue("leadEmail", userEmail);
   }, [leadName, userEmail, form]);
 
   const [allUsers, setAllUsers] = useState<string[]>([]);
@@ -118,7 +114,6 @@ export function ProjectSubmissionFormComponent({
 
         if (data) {
           const displayNames = data.map((user) => user["display_name"]);
-          console.log("Fetched display names:", displayNames);
           setAllUsers(displayNames);
         }
       } catch (err) {
@@ -163,9 +158,9 @@ export function ProjectSubmissionFormComponent({
         coverImageUrl = publicUrl;
       }
 
-      // Upload additional materials if provided
-      if (values.additionalMaterials && values.additionalMaterials.length > 0) {
-        const file = values.additionalMaterials[0];
+      // Upload cover image if provided
+      if (values.coverImage && values.coverImage.length > 0) {
+        const file = values.coverImage[0];
         const fileExt = file.name.split(".").pop();
         const fileName = `${Math.random()
           .toString(36)
@@ -184,7 +179,47 @@ export function ProjectSubmissionFormComponent({
           data: { publicUrl },
         } = supabase.storage.from("project-materials").getPublicUrl(filePath);
 
+        coverImageUrl = publicUrl;
+      }
+
+      // Upload additional materials if provided
+      if (values.additionalMaterials && values.additionalMaterials.length > 0) {
+        const file = values.additionalMaterials[0];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `project-materials/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("project-materials")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("project-materials")
+          .getPublicUrl(filePath);
+
         additionalMaterialsUrl = publicUrl;
+      }
+
+      // Upload background image if provided
+      if (values.backgroundImage && values.backgroundImage.length > 0) {
+        const file = values.backgroundImage[0];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `project-backgrounds/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("project-materials")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("project-materials")
+          .getPublicUrl(filePath);
+
+        backgroundImageUrl = publicUrl;
       }
 
       const { data, error } = await supabase
@@ -207,11 +242,10 @@ export function ProjectSubmissionFormComponent({
         throw error;
       }
 
+      // Send confirmation email
       const emailResponse = await fetch("/api/email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "project_submission",
           to: values.leadEmail,
@@ -230,15 +264,13 @@ export function ProjectSubmissionFormComponent({
         description: "Your project has been submitted for feedback.",
       });
       form.reset();
-
       onProjectSubmitted?.();
       router.push(`/events/${eventId}/projects/public/${data[0].id}`);
     } catch (error) {
       console.error("Error submitting project:", error);
       toast({
         title: "Error",
-        description:
-          "There was an error submitting your project. Please try again.",
+        description: "There was an error submitting your project. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -247,65 +279,49 @@ export function ProjectSubmissionFormComponent({
   }
 
   return (
-    <div className="w-full max-w-md mx-auto sm:px-6 space-y-6">
-      <div className="space-y-2 text-center">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">
-          Submit Your Project
-        </h2>
-        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+    <div className="w-full max-w-lg mx-auto px-6 py-8 bg-white rounded-xl shadow-2xl">
+      {/* Card Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-extrabold">Submit Your Project</h2>
+        <p className="text-gray-500 mt-2">
           Enter your project details for mentor feedback.
         </p>
       </div>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 sm:space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
             name="projectName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Project Name
-                </FormLabel>
+                <FormLabel className="text-sm">Project Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter project name"
-                    {...field}
-                    className="text-sm sm:text-base p-2 sm:p-3"
-                  />
+                  <Input placeholder="Enter project name" {...field} className="text-sm p-2" />
                 </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
-          <div className="space-y-4">
-            <h3 className="text-sm sm:text-base font-medium">Submitted by:</h3>
+          <div className="space-y-6">
+            <h3 className="text-sm font-medium">Submitted by:</h3>
             <div className="pl-4 space-y-4">
               <FormField
                 control={form.control}
                 name="leadName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm sm:text-base flex items-center gap-2">
+                    <FormLabel className="text-sm flex items-center gap-2">
                       Name
                       {leadName && (
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
                           Auto-filled
                         </span>
                       )}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="John Doe"
-                        {...field}
-                        className={`text-sm sm:text-base p-2 sm:p-3 ${
-                          leadName ? "bg-muted/50" : ""
-                        }`}
-                      />
+                      <Input placeholder="John Doe" {...field} className={`text-sm p-2 ${leadName ? "bg-gray-200" : ""}`} />
                     </FormControl>
-                    <FormMessage className="text-xs sm:text-sm" />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -314,25 +330,18 @@ export function ProjectSubmissionFormComponent({
                 name="leadEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm sm:text-base flex items-center gap-2">
+                    <FormLabel className="text-sm flex items-center gap-2">
                       Email
                       {userEmail && (
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
                           Auto-filled
                         </span>
                       )}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="johndoe@example.com"
-                        {...field}
-                        className={`text-sm sm:text-base p-2 sm:p-3 ${
-                          userEmail ? "bg-muted/50" : ""
-                        }`}
-                      />
+                      <Input type="email" placeholder="johndoe@example.com" {...field} className={`text-sm p-2 ${userEmail ? "bg-gray-200" : ""}`} />
                     </FormControl>
-                    <FormMessage className="text-xs sm:text-sm" />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -343,21 +352,18 @@ export function ProjectSubmissionFormComponent({
             name="projectDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Project Description
-                </FormLabel>
+                <FormLabel className="text-sm">Project Description</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Briefly describe your project..."
-                    className="resize-none text-sm sm:text-base p-2 sm:p-3 min-h-[100px]"
+                    className="resize-none text-sm p-2 min-h-[100px]"
                     {...field}
                   />
                 </FormControl>
-                <FormDescription className="text-xs sm:text-sm">
-                  Provide a concise overview of your project (max 500
-                  characters).
+                <FormDescription className="text-xs">
+                  Provide a concise overview of your project (max 500 characters).
                 </FormDescription>
-                <FormMessage className="text-xs sm:text-sm" />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -434,7 +440,7 @@ export function ProjectSubmissionFormComponent({
                 <FormDescription className="text-xs sm:text-sm">
                   Upload a cover image for your project (max 10MB)
                 </FormDescription>
-                <FormMessage className="text-xs sm:text-sm" />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -443,9 +449,7 @@ export function ProjectSubmissionFormComponent({
             name="additionalMaterials"
             render={({ field: { onChange, name, onBlur, ref } }) => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Additional Materials (Optional)
-                </FormLabel>
+                <FormLabel className="text-sm">Additional Materials (Optional)</FormLabel>
                 <FormControl>
                   <div className="flex items-center gap-2">
                     <input
@@ -461,7 +465,7 @@ export function ProjectSubmissionFormComponent({
                         }
                       }}
                       accept=".pdf,.ppt,.pptx,.doc,.docx"
-                      className="flex-1 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                      className="flex-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                     />
                     {selectedFile && (
                       <Button
@@ -471,12 +475,8 @@ export function ProjectSubmissionFormComponent({
                         onClick={() => {
                           setSelectedFile(null);
                           onChange(undefined);
-                          const fileInput = document.querySelector(
-                            `input[name="${name}"]`
-                          ) as HTMLInputElement;
-                          if (fileInput) {
-                            fileInput.value = "";
-                          }
+                          const fileInput = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+                          if (fileInput) fileInput.value = "";
                         }}
                         className="px-2 py-1"
                       >
@@ -485,10 +485,10 @@ export function ProjectSubmissionFormComponent({
                     )}
                   </div>
                 </FormControl>
-                <FormDescription className="text-xs sm:text-sm">
+                <FormDescription className="text-xs">
                   Upload pitch deck or other project materials (max 10MB)
                 </FormDescription>
-                <FormMessage className="text-xs sm:text-sm" />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -497,24 +497,15 @@ export function ProjectSubmissionFormComponent({
             name="teammates"
             render={() => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Teammates
-                </FormLabel>
+                <FormLabel className="text-sm">Teammates</FormLabel>
                 <FormControl>
-                  <UserSearch
-                    allTags={allUsers}
-                    onTagsChange={handleTeammatesChange}
-                  />
+                  <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
                 </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            className="w-full text-sm sm:text-base py-2 sm:py-3"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full text-sm py-2 sm:py-3" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -2,6 +2,7 @@ import type React from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 const AboutPage: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const AboutPage: React.FC = () => {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">
             About{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-              MentorMate
+              MentorMates
             </span>
           </h1>
           <p className="max-w-prose mx-auto text-lg text-gray-700">
@@ -25,7 +26,7 @@ const AboutPage: React.FC = () => {
         {/* Introductory Text */}
         <div className="bg-white/70 shadow-lg p-6 rounded-xl transition-shadow hover:shadow-2xl">
           <p className="mx-auto text-md text-gray-800 text-justify">
-            MentorMate investigates how generative AI can enhance formative
+            MentorMates investigates how generative AI can enhance formative
             feedback in educational contexts, with a special focus on hackathons
             and project-based learning. Our research explores the intersection
             of AI and pedagogy to understand how automated systems can provide
@@ -271,6 +272,7 @@ const AboutPage: React.FC = () => {
           </Link>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

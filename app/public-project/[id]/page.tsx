@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
-import { notFound } from "next/navigation";
-import { Download, ExternalLink } from "lucide-react";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { ChevronDown } from "lucide-react";
 import FeedbackForm from "@/components/FeedbackForm";
+import {
+  Download,
+  ExternalLink,
+  ChevronDown,
+  Share2,
+  Award,
+  Users,
+} from "lucide-react";
 
 interface ProjectData {
   id: string;
@@ -60,7 +67,6 @@ export default function PublicProjectPage() {
       } else {
         setProjectData(data);
       }
-
       setIsLoading(false);
     };
 
@@ -116,7 +122,7 @@ export default function PublicProjectPage() {
 
   if (isLoading) {
     return (
-      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
         <Navbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
@@ -129,7 +135,7 @@ export default function PublicProjectPage() {
 
   if (!projectData) {
     return (
-      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
+      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
         <Navbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
@@ -143,7 +149,7 @@ export default function PublicProjectPage() {
   const fullUrl = `${window.location.origin}/public-project/${projectId}`;
 
   return (
-    <div>
+    <div className="bg-blue-50">
       <Toaster />
       <Navbar />
       <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10 mt-16">
@@ -171,133 +177,152 @@ export default function PublicProjectPage() {
               <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
                 <QRCode value={fullUrl} size={200} id="project-qr-code" />
               </div>
-              <div className="mt-4 space-y-2 w-full">
-                <p className="text-sm text-gray-700 text-center md:text-left">
-                  Scan this QR code to share this project
-                </p>
-                <div className="flex gap-2 justify-center md:justify-start">
-                  <Button
-                    onClick={handleDownloadQR}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900">
-                    Project Description
-                  </h3>
-                  <p className="text-gray-700 whitespace-pre-wrap">
-                    {projectData.project_description}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900">Team</h3>
-                  <p className="text-gray-700">
-                    <span className="font-medium">Lead:</span>{" "}
-                    {projectData.lead_name}
-                  </p>
-                  {projectData.teammates &&
-                    projectData.teammates.length > 0 && (
-                      <div className="mt-1">
-                        <span className="font-medium">Team Members:</span>{" "}
-                        {projectData.teammates.join(", ")}
-                      </div>
-                    )}
-                </div>
-
-                {(projectData.project_url ||
-                  projectData.additional_materials_url) && (
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <h3 className="text-lg font-semibold text-blue-900">
-                      Project Resources
-                    </h3>
-                    {projectData.project_url && (
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="w-4 h-4 text-gray-600" />
-                        <a
-                          href={projectData.project_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline"
-                        >
-                          View Project Repository
-                        </a>
-                      </div>
-                    )}
-                    {projectData.additional_materials_url && (
-                      <div className="flex items-center gap-2">
-                        <Download className="w-4 h-4 text-gray-600" />
-                        <a
-                          href={projectData.additional_materials_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline"
-                        >
-                          Download Project Materials
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
           </div>
-        </div>
 
-        {/* Feedback Card */}
-        <div className="mt-8 w-full max-w-4xl">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <Button
-              variant="ghost"
-              className="w-full p-4 flex items-center justify-between text-lg font-semibold text-blue-900"
-              onClick={() => setFeedbackOpen(!feedbackOpen)}
-            >
-              <span>Provide Feedback</span>
-              <ChevronDown
-                className={`h-5 w-5 text-blue-900 transition-transform duration-200 ${
-                  feedbackOpen ? "rotate-180" : ""
-                }`}
-              />
-            </Button>
-
-            {feedbackOpen && (
-              <div className="p-6 border-t">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-900">
-                    Share Your Thoughts
-                  </h3>
-                  <p className="text-gray-700">
-                    Your feedback helps the project team improve and refine
-                    their work.
-                  </p>
-
-                  <FeedbackForm
-                    projectId={projectData.id}
-                    projectName={projectData.project_name}
-                    projectDescription={projectData.project_description}
-                    projectLeadEmail={projectData.lead_email}
-                    projectLeadName={projectData.lead_name}
-                    project_url={projectData.project_url}
-                    additional_materials_url={
-                      projectData.additional_materials_url
-                    }
-                    eventId={projectData.event_id}
-                  />
-                </div>
-              </div>
-            )}
+          {/* Optional Project Video or Screenshot Placeholder */}
+          <div className="mt-6 md:mt-0">
+            <div className="bg-white rounded-md text-black p-4 text-center w-[300px] h-[200px]">
+              <p className="font-semibold">[ Video / Image Placeholder ]</p>
+              <p className="text-sm text-gray-700">
+                Embed a video or screenshot here
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Main Container */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Two-column layout */}
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Left Column: Main Content */}
+          <div className="flex-1 space-y-8">
+            <section className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                Description
+              </h2>
+              <p className="text-gray-700 whitespace-pre-wrap">
+                {projectData.project_description}
+              </p>
+            </section>
+          </div>
+
+          {/* Right Column: Project Info & QR Code */}
+          <aside className="w-full md:w-80 flex-shrink-0 space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Created by
+              </h3>
+              <p className="text-gray-700 mb-2">
+                <span className="font-medium">Lead:</span> {projectData.lead_name}
+              </p>
+              {projectData.teammates && projectData.teammates.length > 0 && (
+                <div className="mt-2">
+                  <span className="font-medium">Team Members:</span>
+                  <ul className="list-disc list-inside text-gray-700 ml-2 mt-1">
+                    {projectData.teammates.map((teammate) => (
+                      <li key={teammate}>{teammate}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {(projectData.project_url || projectData.additional_materials_url) && (
+              <div className="bg-white rounded-lg shadow p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Project Resources
+                </h3>
+                {projectData.project_url && (
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-gray-600" />
+                    <a
+                      href={projectData.project_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Project Repository
+                    </a>
+                  </div>
+                )}
+                {projectData.additional_materials_url && (
+                  <div className="flex items-center gap-2">
+                    <Download className="w-4 h-4 text-gray-600" />
+                    <a
+                      href={projectData.additional_materials_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Download Project Materials
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="bg-white rounded-lg shadow p-6 space-y-4 text-center">
+              <div className="inline-block bg-white p-2 rounded-lg shadow">
+                <QRCode value={fullUrl} size={160} id="project-qr-code" />
+              </div>
+              <p className="text-sm text-gray-600">
+                Scan this QR code to share this project
+              </p>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 mx-auto"
+                onClick={handleDownloadQR}
+              >
+                <Download className="w-4 h-4" />
+                Download QR
+              </Button>
+            </div>
+          </aside>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <Button
+            variant="ghost"
+            className="w-full p-4 flex items-center justify-between text-lg font-semibold text-blue-900"
+            onClick={() => setFeedbackOpen(!feedbackOpen)}
+          >
+            <span>Provide Feedback</span>
+            <ChevronDown
+              className={`h-5 w-5 text-blue-900 transition-transform duration-200 ${
+                feedbackOpen ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
+          {feedbackOpen && (
+            <div className="p-6 border-t">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-blue-900">
+                  Share Your Thoughts
+                </h3>
+                <p className="text-gray-700">
+                  Your feedback helps the project team improve and refine their work.
+                </p>
+                <FeedbackForm
+                  projectId={projectData.id}
+                  projectName={projectData.project_name}
+                  projectDescription={projectData.project_description}
+                  projectLeadEmail={projectData.lead_email}
+                  projectLeadName={projectData.lead_name}
+                  project_url={projectData.project_url}
+                  additional_materials_url={projectData.additional_materials_url}
+                  eventId={projectData.event_id}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Footer />
     </div>
   );
 }
