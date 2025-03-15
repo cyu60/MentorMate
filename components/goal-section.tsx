@@ -316,7 +316,7 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
         <CardContent className="p-6">
           {goals.length === 0 ? (
             <p className="text-gray-500">
-              You haven't set any goals yet. Click the button above to get started!
+              You haven&apos;t set any goals yet. Click the button above to get started!
             </p>
           ) : (
             <ul className="space-y-4">

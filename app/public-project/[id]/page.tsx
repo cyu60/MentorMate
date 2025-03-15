@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
-import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,6 @@ import {
   Download,
   ExternalLink,
   ChevronDown,
-  Share2,
-  Award,
   Users,
 } from "lucide-react";
 

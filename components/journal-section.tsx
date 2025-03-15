@@ -424,54 +424,55 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
           )}
         </div>
 
-      {/* Previous Entries Section */}
-      {entries.length > 0 && (
-        <div className="rounded-md bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-medium mb-4">Previous Entries</h3>
-          <ul className="space-y-4">
-            {entries.map((entry) => (
-              <li key={entry.id} className="p-4 rounded-md border">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{entry.display_name}</span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(entry.created_at).toLocaleString()}
-                    </span>
-                  </div>
+       {/* Previous Entries Section */}
+       {entries.length > 0 && (
+         <div className="rounded-md bg-white p-6 shadow-sm">
+           <h3 className="text-lg font-medium mb-4">Previous Entries</h3>
+           <ul className="space-y-4">
+             {entries.map((entry) => (
+               <li key={entry.id} className="p-4 rounded-md border">
+                 <div className="flex items-center justify-between mb-2">
+                   <div className="flex items-center gap-2">
+                     <span className="font-medium">{entry.display_name}</span>
+                     <span className="text-sm text-gray-500">
+                       {new Date(entry.created_at).toLocaleString()}
+                     </span>
+                   </div>
 
-                  {/* Action Buttons (Only for the Author) */}
-                  {entry.user_id === userProfile?.uid && (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditEntry(entry)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                   {/* Action Buttons (Only for the Author) */}
+                   {entry.user_id === userProfile?.uid && (
+                     <div className="flex items-center gap-2">
+                       <Button
+                         size="sm"
+                         variant="ghost"
+                         onClick={() => handleEditEntry(entry)}
+                       >
+                         <Pencil className="h-4 w-4" />
+                       </Button>
+                     </div>
+                   )}
+                 </div>
 
-                <p className="whitespace-pre-wrap">{entry.content}</p>
+                 <p className="whitespace-pre-wrap">{entry.content}</p>
 
-                {entry.tags && entry.tags.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {entry.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-0.5 bg-gray-100 rounded-full text-xs"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+                 {entry.tags && entry.tags.length > 0 && (
+                   <div className="mt-2 flex flex-wrap gap-1">
+                     {entry.tags.map((tag, index) => (
+                       <span
+                         key={index}
+                         className="px-2 py-0.5 bg-gray-100 rounded-full text-xs"
+                       >
+                         {tag}
+                       </span>
+                     ))}
+                   </div>
+                 )}
+               </li>
+             ))}
+           </ul>
+         </div>
+       )}
+     </div>
+   </div>
   );
 }

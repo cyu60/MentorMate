@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { CancelRegistration } from "@/components/cancel-registration";
 
@@ -11,7 +11,7 @@ interface EventStatusBarProps {
 export function EventStatusBar({ eventId }: EventStatusBarProps) {
   const [hasJoined, setHasJoined] = useState(false);
 
-  const checkJoinStatus = async () => {
+  const checkJoinStatus = useCallback(async () => {
     try {
       const {
         data: { session },
@@ -30,11 +30,11 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
     } catch (error) {
       console.error("Error checking join status:", error);
     }
-  };
+  }, [eventId]);
 
   useEffect(() => {
     checkJoinStatus();
-  }, [eventId]);
+  }, [checkJoinStatus]);
 
   if (!hasJoined) return null;
 

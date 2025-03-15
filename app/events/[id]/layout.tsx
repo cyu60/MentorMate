@@ -7,7 +7,6 @@ interface LayoutProps {
 
 export default async function HackathonLayout({
   children,
-  params,
 }: LayoutProps) {
   return (
     <div className="min-h-screen">

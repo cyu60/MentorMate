@@ -92,7 +92,6 @@ export function ProjectSubmissionFormComponent({
     },
   });
 
-  // Update form values when props change
   useEffect(() => {
     if (leadName) form.setValue("leadName", leadName);
     if (userEmail) form.setValue("leadEmail", userEmail);
@@ -158,30 +157,6 @@ export function ProjectSubmissionFormComponent({
         coverImageUrl = publicUrl;
       }
 
-      // Upload cover image if provided
-      if (values.coverImage && values.coverImage.length > 0) {
-        const file = values.coverImage[0];
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random()
-          .toString(36)
-          .substring(2)}.${fileExt}`;
-        const filePath = `project-materials/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("project-materials")
-          .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("project-materials").getPublicUrl(filePath);
-
-        coverImageUrl = publicUrl;
-      }
-
       // Upload additional materials if provided
       if (values.additionalMaterials && values.additionalMaterials.length > 0) {
         const file = values.additionalMaterials[0];
@@ -200,26 +175,6 @@ export function ProjectSubmissionFormComponent({
           .getPublicUrl(filePath);
 
         additionalMaterialsUrl = publicUrl;
-      }
-
-      // Upload background image if provided
-      if (values.backgroundImage && values.backgroundImage.length > 0) {
-        const file = values.backgroundImage[0];
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `project-backgrounds/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("project-materials")
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("project-materials")
-          .getPublicUrl(filePath);
-
-        backgroundImageUrl = publicUrl;
       }
 
       const { data, error } = await supabase
@@ -280,7 +235,6 @@ export function ProjectSubmissionFormComponent({
 
   return (
     <div className="w-full max-w-lg mx-auto px-6 py-8 bg-white rounded-xl shadow-2xl">
-      {/* Card Header */}
       <div className="text-center mb-8">
         <h2 className="text-3xl font-extrabold">Submit Your Project</h2>
         <p className="text-gray-500 mt-2">
@@ -475,8 +429,12 @@ export function ProjectSubmissionFormComponent({
                         onClick={() => {
                           setSelectedFile(null);
                           onChange(undefined);
-                          const fileInput = document.querySelector(`input[name="${name}"]`) as HTMLInputElement;
-                          if (fileInput) fileInput.value = "";
+                          const fileInput = document.querySelector(
+                            `input[name="${name}"]`
+                          ) as HTMLInputElement;
+                          if (fileInput) {
+                            fileInput.value = "";
+                          }
                         }}
                         className="px-2 py-1"
                       >

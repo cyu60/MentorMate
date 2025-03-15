@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import ProjectDashboardSection from "@/components/project-dashboard-section";
-import { HackathonNav } from "@/components/hackathon-nav";
-import EventHeader from "@/components/event-header";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -43,7 +41,11 @@ export default function ProjectDashboard() {
         return;
       }
 
-      setProject(data);
+      setProject({
+        id: data.id,
+        event_id: data.event_id,
+        event_name: data.events?.[0]?.name || ''
+      });
       setIsLoading(false);
     };
 
