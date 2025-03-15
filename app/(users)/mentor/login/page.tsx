@@ -92,7 +92,7 @@ export default function MentorLoginPage() {
       <div className="overflow-auto flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image
-            alt="MentorMate"
+            alt="MentorMates"
             src="/mentormate.png"
             width={40}
             height={40}
@@ -103,7 +103,7 @@ export default function MentorLoginPage() {
           </h2>
         </div>
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-[480px] m-2">
+        <div className="sm:mx-auto sm:w-full sm:max-w-[400px] pl-5 pr-5">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             {error && (
               <div className="mb-4 text-center text-sm text-red-900">

@@ -19,13 +19,14 @@ export function HackathonNav({ id }: { id: string }) {
   return (
     <nav className="border-b bg-white sticky top-0 z-10 w-full">
       <div className="w-full overflow-x-auto">
-        <div className="flex space-x-8">
+        <div className="flex space-x-8 pl-4">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={`${basePath}${item.href}`}
               className={cn(
                 "py-2 px-1 border-b-2 text-sm font-medium transition-colors hover:border-gray-300 whitespace-nowrap",
+                item.name === "Overview" && "pl-3",
                 pathname === `${basePath}${item.href}`
                   ? "border-blue-800 text-blue-800"
                   : "border-transparent text-gray-500 hover:text-gray-700"
