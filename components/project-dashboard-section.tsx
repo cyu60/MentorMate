@@ -79,7 +79,10 @@ export default function ProjectDashboardSection({
         description: "Your project has been successfully deleted",
       });
 
-      router.push(`/events/${eventId}/gallery`);
+      // Only redirect if we're on the project page
+      if (!window.location.pathname.includes('/events/')) {
+        router.push(`/my-projects`);
+      }
     } catch (error) {
       console.error("Error deleting project:", error);
       toast({

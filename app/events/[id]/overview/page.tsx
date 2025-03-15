@@ -4,6 +4,7 @@ import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { JoinEventButton } from "@/components/join-event-button";
 import { HackathonNav } from "@/components/hackathon-nav";
+import { EventStatusBar } from "@/components/event-status-bar";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -155,6 +156,9 @@ export default async function EventOverviewPage({ params }: PageProps) {
           <HackathonNav id={id} />
         </div>
       </div>
+
+      {/* Status Bar */}
+      <EventStatusBar eventId={id} />
 
       {/* Join Button */}
       {!hasJoined && (
