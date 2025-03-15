@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { notFound, useRouter } from "next/navigation";
 import { Edit2, X, Download, Copy, ExternalLink, Trash2 } from "lucide-react";
 import {
@@ -15,13 +15,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
-import UserSearch from "@/components/UserSearch";
-import { Card } from "@/components/ui/card";
+} from "./ui/alert-dialog";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { toast } from "../hooks/use-toast";
+import { Toaster } from "./ui/toaster";
+import UserSearch from "./UserSearch";
+import { Card } from "./ui/card";
 
 interface ProjectData {
   id: string;
@@ -32,6 +32,7 @@ interface ProjectData {
   teammates: string[];
   project_url?: string | null;
   additional_materials_url?: string | null;
+  cover_image_url?: string | null;
 }
 
 interface FeedbackItem {
@@ -146,7 +147,8 @@ export default function ProjectDashboardSection({
           lead_name,
           lead_email,
           project_url,
-          additional_materials_url
+          additional_materials_url,
+          cover_image_url
         `
         )
         .eq("id", projectId)
@@ -254,6 +256,7 @@ export default function ProjectDashboardSection({
           teammates: editedData.teammates,
           project_url: editedData.project_url || null,
           additional_materials_url: additionalMaterialsUrl,
+          cover_image_url: editedData.cover_image_url,
         })
         .eq("id", projectId);
 
@@ -413,457 +416,469 @@ export default function ProjectDashboardSection({
   const fullUrl = `${window.location.origin}/events/${eventId}/dashboard/${projectId}`;
 
   return (
-    <Card className="p-6">
+    <Card className="p-0 overflow-hidden">
       <Toaster />
-      <div className="flex flex-col md:flex-row items-start gap-8">
-        <div className="flex flex-col items-center w-full md:w-auto md:items-start">
-          <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
-            <QRCode value={fullUrl} size={200} id="project-qr-code" />
-          </div>
-          <div className="mt-4 space-y-2 w-full">
-            <p className="text-sm text-gray-700 text-center md:text-left">
-              Scan this QR code to provide feedback
-            </p>
-            <div className="flex gap-2 justify-center md:justify-start">
-              <Button
-                onClick={handleCopyQR}
-                variant="outline"
-                className="hidden md:flex items-center gap-2"
-              >
-                <Copy className="w-4 h-4" />
-                Copy
-              </Button>
-              <Button
-                onClick={handleDownloadQR}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Download
-              </Button>
+      {projectData.cover_image_url ? (
+        <div
+          className="w-full h-[200px] bg-[#000080] bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${projectData.cover_image_url})`
+          }}
+        />
+      ) : (
+        <div className="w-full h-[200px] bg-[#000080]" />
+      )}
+      <div className="p-6">
+        <div className="flex flex-col md:flex-row items-start gap-8">
+          <div className="flex flex-col items-center w-full md:w-auto md:items-start">
+            <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
+              <QRCode value={fullUrl} size={200} id="project-qr-code" />
             </div>
-          </div>
-        </div>
-
-        <div className="flex-1 space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-blue-900">
-              Project Details
-            </h2>
-            {!isEditing ? (
-              <div className="flex gap-2">
+            <div className="mt-4 space-y-2 w-full">
+              <p className="text-sm text-gray-700 text-center md:text-left">
+                Scan this QR code to provide feedback
+              </p>
+              <div className="flex gap-2 justify-center md:justify-start">
                 <Button
-                  onClick={handleEdit}
+                  onClick={handleCopyQR}
+                  variant="outline"
+                  className="hidden md:flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy
+                </Button>
+                <Button
+                  onClick={handleDownloadQR}
                   variant="outline"
                   className="flex items-center gap-2"
                 >
-                  <Edit2 className="w-4 h-4" />
-                  Edit
-                </Button>
-                <Button
-                  onClick={() => setShowDeleteDialog(true)}
-                  variant="destructive"
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <Trash2 className="h-4 w-4" />
+                  <Download className="w-4 h-4" />
+                  Download
                 </Button>
               </div>
-            ) : (
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSave}
-                  className="button-gradient text-white"
-                >
-                  Save
-                </Button>
-                <Button
-                  onClick={handleCancel}
-                  variant="outline"
-                  className="flex items-center"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
 
-          {!isEditing ? (
-            <div className="space-y-4">
-              <div>
-                <span className="font-bold text-gray-800">Project Name:</span>{" "}
-                <span className="text-gray-700">
-                  {projectData.project_name}
-                </span>
-              </div>
-              <div>
-                <span className="font-bold text-gray-800">Submitted by:</span>
-                <div className="ml-4 space-y-1 mt-1">
-                  <div>
-                    <span className="font-bold text-gray-600">Name:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-gray-600">Email:</span>{" "}
-                    <span className="text-gray-700">
-                      {projectData.lead_email}
-                    </span>
-                  </div>
+          <div className="flex-1 space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold text-blue-900">
+                Project Details
+              </h2>
+              {!isEditing ? (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleEdit}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    variant="destructive"
+                    size="icon"
+                    className="h-9 w-9"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-              <div>
-                <span className="font-bold text-gray-800">Teammates:</span>{" "}
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {projectData.teammates.map((teammate, index) => {
-                    const colors = ["blue", "deepskyblue", "royalblue", "teal"];
-                    const color = colors[index % colors.length];
-                    let className = "";
-
-                    switch (color) {
-                      case "deepskyblue":
-                        className =
-                          "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
-                        break;
-                      case "blue":
-                        className =
-                          "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
-                        break;
-                      case "teal":
-                        className =
-                          "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
-                        break;
-                      case "royalblue":
-                        className =
-                          "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
-                        break;
-                      default:
-                        className =
-                          "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
-                    }
-
-                    return (
-                      <span key={`${teammate}-${index}`} className={className}>
-                        {teammate}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="bg-blue-100/70 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                  Description
-                </h3>
-                <p className="text-sm font-normal text-gray-700">
-                  {projectData.project_description}
-                </p>
-              </div>
-              {(projectData.project_url ||
-                projectData.additional_materials_url) && (
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <h3 className="text-lg font-semibold text-blue-900">
-                    Project Resources
-                  </h3>
-                  {projectData.project_url && (
-                    <div className="flex items-center gap-2">
-                      <ExternalLink className="w-4 h-4 text-gray-600" />
-                      <a
-                        href={projectData.project_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        View Project Repository
-                      </a>
-                    </div>
-                  )}
-                  {projectData.additional_materials_url && (
-                    <div className="flex items-center gap-2">
-                      <Download className="w-4 h-4 text-gray-600" />
-                      <a
-                        href={projectData.additional_materials_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Download Project Materials
-                      </a>
-                    </div>
-                  )}
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSave}
+                    className="button-gradient text-white"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    variant="outline"
+                    className="flex items-center"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Project Name
-                </label>
-                <Input
-                  value={editedData?.project_name}
-                  onChange={(e) =>
-                    setEditedData((prev) => ({
-                      ...prev!,
-                      project_name: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Submitted by:
-                </label>
-                <div className="ml-4 space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">
-                      Name
-                    </label>
-                    <Input
-                      value={editedData?.lead_name}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          lead_name: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">
-                      Email
-                    </label>
-                    <Input
-                      type="email"
-                      value={editedData?.lead_email}
-                      onChange={(e) =>
-                        setEditedData((prev) => ({
-                          ...prev!,
-                          lead_email: e.target.value,
-                        }))
-                      }
-                    />
+
+            {!isEditing ? (
+              <div className="space-y-4">
+                <div>
+                  <span className="font-bold text-gray-800">Project Name:</span>{" "}
+                  <span className="text-gray-700">
+                    {projectData.project_name}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-bold text-gray-800">Submitted by:</span>
+                  <div className="ml-4 space-y-1 mt-1">
+                    <div>
+                      <span className="font-bold text-gray-600">Name:</span>{" "}
+                      <span className="text-gray-700">
+                        {projectData.lead_name}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-bold text-gray-600">Email:</span>{" "}
+                      <span className="text-gray-700">
+                        {projectData.lead_email}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Project URL (Optional)
-                </label>
-                <Input
-                  type="url"
-                  value={editedData?.project_url || ""}
-                  onChange={(e) =>
-                    setEditedData((prev) => ({
-                      ...prev!,
-                      project_url: e.target.value,
-                    }))
-                  }
-                  placeholder="Github/Devpost"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Materials
-                </label>
-                <div className="space-y-2">
-                  {!selectedFile &&
-                    editedData?.additional_materials_url &&
-                    currentFileName && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <Download className="w-4 h-4 text-gray-600" />
+                <div>
+                  <span className="font-bold text-gray-800">Teammates:</span>{" "}
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {projectData.teammates.map((teammate, index) => {
+                      const colors = ["blue", "deepskyblue", "royalblue", "teal"];
+                      const color = colors[index % colors.length];
+                      let className = "";
+
+                      switch (color) {
+                        case "deepskyblue":
+                          className =
+                            "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
+                          break;
+                        case "blue":
+                          className =
+                            "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
+                          break;
+                        case "teal":
+                          className =
+                            "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
+                          break;
+                        case "royalblue":
+                          className =
+                            "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
+                          break;
+                        default:
+                          className =
+                            "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
+                      }
+
+                      return (
+                        <span key={`${teammate}-${index}`} className={className}>
+                          {teammate}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="bg-blue-100/70 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                    Description
+                  </h3>
+                  <p className="text-sm font-normal text-gray-700">
+                    {projectData.project_description}
+                  </p>
+                </div>
+                {(projectData.project_url ||
+                  projectData.additional_materials_url) && (
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <h3 className="text-lg font-semibold text-blue-900">
+                      Project Resources
+                    </h3>
+                    {projectData.project_url && (
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-gray-600" />
                         <a
-                          href={editedData.additional_materials_url}
+                          href={projectData.project_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline text-sm"
+                          className="text-blue-600 hover:text-blue-800 underline"
                         >
-                          {currentFileName}
+                          View Project Repository
                         </a>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setEditedData((prev) => ({
-                              ...prev!,
-                              additional_materials_url: null,
-                            }));
-                            setCurrentFileName(null);
-                          }}
-                          className="px-2 py-1 ml-2"
-                        >
-                          Remove
-                        </Button>
                       </div>
                     )}
-                  {(!editedData?.additional_materials_url || selectedFile) && (
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        {!editedData?.additional_materials_url ? (
-                          <input
-                            key={
-                              editedData?.additional_materials_url || "new-file"
-                            }
-                            type="file"
-                            onChange={(e) => {
-                              const files = e.target.files;
-                              if (files && files.length > 0) {
-                                const file = files[0];
-                                setSelectedFile(file);
-                                setCurrentFileName(file.name);
-                                setEditedData((prev) => ({
-                                  ...prev!,
-                                  additional_materials_url: null,
-                                }));
-                              }
-                            }}
-                            accept=".pdf,.ppt,.pptx,.doc,.docx"
-                            className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                          />
-                        ) : (
+                    {projectData.additional_materials_url && (
+                      <div className="flex items-center gap-2">
+                        <Download className="w-4 h-4 text-gray-600" />
+                        <a
+                          href={projectData.additional_materials_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Download Project Materials
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project Name
+                  </label>
+                  <Input
+                    value={editedData?.project_name}
+                    onChange={(e) =>
+                      setEditedData((prev) => ({
+                        ...prev!,
+                        project_name: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Submitted by:
+                  </label>
+                  <div className="ml-4 space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-1">
+                        Name
+                      </label>
+                      <Input
+                        value={editedData?.lead_name}
+                        onChange={(e) =>
+                          setEditedData((prev) => ({
+                            ...prev!,
+                            lead_name: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-1">
+                        Email
+                      </label>
+                      <Input
+                        type="email"
+                        value={editedData?.lead_email}
+                        onChange={(e) =>
+                          setEditedData((prev) => ({
+                            ...prev!,
+                            lead_email: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project URL (Optional)
+                  </label>
+                  <Input
+                    type="url"
+                    value={editedData?.project_url || ""}
+                    onChange={(e) =>
+                      setEditedData((prev) => ({
+                        ...prev!,
+                        project_url: e.target.value,
+                      }))
+                    }
+                    placeholder="Github/Devpost"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Additional Materials
+                  </label>
+                  <div className="space-y-2">
+                    {!selectedFile &&
+                      editedData?.additional_materials_url &&
+                      currentFileName && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <Download className="w-4 h-4 text-gray-600" />
+                          <a
+                            href={editedData.additional_materials_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline text-sm"
+                          >
+                            {currentFileName}
+                          </a>
                           <Button
                             type="button"
-                            variant="outline"
+                            variant="destructive"
+                            size="sm"
                             onClick={() => {
-                              const input = document.createElement("input");
-                              input.type = "file";
-                              input.accept = ".pdf,.ppt,.pptx,.doc,.docx";
-                              input.onchange = (e) => {
-                                const files = (e.target as HTMLInputElement)
-                                  .files;
+                              setEditedData((prev) => ({
+                                ...prev!,
+                                additional_materials_url: null,
+                              }));
+                              setCurrentFileName(null);
+                            }}
+                            className="px-2 py-1 ml-2"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      )}
+                    {(!editedData?.additional_materials_url || selectedFile) && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          {!editedData?.additional_materials_url ? (
+                            <input
+                              key={
+                                editedData?.additional_materials_url || "new-file"
+                              }
+                              type="file"
+                              onChange={(e) => {
+                                const files = e.target.files;
                                 if (files && files.length > 0) {
-                                  setSelectedFile(files[0]);
+                                  const file = files[0];
+                                  setSelectedFile(file);
+                                  setCurrentFileName(file.name);
                                   setEditedData((prev) => ({
                                     ...prev!,
                                     additional_materials_url: null,
                                   }));
                                 }
-                              };
-                              input.click();
+                              }}
+                              accept=".pdf,.ppt,.pptx,.doc,.docx"
+                              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                            />
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                const input = document.createElement("input");
+                                input.type = "file";
+                                input.accept = ".pdf,.ppt,.pptx,.doc,.docx";
+                                input.onchange = (e) => {
+                                  const files = (e.target as HTMLInputElement)
+                                    .files;
+                                  if (files && files.length > 0) {
+                                    setSelectedFile(files[0]);
+                                    setEditedData((prev) => ({
+                                      ...prev!,
+                                      additional_materials_url: null,
+                                    }));
+                                  }
+                                };
+                                input.click();
+                              }}
+                              className="w-full"
+                            >
+                              Choose New File
+                            </Button>
+                          )}
+                        </div>
+                        {selectedFile && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFile(null);
+                              setCurrentFileName(
+                                projectData?.additional_materials_url
+                                  ? getFileNameFromUrl(
+                                      projectData.additional_materials_url
+                                    )
+                                  : null
+                              );
+                              setEditedData((prev) => ({
+                                ...prev!,
+                                additional_materials_url:
+                                  projectData?.additional_materials_url || null,
+                              }));
                             }}
-                            className="w-full"
+                            className="px-2 py-1"
                           >
-                            Choose New File
+                            Remove
                           </Button>
                         )}
                       </div>
-                      {selectedFile && (
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedFile(null);
-                            setCurrentFileName(
-                              projectData?.additional_materials_url
-                                ? getFileNameFromUrl(
-                                    projectData.additional_materials_url
-                                  )
-                                : null
-                            );
-                            setEditedData((prev) => ({
-                              ...prev!,
-                              additional_materials_url:
-                                projectData?.additional_materials_url || null,
-                            }));
-                          }}
-                          className="px-2 py-1"
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    Upload pitch deck or other project materials (max 10MB)
-                  </p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Upload pitch deck or other project materials (max 10MB)
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Teammates
+                  </label>
+                  <UserSearch
+                    allTags={availableUsers}
+                    initialTags={editedData?.teammates || []}
+                    onTagsChange={(teammates) =>
+                      setEditedData((prev) => ({
+                        ...prev!,
+                        teammates,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <Textarea
+                    value={editedData?.project_description}
+                    onChange={(e) =>
+                      setEditedData((prev) => ({
+                        ...prev!,
+                        project_description: e.target.value,
+                      }))
+                    }
+                    rows={4}
+                  />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Teammates
-                </label>
-                <UserSearch
-                  allTags={availableUsers}
-                  initialTags={editedData?.teammates || []}
-                  onTagsChange={(teammates) =>
-                    setEditedData((prev) => ({
-                      ...prev!,
-                      teammates,
-                    }))
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <Textarea
-                  value={editedData?.project_description}
-                  onChange={(e) =>
-                    setEditedData((prev) => ({
-                      ...prev!,
-                      project_description: e.target.value,
-                    }))
-                  }
-                  rows={4}
-                />
-              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold text-blue-900 mb-4">
+            Project Feedback
+          </h2>
+          {isLoadingFeedback ? (
+            <p className="text-center text-gray-600">Loading feedback...</p>
+          ) : feedback.length > 0 ? (
+            <ul className="space-y-6">
+              {feedback.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow backdrop-blur-md"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-white font-bold">
+                      {getInitials(item.mentor_name)}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold text-gray-800">
+                        {item.mentor_name || "Anonymous"}
+                      </span>
+                      {item.mentor_email && (
+                        <span className="text-sm text-gray-500">
+                          ({item.mentor_email})
+                        </span>
+                      )}
+                      <span className="text-sm text-gray-500">
+                        {new Date(item.created_at).toLocaleDateString()}
+                      </span>
+                      <div className="ml-auto flex items-center"></div>
+                    </div>
+                    <p className="mt-2 text-gray-700">{item.feedback_text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
+              <p className="text-gray-600">
+                No feedback has been submitted for this project yet.
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Share your QR code with others to start receiving feedback.
+              </p>
             </div>
           )}
         </div>
-      </div>
-
-      {/* Feedback Section */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold text-blue-900 mb-4">
-          Project Feedback
-        </h2>
-        {isLoadingFeedback ? (
-          <p className="text-center text-gray-600">Loading feedback...</p>
-        ) : feedback.length > 0 ? (
-          <ul className="space-y-6">
-            {feedback.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow backdrop-blur-md"
-              >
-                <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center text-white font-bold">
-                    {getInitials(item.mentor_name)}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold text-gray-800">
-                      {item.mentor_name || "Anonymous"}
-                    </span>
-                    {item.mentor_email && (
-                      <span className="text-sm text-gray-500">
-                        ({item.mentor_email})
-                      </span>
-                    )}
-                    <span className="text-sm text-gray-500">
-                      {new Date(item.created_at).toLocaleDateString()}
-                    </span>
-                    <div className="ml-auto flex items-center"></div>
-                  </div>
-                  <p className="mt-2 text-gray-700">{item.feedback_text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
-            <p className="text-gray-600">
-              No feedback has been submitted for this project yet.
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Share your QR code with others to start receiving feedback.
-            </p>
-          </div>
-        )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
