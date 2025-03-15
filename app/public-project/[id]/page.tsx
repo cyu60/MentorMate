@@ -23,13 +23,14 @@ interface ProjectData {
   project_url?: string | null;
   additional_materials_url?: string | null;
   event_id: string;
+  cover_image_url?: string | null;
 }
 
 export default function PublicProjectPage() {
   const { id: projectId } = useParams();
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(true);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -38,7 +39,18 @@ export default function PublicProjectPage() {
 
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select(`
+          id,
+          project_name,
+          lead_name,
+          lead_email,
+          project_description,
+          teammates,
+          project_url,
+          additional_materials_url,
+          cover_image_url,
+          event_id
+        `)
         .eq("id", projectId)
         .single();
 
@@ -134,17 +146,27 @@ export default function PublicProjectPage() {
     <div>
       <Toaster />
       <Navbar />
-      <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10 mt-10">
+      <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10 mt-16">
         <div className="w-full max-w-4xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-center mb-8">
             <span className="bg-clip-text text-transparent bg-black">
               {projectData.project_name}
             </span>
           </h1>
         </div>
 
-        <div className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl">
-          <div className="flex flex-col md:flex-row items-start gap-8">
+        {projectData.cover_image_url ? (
+          <div
+            className="w-full max-w-4xl h-[250px] bg-[#000080] rounded-t-lg shadow-xl bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${projectData.cover_image_url})`
+            }}
+          />
+        ) : (
+          <div className="w-full max-w-4xl h-[250px] bg-[#000080] rounded-t-lg shadow-xl" />
+        )}
+        <div className="w-full max-w-4xl bg-white backdrop-blur-md p-10 rounded-b-lg shadow-xl">
+          <div className="flex flex-col md:flex-row items-start gap-10">
             <div className="flex flex-col items-center w-full md:w-auto md:items-start">
               <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
                 <QRCode value={fullUrl} size={200} id="project-qr-code" />

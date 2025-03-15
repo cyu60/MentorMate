@@ -11,6 +11,7 @@ interface Event {
   event_name: string
   event_date: string
   location: string
+  cover_image_url?: string
 }
 
 interface EventsListProps {
@@ -48,7 +49,14 @@ export function EventsList({ events }: EventsListProps) {
       {events.map((event) => (
         <Link href={`/events/${event.event_id}/overview`} key={event.event_id}>
           <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <div className="h-[200px] w-full bg-[#000080]" />
+            <div
+              className="h-[200px] w-full bg-[#000080]"
+              style={event.cover_image_url ? {
+                backgroundImage: `url(${event.cover_image_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              } : undefined}
+            />
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-start">
                 <div>

@@ -31,6 +31,7 @@ interface ProjectData {
   teammates: string[];
   project_url?: string | null;
   additional_materials_url?: string | null;
+  cover_image_url?: string | null;
 }
 
 export default function ProjectDashboard() {
@@ -89,7 +90,17 @@ export default function ProjectDashboard() {
 
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select(`
+          id,
+          project_name,
+          lead_name,
+          lead_email,
+          project_description,
+          teammates,
+          project_url,
+          additional_materials_url,
+          cover_image_url
+        `)
         .eq("id", projectId)
         .single();
 
@@ -354,7 +365,17 @@ export default function ProjectDashboard() {
           </Link>
         </div>
 
-        <div className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl">
+        {projectData.cover_image_url ? (
+          <div
+            className="w-full max-w-4xl h-[200px] bg-[#000080] rounded-t-lg shadow-xl bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${projectData.cover_image_url})`
+            }}
+          />
+        ) : (
+          <div className="w-full max-w-4xl h-[200px] bg-[#000080] rounded-t-lg shadow-xl" />
+        )}
+        <div className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-b-lg shadow-xl">
           <div className="flex flex-col md:flex-row items-start gap-8">
             <div className="flex flex-col items-center w-full md:w-auto md:items-start">
               <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">

@@ -2,6 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { notFound } from "next/navigation";
+import { JoinEventButton } from "@/components/join-event-button";
+import { HackathonNav } from "@/components/hackathon-nav";
+
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
 interface ScheduleEvent {
   name: string;
@@ -40,6 +46,7 @@ interface Event {
   event_resources: Resource[];
   created_at: string;
   rules: Rule[];
+  cover_image_url?: string | null;
 }
 
 const defaultRules: Rule[] = [
@@ -71,9 +78,40 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
   const supabase = createSupabaseClient();
 
+  // Check if user has joined
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  let hasJoined = false;
+
+  if (session) {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select()
+      .eq("uid", session.user.id)
+      .maybeSingle();
+
+    if (profile) {
+      const events = profile.events || [];
+      hasJoined = events.includes(id);
+    }
+  }
+
   const { data: event, error } = await supabase
     .from("events")
-    .select("*")
+    .select(`
+      event_id,
+      event_name,
+      event_date,
+      location,
+      event_description,
+      event_schedule,
+      event_prizes,
+      event_resources,
+      created_at,
+      rules,
+      cover_image_url
+    `)
     .eq("event_id", id)
     .single();
 
@@ -86,20 +124,44 @@ export default async function EventOverviewPage({ params }: PageProps) {
   return (
     <div className="space-y-8">
       {/* Event Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{typedEvent.event_name}</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="relative w-full h-[300px] rounded-lg overflow-hidden">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: typedEvent.cover_image_url
+              ? `url(${typedEvent.cover_image_url})`
+              : 'linear-gradient(to bottom right, #4F46E5, #3B82F6)',
+          }}
+        />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center p-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            {typedEvent.event_name}
+          </h1>
           <div className="flex gap-2 mb-4">
-            <Badge variant="secondary">{typedEvent.event_date}</Badge>
-            <Badge variant="secondary">{typedEvent.location}</Badge>
+            <Badge variant="secondary" className="bg-white/10 text-white border-none">
+              {typedEvent.event_date}
+            </Badge>
+            <Badge variant="secondary" className="bg-white/10 text-white border-none">
+              {typedEvent.location}
+            </Badge>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-white/80 max-w-3xl mb-8">
             {typedEvent.event_description}
           </p>
-        </CardContent>
-      </Card>
+          <HackathonNav id={id} />
+        </div>
+      </div>
+
+      {/* Join Button */}
+      {!hasJoined && (
+        <div className="flex justify-center mt-8">
+          <JoinEventButton eventId={id} eventName={typedEvent.event_name} />
+        </div>
+      )}
 
       {/* Rules */}
       <Card>
