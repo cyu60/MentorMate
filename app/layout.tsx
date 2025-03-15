@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/components/AuthProvider";
-// import { Footer } from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,11 +28,11 @@ export default function RootLayout({
                 <main className="flex-1 flex flex-col">
                   <div className="flex-1 flex flex-col bg-gradient-to-b from-white via-white to-blue-50/60">
                     <div className="flex-1">{children}</div>
-                    <div className="mt-auto">{/* <Footer /> */}</div>
                   </div>
                 </main>
               </AuthProvider>
             </div>
+            {/* <Footer /> */}
           </div>
         </Providers>
       </body>

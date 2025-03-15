@@ -17,6 +17,7 @@ interface Project {
   lead_email: string
   project_url?: string | null
   additional_materials_url?: string | null
+  cover_image_url?: string | null
 }
 
 export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
@@ -35,7 +36,8 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
           lead_name,
           lead_email,
           project_url,
-          additional_materials_url
+          additional_materials_url,
+          cover_image_url
         `)
         .eq("event_id", eventId)
         .single()
@@ -54,58 +56,63 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
 
   if (loading) {
     return (
-      <Card className="p-6">
-        <p>Loading project data...</p>
+      <Card className="overflow-hidden">
+        <div className="h-[200px] w-full bg-[#000080]" />
+        <div className="p-6">
+          <p>Loading project data...</p>
+        </div>
       </Card>
     )
   }
 
   if (!project) {
     return (
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">My Project</h2>
-          <Link href={`/events/${eventId}/submit`}>
-            <Button className="bg-black text-white hover:bg-black/90">
-              Submit My Project
-            </Button>
-          </Link>
+      <Card className="overflow-hidden">
+        <div className="h-[200px] w-full bg-[#000080]" />
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold">My Project</h2>
+            <Link href={`/events/${eventId}/submit`}>
+              <Button className="bg-black text-white hover:bg-black/90">
+                Submit My Project
+              </Button>
+            </Link>
+          </div>
+          <p className="text-gray-600">
+            No project submitted yet! Click the button above to submit your project.
+          </p>
         </div>
-        <p className="text-gray-600">
-          No project submitted yet! Click the button above to submit your project.
-        </p>
       </Card>
     )
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">My Project</h2>
-        <Link href={`/events/${eventId}/dashboard/${project.id}`}>
-          <Button className="bg-black text-white hover:bg-black/90">
-            View Dashboard
-          </Button>
-        </Link>
-      </div>
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Project Name</h3>
-          <p className="text-gray-700">{project.project_name}</p>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Submitted by</h3>
-          <div className="ml-4 space-y-1">
-            <div>
-              <span className="font-bold text-gray-600">Name: </span>
-              <span className="text-gray-700">{project.lead_name}</span>
-            </div>
-            <div>
-              <span className="font-bold text-gray-600">Email: </span>
-              <span className="text-gray-700">{project.lead_email}</span>
-            </div>
+    <Card className="overflow-hidden">
+      <div
+        className="h-[200px] w-full bg-[#000080]"
+        style={project.cover_image_url ? {
+          backgroundImage: `url(${project.cover_image_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      />
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold">{project.project_name}</h2>
+            <p className="text-sm text-gray-500 mt-1">Project Lead: {project.lead_name}</p>
           </div>
+          <Link href={`/events/${eventId}/dashboard/${project.id}`}>
+            <Button className="bg-black text-white hover:bg-black/90">
+              View Dashboard
+            </Button>
+          </Link>
         </div>
+        <div className="bg-blue-100/70 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold text-blue-900 mb-2">Description</h3>
+          <p className="text-sm font-normal text-gray-700">{project.project_description}</p>
+        </div>
+
         <div>
           <h3 className="text-lg font-semibold mb-2">Team Members</h3>
           <div className="flex flex-wrap gap-2">
@@ -138,10 +145,6 @@ export default function MyProjectSection({ eventId }: MyProjectSectionProps) {
               );
             })}
           </div>
-        </div>
-        <div className="bg-blue-100/70 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">Description</h3>
-          <p className="text-sm font-normal text-gray-700">{project.project_description}</p>
         </div>
         {(project.project_url || project.additional_materials_url) && (
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">

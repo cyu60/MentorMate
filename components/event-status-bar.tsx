@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { CancelRegistration } from "@/components/cancel-registration";
 
@@ -11,30 +11,30 @@ interface EventStatusBarProps {
 export function EventStatusBar({ eventId }: EventStatusBarProps) {
   const [hasJoined, setHasJoined] = useState(false);
 
-  useEffect(() => {
-    async function checkJoinStatus() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session) return;
+  const checkJoinStatus = useCallback(async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return;
 
-        const { data } = await supabase
-          .from("user_profiles")
-          .select("events")
-          .eq("email", session.user.email)
-          .single();
+      const { data } = await supabase
+        .from("user_profiles")
+        .select("events")
+        .eq("email", session.user.email)
+        .single();
 
-        if (data?.events && Array.isArray(data.events)) {
-          setHasJoined(data.events.includes(eventId));
-        }
-      } catch (error) {
-        console.error("Error checking join status:", error);
+      if (data?.events && Array.isArray(data.events)) {
+        setHasJoined(data.events.includes(eventId));
       }
+    } catch (error) {
+      console.error("Error checking join status:", error);
     }
-
-    checkJoinStatus();
   }, [eventId]);
+
+  useEffect(() => {
+    checkJoinStatus();
+  }, [checkJoinStatus]);
 
   if (!hasJoined) return null;
 
@@ -57,7 +57,7 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
           <span>You are participating in this event</span>
         </div>
         <div className="pr-4">
-          <CancelRegistration eventId={eventId} />
+          <CancelRegistration eventId={eventId} onCancel={checkJoinStatus} />
         </div>
       </div>
     </div>
