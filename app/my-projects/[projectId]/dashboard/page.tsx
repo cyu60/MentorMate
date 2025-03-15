@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import ProjectDashboardSection from "@/components/project-dashboard-section";
+import { HackathonNav } from "@/components/hackathon-nav";
+import EventHeader from "@/components/event-header";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 interface Project {
   id: string;
   event_id: string;
+  event_name: string;
 }
 
 export default function ProjectDashboard() {
@@ -25,7 +28,13 @@ export default function ProjectDashboard() {
 
       const { data, error } = await supabase
         .from("projects")
-        .select("id, event_id")
+        .select(`
+          id,
+          event_id,
+          events (
+            name
+          )
+        `)
         .eq("id", projectId)
         .single();
 

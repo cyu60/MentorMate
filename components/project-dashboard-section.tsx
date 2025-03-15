@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { notFound, useRouter } from "next/navigation";
 import { Edit2, X, Download, Copy, ExternalLink, Trash2 } from "lucide-react";
 import {
@@ -15,13 +15,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { toast } from "../hooks/use-toast";
-import { Toaster } from "./ui/toaster";
-import UserSearch from "./UserSearch";
-import { Card } from "./ui/card";
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import UserSearch from "@/components/UserSearch";
+import { Card } from "@/components/ui/card";
 
 interface ProjectData {
   id: string;
