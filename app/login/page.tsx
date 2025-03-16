@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from '@/components/layout/navbar';
 import Image from "next/image";
 
 const supabase = createClient(

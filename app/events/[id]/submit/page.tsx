@@ -6,9 +6,9 @@ import { Session } from "@supabase/supabase-js";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from "@/components/navbar";
-import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
-import { ProjectSubmissionFormComponent } from "@/components/ProjectSubmissionForm";
+import { Navbar } from '@/components/layout/navbar';
+import { ReturnUrlHandler } from '@/components/auth/ReturnUrlHandler';
+import { ProjectSubmissionFormComponent } from '@/components/projects/ProjectSubmissionForm';
 
 export default function SubmitPage() {
   const router = useRouter();

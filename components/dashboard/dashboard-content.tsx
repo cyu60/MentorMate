@@ -6,22 +6,23 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HackathonNav } from "@/components/hackathon-nav";
-import { EventStatusBar } from "@/components/event-status-bar";
+import { HackathonNav } from '@/components/layout/hackathon-nav';
+import { EventStatusBar } from '@/components/events/event-status-bar';
+import { fetchProjectsByEventId } from "@/lib/helpers/projects";
 
-const GoalSection = dynamic(() => import("@/components/goal-section"), {
+const GoalSection = dynamic(() => import('@/components/journal/goal-section'), {
   ssr: false,
 });
-const JournalSection = dynamic(() => import("@/components/journal-section"), {
+const JournalSection = dynamic(() => import('@/components/journal/journal-section'), {
   ssr: false,
 });
 const ProjectDashboardSection = dynamic(
-  () => import("@/components/project-dashboard-section"),
+  () => import('@/components/projects/project-dashboard'),
   {
     ssr: false,
   }
 );
-const ToolsSection = dynamic(() => import("@/components/tools-section"), {
+const ToolsSection = dynamic(() => import('@/components/utils/tools-section'), {
   ssr: false,
 });
 
@@ -31,7 +32,10 @@ interface DashboardContentProps {
 
 export default function DashboardContent({ eventId }: DashboardContentProps) {
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [event, setEvent] = useState<{ event_name: string; cover_image_url: string | null } | null>(null);
+  const [event, setEvent] = useState<{
+    event_name: string;
+    cover_image_url: string | null;
+  } | null>(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -47,14 +51,9 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
     };
 
     const fetchProjectId = async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("id")
-        .eq("event_id", eventId)
-        .single();
-
-      if (!error && data) {
-        setProjectId(data.id);
+      const projects = await fetchProjectsByEventId(eventId);
+      if (projects.length > 0) {
+        setProjectId(projects[0].id);
       }
     };
 
@@ -71,7 +70,7 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
             style={{
               backgroundImage: event.cover_image_url
                 ? `url(${event.cover_image_url})`
-                : 'linear-gradient(to bottom right, #4F46E5, #3B82F6)',
+                : "linear-gradient(to bottom right, #4F46E5, #3B82F6)",
             }}
           />
           <div className="absolute inset-0 bg-black/60" />

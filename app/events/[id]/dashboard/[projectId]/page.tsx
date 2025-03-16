@@ -19,8 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Navbar } from "@/components/navbar";
-import UserSearch from "../../../../../components/UserSearch";
+import { Navbar } from "@/components/layout/navbar";
+import UserSearch from "@/components/utils/UserSearch";
 
 interface ProjectData {
   id: string;

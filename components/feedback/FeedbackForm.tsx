@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogIn, ExternalLink, Download } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/app/utils/supabase/client";
+import { Session, AuthChangeEvent } from "@supabase/supabase-js";
+import { Card } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Loader2, Bot, Mic, MicOff } from "lucide-react";
+import TextareaAutosize from "react-textarea-autosize";
+import { SubmissionConfirmation } from "@/components/projects/SubmissionConfirmation";
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
@@ -39,14 +46,6 @@ interface SpeechRecognition extends EventTarget {
   abort: () => void;
 }
 
-import { createClient } from "@/app/utils/supabase/client";
-import { Session, AuthChangeEvent } from "@supabase/supabase-js";
-import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { Loader2, Bot, Mic, MicOff } from "lucide-react";
-import TextareaAutosize from "react-textarea-autosize";
-import { SubmissionConfirmation } from "./SubmissionConfirmation";
-
 interface AISuggestions {
   "more specific": string;
   "more actionable": string;
@@ -79,6 +78,7 @@ interface FeedbackFormProps {
   project_url?: string | null;
   additional_materials_url?: string | null;
   eventId: string;
+  noBorder?: boolean;
 }
 
 export default function FeedbackForm({
@@ -90,6 +90,7 @@ export default function FeedbackForm({
   project_url,
   additional_materials_url,
   eventId,
+  noBorder = false,
 }: FeedbackFormProps) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -577,7 +578,11 @@ export default function FeedbackForm({
       transition={{ duration: 0.5 }}
       className="w-full mx-auto px-4"
     >
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg">
+      <div
+        className={`max-w-5xl mx-auto bg-white ${
+          noBorder ? "" : "shadow-lg"
+        } rounded-lg`}
+      >
         <div className="p-4">
           <h2 className="text-blue-900 text-2xl font-semibold">
             {projectName}
@@ -628,7 +633,11 @@ export default function FeedbackForm({
         )}
 
         {!session && (
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 mx-4 flex items-center justify-between">
+          <div
+            className={`bg-blue-50 ${
+              noBorder ? "" : "border border-blue-100"
+            } rounded-lg p-2 mx-4 flex items-center justify-between`}
+          >
             <div className="flex items-center space-x-2 text-sm text-blue-600">
               <LogIn className="w-4 h-4" />
               <span>

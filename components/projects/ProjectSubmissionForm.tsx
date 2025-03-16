@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import UserSearch from "@/components/UserSearch";
+import UserSearch from '@/components/utils/UserSearch';
 import {
   Form,
   FormControl,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { CancelRegistration } from "@/components/cancel-registration";
+import { CancelRegistration } from '@/components/events/cancel-registration';
 
 interface EventStatusBarProps {
   eventId: string;

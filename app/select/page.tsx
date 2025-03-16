@@ -1,9 +1,9 @@
 "use client";
 
-import { SelectHero } from "@/components/SelectHero";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
+import { SelectHero } from '@/components/heroes/SelectHero';
+import { ServiceWorkerRegistration } from '@/components/utils/ServiceWorkerRegistration';
+import { Footer } from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function SelectPage() {
   return (

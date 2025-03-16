@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
-import FeedbackForm from "@/components/FeedbackForm";
-import { Navbar } from "@/components/navbar";
+import FeedbackForm from '@/components/feedback/FeedbackForm';
+import { Navbar } from '@/components/layout/navbar';
 
 interface ProjectData {
   id: string;

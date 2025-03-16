@@ -9,8 +9,8 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { ReturnUrlHandler } from "@/components/ReturnUrlHandler";
-import { Footer } from "@/components/footer";
+import { ReturnUrlHandler } from '@/components/auth/ReturnUrlHandler';
+import { Footer } from '@/components/layout/footer';
 
 interface Project {
   id: string;

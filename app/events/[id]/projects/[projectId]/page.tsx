@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Edit2, X, Download, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Navbar } from "@/components/navbar";
-import UserSearch from "@/components/UserSearch";
+import { Navbar } from '@/components/layout/navbar';
+import UserSearch from '@/components/utils/UserSearch';
+import { fetchProjectById } from "@/lib/helpers/projects";
+import { Project } from "@/lib/types";
+
+type EditableProjectData = Project;
 
 interface ProjectData {
   id: string;
@@ -76,31 +79,28 @@ export default function ProjectDetails() {
   }, []);
 
   useEffect(() => {
-    const fetchProjectData = async () => {
+    const loadProject = async () => {
       if (!projectId) return;
       setIsLoading(true);
 
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", projectId)
-        .single();
+      const project = await fetchProjectById(projectId as string);
 
-      if (error) {
-        console.error("Error fetching project:", error);
+      if (!project) {
         notFound();
       } else {
-        setProjectData(data);
-        setEditedData(data);
-        if (data.additional_materials_url) {
-          setCurrentFileName(getFileNameFromUrl(data.additional_materials_url));
+        setProjectData(project);
+        setEditedData(project as EditableProjectData);
+        if (project.additional_materials_url) {
+          setCurrentFileName(
+            getFileNameFromUrl(project.additional_materials_url)
+          );
         }
       }
 
       setIsLoading(false);
     };
 
-    fetchProjectData();
+    loadProject();
   }, [projectId]);
 
   const handleEdit = () => {
@@ -231,16 +231,6 @@ export default function ProjectDetails() {
           </Link>
         </div>
 
-        {/* <div
-          className="w-full max-w-4xl bg-white backdrop-blur-md p-8 rounded-lg shadow-xl relative overflow-hidden"
-          style={{
-            backgroundImage: projectData.background_image_url
-              ? `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${projectData.background_image_url})`
-              : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        > */}
         <div className="flex flex-col md:flex-row items-start gap-8">
           <div className="flex flex-col items-center w-full md:w-auto md:items-start">
             <div className="bg-white p-4 rounded-lg shadow-md mx-auto md:mx-0">
@@ -535,6 +525,5 @@ export default function ProjectDetails() {
         </div>
       </div>
     </div>
-    // </div>
   );
 }

@@ -2,9 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { notFound } from "next/navigation";
-import { JoinEventButton } from "@/components/join-event-button";
-import { HackathonNav } from "@/components/hackathon-nav";
-import { EventStatusBar } from "@/components/event-status-bar";
+import { JoinEventButton } from '@/components/events/join-event-button';
+import { HackathonNav } from '@/components/layout/hackathon-nav';
+import { EventStatusBar } from '@/components/events/event-status-bar';
 
 interface PageProps {
   params: Promise<{ id: string }>;

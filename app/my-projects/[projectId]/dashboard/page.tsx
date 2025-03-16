@@ -1,77 +1,25 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from '@/components/layout/navbar';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronLeft, Loader2 } from "lucide-react";
-import ProjectDashboardSection from "@/components/project-dashboard-section";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-interface Project {
-  id: string;
-  event_id: string;
-  event_name: string;
-}
+import { ChevronLeft } from "lucide-react";
+import ProjectDashboardSection from '@/components/projects/project-dashboard';
+import { useProject } from "@/hooks/use-project";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { ErrorScreen } from "@/components/ui/error-screen";
 
 export default function ProjectDashboard() {
   const { projectId } = useParams();
-  const [project, setProject] = useState<Project | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return;
-
-      const { data, error } = await supabase
-        .from("projects")
-        .select(`
-          id,
-          event_id,
-          events (
-            name
-          )
-        `)
-        .eq("id", projectId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching project:", error);
-        return;
-      }
-
-      setProject({
-        id: data.id,
-        event_id: data.event_id,
-        event_name: data.events?.[0]?.name || ''
-      });
-      setIsLoading(false);
-    };
-
-    fetchProject();
-  }, [projectId]);
+  const { project, isLoading } = useProject(projectId as string, true);
 
   if (isLoading) {
-    return (
-      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-        <Navbar />
-        <div className="relative z-10 text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading project dashboard..." />;
   }
 
   if (!project) {
-    return (
-      <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-        <Navbar />
-        <div className="relative z-10 text-center">
-          <p className="text-2xl text-blue-100 font-light">Project not found.</p>
-        </div>
-      </div>
-    );
+    return <ErrorScreen message="Project not found." />;
   }
 
   return (
@@ -96,9 +44,9 @@ export default function ProjectDashboard() {
         </div>
 
         <div className="w-full max-w-4xl">
-          <ProjectDashboardSection 
-            projectId={projectId as string} 
-            eventId={project.event_id} 
+          <ProjectDashboardSection
+            projectId={projectId as string}
+            eventId={project.event_id}
           />
         </div>
       </div>

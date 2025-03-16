@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from '@/components/layout/sidebar';
 
 type PathPattern = string | RegExp;
 

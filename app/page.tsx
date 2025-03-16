@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { LandingHero } from "@/components/LandingHero";
+import { ServiceWorkerRegistration } from '@/components/utils/ServiceWorkerRegistration';
+import { LandingHero } from '@/components/heroes/LandingHero';
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { Footer } from "@/components/footer";
+import { Footer } from '@/components/layout/footer';
 import { Calendar, Folder, MessageSquare } from "lucide-react";
 
 export default function HomePage() {
