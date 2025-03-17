@@ -1,9 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { JoinEventButton } from '@/components/events/join-event-button';
-import { HackathonNav } from '@/components/layout/hackathon-nav';
 import { EventStatusBar } from '@/components/events/event-status-bar';
 
 interface PageProps {
@@ -122,40 +120,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const typedEvent = event as Event;
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      {/* Event Overview */}
-      <div className="relative w-full h-[300px] rounded-lg overflow-hidden">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: typedEvent.cover_image_url
-              ? `url(${typedEvent.cover_image_url})`
-              : 'linear-gradient(to bottom right, #4F46E5, #3B82F6)',
-          }}
-        />
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/60" />
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-start pt-8 p-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-            {typedEvent.event_name}
-          </h1>
-          <div className="flex gap-2 mb-4">
-            <Badge variant="secondary" className="bg-white/10 text-white border-none">
-              {typedEvent.event_date}
-            </Badge>
-            <Badge variant="secondary" className="bg-white/10 text-white border-none">
-              {typedEvent.location}
-            </Badge>
-          </div>
-          <p className="text-white/80 max-w-3xl mb-2">
-            {typedEvent.event_description}
-          </p>
-          <HackathonNav id={id} />
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Status Bar */}
       <EventStatusBar eventId={id} />
 

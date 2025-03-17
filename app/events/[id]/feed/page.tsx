@@ -33,9 +33,6 @@ export default async function FeedPage({
   searchParams,
 }: PageProps) {
   const supabase = createSupabaseClient()
-  // Note: This Next.js warning is a false positive. In Server Components,
-  // route params are already resolved and don't need to be awaited.
-  // See: https://github.com/vercel/next.js/discussions/54929
   const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
   const currentPage = parseInt(resolvedSearchParams.page || "1")
 
@@ -50,12 +47,20 @@ export default async function FeedPage({
 
     if (feedError) {
       console.error("Error fetching feed:", feedError)
-      throw feedError
+      return (
+        <div className="space-y-4">
+          <div>Error loading feed. Please try again later.</div>
+        </div>
+      )
     }
 
     if (!feedItems) {
       console.error("No feed items found")
-      return <div>No feed items found</div>
+      return (
+        <div className="space-y-4">
+          <div>No feed items found</div>
+        </div>
+      )
     }
 
     // Get unique user IDs
@@ -139,6 +144,10 @@ export default async function FeedPage({
     )
   } catch (error) {
     console.error("Feed error:", error)
-    return <div>Error loading feed. Please try again later.</div>
+    return (
+      <div className="space-y-4">
+        <div>Error loading feed. Please try again later.</div>
+      </div>
+    )
   }
 }
