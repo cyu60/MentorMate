@@ -2,6 +2,9 @@ import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { EventsList } from "@/components/events/events-list";
 import { Footer } from "@/components/layout/footer";
 
+// Add this to disable static generation for this page
+export const dynamic = "force-dynamic";
+
 export default async function EventsPage() {
   const supabase = createSupabaseClient();
 
@@ -10,7 +13,8 @@ export default async function EventsPage() {
     .select("event_id, event_name, event_date, location, cover_image_url")
     .order("event_date", { ascending: true });
 
-  console.log(events);
+  // Remove console.log in production
+  // console.log(events);
 
   const eventsList = events || [];
 
