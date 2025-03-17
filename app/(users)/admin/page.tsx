@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AdminLogin } from '@/components/AdminLogin'
-import { AdminDashboard } from '@/components/AdminDashboard'
+import { AdminLogin } from '@/components/auth/AdminLogin'
+import { AdminDashboard } from '@/components/dashboard/AdminDashboard'
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)

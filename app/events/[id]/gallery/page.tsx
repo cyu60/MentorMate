@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Plus } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
 
 interface Project {
   id: string;
@@ -25,6 +26,7 @@ export default function GalleryPage() {
   const eventId = params.id as string;
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -46,8 +48,14 @@ export default function GalleryPage() {
     fetchProjects();
   }, [eventId]);
 
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.project_description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="space-y-6 py-8 px-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
         <Link href={`/events/${eventId}/projects`}>
@@ -56,6 +64,15 @@ export default function GalleryPage() {
             Submit Project
           </Button>
         </Link>
+      </div>
+
+      <div className="mb-8">
+        <Input
+          placeholder="Search projects..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-3 border rounded-md"
+        />
       </div>
 
       {isLoading ? (
@@ -68,9 +85,9 @@ export default function GalleryPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {projects.length > 0 ? (
+          {filteredProjects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <Card
                   key={project.id}
                   className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
@@ -86,9 +103,7 @@ export default function GalleryPage() {
                     </CardTitle>
                     <div className="text-gray-600 mt-2">
                       <TextGenerateEffect
-                        words={
-                          project.project_description.slice(0, 100) + "..."
-                        }
+                        words={project.project_description.slice(0, 100) + "..."}
                         className="text-md font-light"
                       />
                     </div>
@@ -119,10 +134,10 @@ export default function GalleryPage() {
             <div className="flex flex-col items-center justify-center space-y-4 mt-12">
               <div className="text-center space-y-3">
                 <h3 className="text-xl font-semibold text-gray-700">
-                  No Projects Yet
+                  No Projects Found
                 </h3>
                 <p className="text-gray-500 max-w-sm">
-                  Be the first to submit a project for this event!
+                  Try adjusting your search criteria or be the first to submit a project!
                 </p>
               </div>
             </div>

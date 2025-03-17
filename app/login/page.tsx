@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from '@/components/layout/navbar';
 import Image from "next/image";
 
 const supabase = createClient(
@@ -149,7 +149,7 @@ function LoginContent() {
     <div className="pt-16">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
-          alt="MentorMate"
+          alt="MentorMates"
           src="/mentormate.png"
           width={40}
           height={40}
@@ -160,7 +160,7 @@ function LoginContent() {
         </h2>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
+      <div className="sm:mx-auto sm:w-full sm:max-w-[400px] pl-5 pr-5">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           {error && (
             <div className="mb-4 text-center text-sm text-red-600">{error}</div>
