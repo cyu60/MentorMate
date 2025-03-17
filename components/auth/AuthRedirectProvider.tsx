@@ -12,34 +12,13 @@ export function AuthRedirectProvider({
   const router = useRouter();
 
   useEffect(() => {
-    const shouldRedirectToParticipant = localStorage.getItem('redirectToParticipant');
-    const shouldRedirectToMentor = localStorage.getItem('redirectToMentor');
-
-    if (!shouldRedirectToParticipant && !shouldRedirectToMentor) return;
-
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session && !error) {
-        if (shouldRedirectToParticipant) {
-          localStorage.removeItem('redirectToParticipant');
-          router.push('/');
-        } else if (shouldRedirectToMentor) {
-          localStorage.removeItem('redirectToMentor');
-          router.push('/mentor');
-        }
-      }
-    };
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        if (shouldRedirectToParticipant) {
-          localStorage.removeItem('redirectToParticipant');
-          router.push('/');
-        } else if (shouldRedirectToMentor) {
-          localStorage.removeItem('redirectToMentor');
-          router.push('/mentor');
-        }
+    // Auth state change listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        // Refresh the page when signed in to ensure proper auth state
+        router.refresh();
       }
     });
 

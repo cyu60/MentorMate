@@ -27,8 +27,8 @@ export default async function EventsPage() {
               No upcoming events found.
             </p>
           )}
-          <pre>{JSON.stringify(events, null, 2)}</pre>
-          {JSON.stringify(eventsList)}
+          {/* <pre>{JSON.stringify(events, null, 2)}</pre>
+          {JSON.stringify(eventsList)} */}
         </div>
       </div>
       <Footer />

@@ -19,7 +19,6 @@ export function SelectHero() {
   }, []);
 
   const handleParticipantClick = async () => {
-    localStorage.setItem('redirectToParticipant', 'true');
     const {
       data: { session },
       error,
@@ -32,16 +31,13 @@ export function SelectHero() {
       router.push("/login");
     } else {
       router.push("/my-projects");
-      localStorage.removeItem('redirectToParticipant'); // Clean up immediately if we can redirect right away
     }
   };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-artistic py-2 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-5xl mx-auto px-2 sm:px-3 lg:px-4 py-4 text-center">
-        <h1 className="text-4xl font-bold text-blue-900">
-          Choose Your Role
-        </h1>
+        <h1 className="text-4xl font-bold text-blue-900">Choose Your Role</h1>
         <div className="space-y-4">
           <p className="text-xl text-gray-700 mb-8">
             Are you participating in the event or helping to mentor and judge?
@@ -51,7 +47,7 @@ export function SelectHero() {
               onClick={handleParticipantClick}
               className="bg-blue-900 text-white px-8 py-6 text-lg"
             >
-              <UserPen className="mr-2"/> Participant
+              <UserPen className="mr-2" /> Participant
             </Button>
             <Button
               variant="outline"
@@ -60,7 +56,7 @@ export function SelectHero() {
                 router.push("/mentor/login");
               }}
             >
-              <UserCheck className="mr-2"/> Mentor/ Judge
+              <UserCheck className="mr-2" /> Mentor/ Judge
             </Button>
           </div>
         </div>
