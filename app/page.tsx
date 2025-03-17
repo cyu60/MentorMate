@@ -46,9 +46,28 @@ export default function HomePage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const {
-        data: { session: currentSession },
-      } = await supabase.auth.getSession();
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+      console.log("Current session data:", JSON.stringify(currentSession, null, 2));
+      if (error) {
+        console.error("Error getting session:", error);
+      }
+
+      if (currentSession?.user) {
+        // Sync user profile data
+        const { error: upsertError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            email: currentSession.user.email,
+            display_name: currentSession.user.user_metadata?.full_name || currentSession.user.email?.split('@')[0]
+          }, {
+            onConflict: 'email'
+          });
+
+        if (upsertError) {
+          console.error("Error upserting user profile:", upsertError);
+        }
+      }
+
       setSession(currentSession);
       setIsLoading(false);
     };
