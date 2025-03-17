@@ -137,7 +137,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/60" />
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-center p-8">
+        <div className="relative z-10 h-full flex flex-col justify-start pt-8 p-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
             {typedEvent.event_name}
           </h1>
@@ -149,7 +149,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
               {typedEvent.location}
             </Badge>
           </div>
-          <p className="text-white/80 max-w-3xl mb-8">
+          <p className="text-white/80 max-w-3xl mb-2">
             {typedEvent.event_description}
           </p>
           <HackathonNav id={id} />
