@@ -35,10 +35,10 @@ export default async function HackathonLayout({
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex">
       <EventRegistrationWrapper eventId={id}>
-        <main>
-          <div className="container mx-auto p-4 space-y-4">
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-5xl mx-auto px-4 py-4 space-y-4 w-full">
             <EventHeader
               eventName={event.event_name}
               coverImageUrl={event.cover_image_url}
