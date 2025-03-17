@@ -23,8 +23,8 @@ export function CancelRegistration({ eventId }: CancelRegistrationProps) {
       const { data: profile } = await supabase
         .from('user_profiles')
         .select()
-        .eq('uid', session.user.id)
-        .maybeSingle()
+        .eq('email', session.user.email)
+        .single()
 
       if (!profile) return
 
@@ -33,7 +33,7 @@ export function CancelRegistration({ eventId }: CancelRegistrationProps) {
       const { error: updateError } = await supabase
         .from('user_profiles')
         .update({ events: updatedEvents })
-        .eq('uid', session.user.id)
+        .eq('email', session.user.email)
 
       if (updateError) {
         console.error('Error updating profile:', updateError.message)
