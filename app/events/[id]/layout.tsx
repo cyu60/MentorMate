@@ -3,20 +3,18 @@ import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { EventRegistrationWrapper } from "@/components/event-registration-wrapper";
 import { EventHeader } from "@/components/events/event-header";
+import type { Metadata } from "next";
 
-interface LayoutProps {
-  children: React.ReactNode;
-  params: { id: string };
-}
-
-export default async function HackathonLayout({
+export default async function Layout({
   children,
   params,
-}: LayoutProps) {
-  const { id } = params;
+}: {
+  children: React.ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await Promise.resolve(params);
   const supabase = createSupabaseClient();
 
-  // Fetch event details
   const { data: event } = await supabase
     .from("events")
     .select(`
@@ -53,4 +51,22 @@ export default async function HackathonLayout({
       </EventRegistrationWrapper>
     </div>
   );
+}
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}): Promise<Metadata> {
+  const { id } = await Promise.resolve(params);
+  const supabase = createSupabaseClient();
+  const { data: event } = await supabase
+    .from("events")
+    .select("event_name")
+    .eq("event_id", id)
+    .single();
+
+  return {
+    title: event?.event_name || "Event",
+  };
 }

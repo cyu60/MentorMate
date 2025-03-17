@@ -458,9 +458,6 @@ export default function PublicProjectDashboardSection({
             projectName={projectData.project_name}
             projectDescription={projectData.project_description}
             projectLeadEmail={projectData.lead_email}
-            projectLeadName={projectData.lead_name}
-            project_url={projectData.project_url}
-            additional_materials_url={projectData.additional_materials_url}
             eventId={eventId}
             noBorder={true}
           />

@@ -5,21 +5,44 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Session, AuthChangeEvent } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import { Loader2, Bot, Mic, MicOff } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { SubmissionConfirmation } from "@/components/projects/SubmissionConfirmation";
 import { Card } from "@/components/ui/card";
 
+interface SpeechRecognitionResult {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: {
+    isFinal: boolean;
+    [index: number]: {
+      transcript: string;
+    };
+  };
+}
+
+interface SpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionResult) => void;
+  onend: () => void;
+  onerror: (event: { error: string }) => void;
+}
+
 interface FeedbackFormProps {
   projectId: string;
   projectName: string;
   projectDescription: string;
   projectLeadEmail: string;
-  projectLeadName: string;
-  project_url?: string | null;
-  additional_materials_url?: string | null;
   eventId: string;
   noBorder?: boolean;
 }
@@ -29,22 +52,26 @@ export default function SimpleFeedbackForm({
   projectName,
   projectDescription,
   projectLeadEmail,
-  projectLeadName,
-  project_url,
-  additional_materials_url,
   eventId,
   noBorder = false,
 }: FeedbackFormProps) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [aiSuggestions, setAiSuggestions] = useState<any | null>(null);
+  interface AISuggestions {
+    'more specific': string;
+    'more positive': string;
+    'more actionable': string;
+    [key: string]: string;
+  }
+
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
   const [hasImprovedWithAI, setHasImprovedWithAI] = useState<boolean>(false);
   const [showSubmitButton, setShowSubmitButton] = useState<boolean>(false);
   const [session, setSession] = useState<Session | null>(null);
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [recognition, setRecognition] = useState<any | null>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
   const [usedSuggestions, setUsedSuggestions] = useState<Set<string>>(
     new Set(["original"])
@@ -52,15 +79,17 @@ export default function SimpleFeedbackForm({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       const SpeechRecognitionConstructor = (window as any).SpeechRecognition ||
         (window as any).webkitSpeechRecognition;
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       if (SpeechRecognitionConstructor) {
         const recognition = new SpeechRecognitionConstructor();
         recognition.continuous = true;
         recognition.interimResults = true;
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: SpeechRecognitionResult) => {
           const lastResult = event.results[event.results.length - 1];
           const transcript = lastResult[0].transcript;
 
