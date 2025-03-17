@@ -121,14 +121,7 @@ export function Sidebar() {
           <div className="p-4">{renderSidebarItems()}</div>
         </DialogContent>
       </Dialog>
-      <aside className="hidden md:flex md:flex-col md:fixed md:top-[72px] md:bottom-0 md:w-64 md:border-r bg-background">
-        <style jsx global>{`
-          @media (min-width: 768px) {
-            main {
-              padding-left: 16rem;
-            }
-          }
-        `}</style>
+      <aside className="hidden md:flex md:flex-col md:sticky md:top-[72px] md:h-[calc(100vh-72px)] md:w-64 md:border-r bg-background">
         <div className="flex-grow overflow-y-auto">
           <div className="p-4">{renderSidebarItems()}</div>
         </div>

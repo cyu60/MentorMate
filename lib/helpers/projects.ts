@@ -86,7 +86,14 @@ export async function fetchProjectsByEventId(
   if (!eventId) return [];
 
   try {
-    const { data, error } = await supabase
+    // Get current user's session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.email) return [];
+
+    const userEmail = session.user.email;
+
+    // Fetch projects where user is lead
+    const { data: leadProjects, error: leadError } = await supabase
       .from("projects")
       .select(`
         id,
@@ -101,14 +108,47 @@ export async function fetchProjectsByEventId(
         event_id
       `)
       .eq("event_id", eventId)
+      .eq("lead_email", userEmail)
       .order("project_name");
 
-    if (error) {
-      console.error("Error fetching projects for event:", error);
+    if (leadError) {
+      console.error("Error fetching lead projects:", leadError);
       return [];
     }
 
-    return data.map((item) => ({
+    // Fetch projects where user is a teammate
+    const { data: teamProjects, error: teamError } = await supabase
+      .from("projects")
+      .select(`
+        id,
+        project_name,
+        lead_name,
+        lead_email,
+        project_description,
+        teammates,
+        project_url,
+        additional_materials_url,
+        cover_image_url,
+        event_id
+      `)
+      .eq("event_id", eventId)
+      .contains("teammates", [userEmail])
+      .order("project_name");
+
+    if (teamError) {
+      console.error("Error fetching team projects:", teamError);
+      return [];
+    }
+
+    // Combine and deduplicate projects
+    const allProjects = [
+      ...(leadProjects || []),
+      ...(teamProjects || [])
+    ].filter((project, index, self) =>
+      index === self.findIndex((p) => p.id === project.id)
+    );
+
+    return allProjects.map((item) => ({
       id: item.id,
       project_name: item.project_name,
       lead_name: item.lead_name,
