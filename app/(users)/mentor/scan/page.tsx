@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { Loader2, RefreshCw } from 'lucide-react'
 
-const QRScanner = dynamic(() => import("@/components/QRScanner"), {
+const QRScanner = dynamic(() => import('@/components/utils/QRScanner'), {
   ssr: false,
   loading: () => <Loader2 className="h-12 w-12 animate-spin text-blue-400" />,
 })

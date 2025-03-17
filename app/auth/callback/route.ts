@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
   }
 
+  console.log("Starting auth callback with code");
   const supabase = createSupabaseClient();
   
   // First, get the current session
