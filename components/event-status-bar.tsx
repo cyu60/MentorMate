@@ -1,42 +1,16 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { CancelRegistration } from "@/components/cancel-registration";
+import { CancelRegistration } from "@/components/cancel-registration"
+import { useEventRegistration } from "./event-registration-provider"
 
 interface EventStatusBarProps {
-  eventId: string;
+  eventId: string
 }
 
 export function EventStatusBar({ eventId }: EventStatusBarProps) {
-  const [hasJoined, setHasJoined] = useState(false);
+  const { isRegistered } = useEventRegistration()
 
-  useEffect(() => {
-    async function checkJoinStatus() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session) return;
-
-        const { data } = await supabase
-          .from("user_profiles")
-          .select("events")
-          .eq("email", session.user.email)
-          .single();
-
-        if (data?.events && Array.isArray(data.events)) {
-          setHasJoined(data.events.includes(eventId));
-        }
-      } catch (error) {
-        console.error("Error checking join status:", error);
-      }
-    }
-
-    checkJoinStatus();
-  }, [eventId]);
-
-  if (!hasJoined) return null;
+  if (!isRegistered) return null
 
   return (
     <div className="bg-green-600 text-white py-1.5 w-full">

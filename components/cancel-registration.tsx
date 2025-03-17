@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useEventRegistration } from "./event-registration-provider"
 
 interface CancelRegistrationProps {
   eventId: string
@@ -11,7 +11,7 @@ interface CancelRegistrationProps {
 
 export function CancelRegistration({ eventId }: CancelRegistrationProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const { setIsRegistered } = useEventRegistration()
 
   const handleCancelRegistration = async () => {
     try {
@@ -40,8 +40,7 @@ export function CancelRegistration({ eventId }: CancelRegistrationProps) {
         return
       }
 
-      router.refresh()
-      window.location.reload()
+      setIsRegistered(false)
     } catch (error) {
       console.error('Error canceling registration:', error)
     } finally {

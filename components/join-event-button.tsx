@@ -1,9 +1,10 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import { useEventRegistration } from "./event-registration-provider"
 
 interface JoinEventButtonProps {
   eventId: string
@@ -12,32 +13,8 @@ interface JoinEventButtonProps {
 
 export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [hasJoined, setHasJoined] = useState(false)
   const router = useRouter()
-
-  useEffect(() => {
-    async function checkIfJoined() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
-
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select()
-          .eq('email', session.user.email)
-          .single()
-
-        if (profile) {
-          const events = profile.events || []
-          setHasJoined(events.includes(eventId))
-        }
-      } catch (error) {
-        console.error('Error checking event status:', error)
-      }
-    }
-
-    checkIfJoined()
-  }, [eventId])
+  const { isRegistered, setIsRegistered } = useEventRegistration()
 
   const handleJoinEvent = async () => {
     try {
@@ -64,7 +41,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
       const currentEvents: string[] = profile.events || []
       
       if (currentEvents.includes(eventId)) {
-        setHasJoined(true)
+        setIsRegistered(true)
         return
       }
 
@@ -78,9 +55,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return
       }
 
-      setHasJoined(true)
-      router.refresh()
-      router.push(`/events/${eventId}/overview`)
+      setIsRegistered(true)
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error joining event:', error.message)
@@ -92,7 +67,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
     }
   }
 
-  if (hasJoined) return null;
+  if (isRegistered) return null;
 
   return (
     <Button
