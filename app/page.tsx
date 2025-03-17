@@ -17,31 +17,45 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      console.log("Current session data:", JSON.stringify(currentSession, null, 2));
-      if (error) {
-        console.error("Error getting session:", error);
-      }
+    const syncUserProfile = async () => {
+      try {
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+        console.log('Current Session:', currentSession);
+        
+        if (currentSession?.user) {
+          console.log('Syncing user profile...');
+          const user = currentSession.user;
+          
+          const profileData = {
+            email: user.email,
+            display_name: user.user_metadata.full_name,
+            events: [],
+            pulse: 0
+          };
+          console.log('Profile data to sync:', profileData);
 
-      if (currentSession?.user) {
-        // Sync user profile data
-        const { error: upsertError } = await supabase
-          .from('user_profiles')
-          .upsert({
-            email: currentSession.user.email,
-            display_name: currentSession.user.user_metadata?.full_name || currentSession.user.email?.split('@')[0]
-          }, {
-            onConflict: 'email'
-          });
+          const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .upsert(profileData, {
+              onConflict: 'email'
+            })
+            .select();
 
-        if (upsertError) {
-          console.error("Error upserting user profile:", upsertError);
+          if (error) {
+            console.error('Error syncing profile:', error);
+          } else {
+            console.log('Successfully synced profile:', profile);
+          }
         }
+        
+        setSession(currentSession);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error in syncUserProfile:', error);
+        setIsLoading(false);
       }
-
-      setSession(currentSession);
-      setIsLoading(false);
     };
 
     syncUserProfile();
