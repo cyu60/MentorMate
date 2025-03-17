@@ -154,10 +154,10 @@ export default function PrivacyPolicy() {
             <p className="text-gray-700">
               Email:{" "}
               <a
-                href="mailto:stanfordhackathon@gmail.com"
+                href="mailto:hello@mentor-mates.com"
                 className="text-blue-900 hover:underline"
               >
-                stanfordhackathon@gmail.com
+                hello@mentor-mates.com
               </a>
               <br />
               Address: 353 Jane Stanford Way, Stanford University, California
