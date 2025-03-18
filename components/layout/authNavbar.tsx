@@ -86,17 +86,18 @@ export function AuthNavbar() {
 
             {/* Center: Navigation Links */}
             <div className="hidden sm:flex space-x-4">
-            <Link href="/events">
-                <Button variant="ghost" className="text-lg font-semibold">
-                Events
-                </Button>
-            </Link>
-            <Link href="/my-projects">
-                <Button variant="ghost" className="text-lg font-semibold">
-                My Projects
-                </Button>
-            </Link>
+                <Link href="/events">
+                    <Button variant="ghost" className="text-lg font-semibold hover:text-blue-900 hover:italic hover:bg-none">
+                    Events
+                    </Button>
+                </Link>
+                <Link href="/my-projects">
+                    <Button variant="ghost" className="text-lg font-semibold hover:text-blue-900 hover:italic hover:bg-none">
+                    My Projects
+                    </Button>
+                </Link>
             </div>
+
 
             {/* Right: Authentication */}
             <div>
