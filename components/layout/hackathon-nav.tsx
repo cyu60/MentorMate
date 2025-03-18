@@ -11,6 +11,7 @@ const navItems = [
   { name: "Participants", href: "/participants/public" },
   { name: "Gallery", href: "/gallery" },
   { name: "Feed", href: "/feed/public" },
+  { name: "Tools", href: "/tools"}
 ];
 
 export function HackathonNav({ id }: { id: string }) {
