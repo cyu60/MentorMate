@@ -136,9 +136,10 @@ export function ProjectSubmissionFormComponent({
           values.projectDescription.trim().length >= 10
         );
       case 2:
+        // Check that both file inputs have at least one file uploaded
         return (
-          (values.coverImage && values.coverImage.length > 0) &&
-          (values.additionalMaterials && values.additionalMaterials.length > 0)
+          (values.coverImage?.length ?? 0) > 0 &&
+          (values.additionalMaterials?.length ?? 0) > 0
         );
       case 3:
         return (
@@ -253,53 +254,10 @@ export function ProjectSubmissionFormComponent({
         <p className="mt-3 text-lg text-gray-600">
           Provide your project details for mentor feedback and get started on your journey.
         </p>
-        {/* Progress Indicator */}
-        <div className="flex items-center justify-center mt-6 space-x-4">
-          <div
-            onClick={() => setCurrentStep(1)}
-            className="cursor-pointer flex flex-col items-center"
-          >
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isStepComplete(1)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-300 text-gray-600"
-              }`}
-            >
-              {isStepComplete(1) ? <Check className="h-5 w-5" /> : "1"}
-            </div>
-            <span className="mt-1 text-sm">Project Info</span>
-          </div>
-          <div
-            onClick={() => setCurrentStep(2)}
-            className="cursor-pointer flex flex-col items-center"
-          >
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isStepComplete(2)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-300 text-gray-600"
-              }`}
-            >
-              {isStepComplete(2) ? <Check className="h-5 w-5" /> : "2"}
-            </div>
-            <span className="mt-1 text-sm">Documentation</span>
-          </div>
-          <div
-            onClick={() => setCurrentStep(3)}
-            className="cursor-pointer flex flex-col items-center"
-          >
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isStepComplete(3)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-300 text-gray-600"
-              }`}
-            >
-              {isStepComplete(3) ? <Check className="h-5 w-5" /> : "3"}
-            </div>
-            <span className="mt-1 text-sm">Contact</span>
-          </div>
+        <div className="mt-6">
+          <p className="text-lg text-gray-700">
+            Step {currentStep} of {totalSteps}
+          </p>
         </div>
       </div>
 
