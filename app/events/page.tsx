@@ -17,7 +17,7 @@ export default async function EventsPage() {
   const eventsList = events || [];
 
   return (
-    <div className="min-h-[90vh] flex flex-col bg-blue-50">
+    <div className="min-h-[90vh] flex flex-col bg-gray-50">
       <AuthNavbar />
       <div className="flex-grow">
         <div className="container mx-auto py-8 px-4 sm:px-20">
