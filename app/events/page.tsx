@@ -20,7 +20,7 @@ export default async function EventsPage() {
     <div className="min-h-[90vh] flex flex-col bg-gray-50">
       <AuthNavbar />
       <div className="flex-grow">
-        <div className="container mx-auto py-8 px-4 sm:px-20">
+        <div className="max-w-7xl mx-auto py-8 px-6 lg:px-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
             Events
           </h1>

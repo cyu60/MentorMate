@@ -37,7 +37,7 @@ export default function HomePage() {
           const profileData = {
             email: user.email,
             display_name: user.user_metadata.full_name,
-            events: [], 
+            events: [],
             pulse: 0,
           };
 
@@ -144,9 +144,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen w-full flex flex-col bg-gray-50">
       <AuthNavbar />
-
-      <div className="flex flex-1">
-        <main className="flex-1 p-6 lg:p-10">
+      <div className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -161,11 +160,11 @@ export default function HomePage() {
               className="text-lg text-gray-700 max-w-2xl font-light"
             />
             <div className="mt-5">
-              <Link href="/events">
+              {/* <Link href="/events">
                 <Button className="bg-blue-900 hover:bg-blue-800 text-white px-6 text-md rounded-full shadow transition-all">
                   Browse Events
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </motion.div>
 
@@ -251,7 +250,9 @@ export default function HomePage() {
                 Track and update your project progress.
               </p>
               <Link href="/my-projects" className="mt-auto">
-                <Button className="bg-blue-900 text-white">View Projects</Button>
+                <Button className="bg-blue-900 text-white">
+                  View Projects
+                </Button>
               </Link>
             </motion.div>
 
@@ -266,14 +267,16 @@ export default function HomePage() {
                 <h2 className="text-xl font-bold text-blue-900">Feedback</h2>
               </div>
               <p className="text-gray-600 mb-4">
-                Read or respond to feedback on your submissions.
+                Review the feedback you have provided.
               </p>
-              <Link href="/feedback" className="mt-auto">
-                <Button className="bg-blue-900 text-white">View Feedback</Button>
+              <Link href="/feedback/given" className="mt-auto">
+                <Button className="bg-blue-900 text-white">
+                  View Feedback
+                </Button>
               </Link>
             </motion.div>
           </div>
-        </main>
+        </div>
       </div>
 
       <ServiceWorkerRegistration />
