@@ -1,5 +1,6 @@
 import { createSupabaseClient } from "@/app/utils/supabase/server";
 import { EventsList } from "@/components/events/events-list";
+import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 
 // Add this to disable static generation for this page
@@ -20,6 +21,7 @@ export default async function EventsPage() {
 
   return (
     <div className="min-h-[90vh] flex flex-col bg-blue-50">
+      <AuthNavbar />
       <div className="flex-grow">
         <div className="container mx-auto py-8 px-4 sm:px-20">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">

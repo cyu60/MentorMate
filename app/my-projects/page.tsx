@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { ReturnUrlHandler } from '@/components/auth/ReturnUrlHandler';
+import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from '@/components/layout/footer';
 
 interface Project {
@@ -82,6 +83,7 @@ export default function MyProjectsPage() {
 
   return (
     <div className="min-h-full bg-blue-50 pt-10">
+      <AuthNavbar />
       <ReturnUrlHandler />
       <div className="container mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
