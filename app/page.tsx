@@ -84,12 +84,12 @@ export default function HomePage() {
       const totalEventsCount = userProfile?.events?.length ?? 0;
 
       // SUBMITTED PROJECTS
-      const { data: leadProjects, error: leadError } = await supabase
+      const { data: leadProjects } = await supabase
         .from("projects")
         .select("*")
         .eq("lead_email", userEmail);
 
-      const { data: teamProjects, error: teamError } = await supabase
+      const { data: teamProjects } = await supabase
         .from("projects")
         .select("*")
         .contains("teammates", [userEmail]);
@@ -104,7 +104,7 @@ export default function HomePage() {
       const submittedProjectsCount = combinedProjects.length;
 
       // FEEDBACK RECEIVED
-      const { data: userFeedback, error: feedbackError } = await supabase
+      const { data: userFeedback } = await supabase
         .from("feedback")
         .select("*")
         .eq("recipient_email", userEmail);

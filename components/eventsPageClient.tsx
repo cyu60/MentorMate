@@ -22,29 +22,29 @@ interface EventsPageClientProps {
 export function EventsPageClient({ eventsList }: EventsPageClientProps) {
   const [searchTerm, setSearchTerm] = useState("");
   // Default date range to today for both start and end.
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: new Date().toISOString().split("T")[0],
-    end: new Date().toISOString().split("T")[0],
-  });
-  const [showCalendar, setShowCalendar] = useState(false);
-  const calendarRef = useRef<HTMLDivElement>(null);
+  // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+  //   start: new Date().toISOString().split("T")[0],
+  //   end: new Date().toISOString().split("T")[0],
+  // });
+  // const [showCalendar, setShowCalendar] = useState(false);
+  // const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
-        setShowCalendar(false);
-      }
-    }
-    if (showCalendar) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showCalendar]);
+  // useEffect(() => {
+  //   function handleClickOutside(event: MouseEvent) {
+  //     if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+  //       setShowCalendar(false);
+  //     }
+  //   }
+  //   if (showCalendar) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //   } else {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   }
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [showCalendar]);
 
   const filteredEvents = useMemo(() => {
     return eventsList.filter((event) => {
@@ -66,10 +66,10 @@ export function EventsPageClient({ eventsList }: EventsPageClientProps) {
       // Return only the name match (date filtering is disabled)
       return nameMatch; // && dateMatch;
     });
-  }, [searchTerm, dateRange, eventsList]);
+  }, [eventsList]);
 
   // Display formatted date range in the input-like field
-  const formattedDateRange = `${dateRange.start} to ${dateRange.end}`;
+  // const formattedDateRange = `${dateRange.start} to ${dateRange.end}`;
 
   return (
     <div>

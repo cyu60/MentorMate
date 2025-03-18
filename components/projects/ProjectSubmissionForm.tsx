@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -127,29 +127,29 @@ export function ProjectSubmissionFormComponent({
     form.setValue("teammates", tags);
   };
 
-  const isStepComplete = (step: number): boolean => {
-    const values = form.getValues();
-    switch (step) {
-      case 1:
-        return (
-          values.projectName.trim().length >= 2 &&
-          values.projectDescription.trim().length >= 10
-        );
-      case 2:
-        // Check that both file inputs have at least one file uploaded
-        return (
-          (values.coverImage?.length ?? 0) > 0 &&
-          (values.additionalMaterials?.length ?? 0) > 0
-        );
-      case 3:
-        return (
-          values.leadName.trim().length >= 2 &&
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.leadEmail)
-        );
-      default:
-        return false;
-    }
-  };
+  // const isStepComplete = (step: number): boolean => {
+  //   const values = form.getValues();
+  //   switch (step) {
+  //     case 1:
+  //       return (
+  //         values.projectName.trim().length >= 2 &&
+  //         values.projectDescription.trim().length >= 10
+  //       );
+  //     case 2:
+  //       // Check that both file inputs have at least one file uploaded
+  //       return (
+  //         (values.coverImage?.length ?? 0) > 0 &&
+  //         (values.additionalMaterials?.length ?? 0) > 0
+  //       );
+  //     case 3:
+  //       return (
+  //         values.leadName.trim().length >= 2 &&
+  //         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.leadEmail)
+  //       );
+  //     default:
+  //       return false;
+  //   }
+  // };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -320,7 +320,7 @@ export function ProjectSubmissionFormComponent({
                       />
                     </FormControl>
                     <FormDescription className="text-sm">
-                      Link to your project's repository.
+                      Link to your project&apos;s repository.
                     </FormDescription>
                     <FormMessage className="text-sm" />
                   </FormItem>
