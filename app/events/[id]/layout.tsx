@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { EventRegistrationWrapper } from "@/components/event-registration-wrapper";
 import { EventHeader } from "@/components/events/event-header";
 import type { Metadata } from "next";
+import { AuthNavbar } from "@/components/layout/authNavbar";
+import { Footer } from "@/components/layout/footer";
 
 export default async function Layout({
   children,
@@ -33,7 +35,8 @@ export default async function Layout({
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col">
+      <AuthNavbar />
       <EventRegistrationWrapper eventId={id}>
         <main className="flex-1 overflow-auto">
           <div className="max-w-5xl mx-auto px-4 py-4 space-y-4 w-full">
@@ -49,14 +52,15 @@ export default async function Layout({
           </div>
         </main>
       </EventRegistrationWrapper>
+      <Footer />
     </div>
   );
 }
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await Promise.resolve(params);
   const supabase = createSupabaseClient();
