@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Users, Lightbulb, Target } from "lucide-react";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+// import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { Button } from "@/components/ui/button";
 
 export function LandingHero() {

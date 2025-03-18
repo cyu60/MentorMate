@@ -1,46 +1,36 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { fetchProjectsByEventId } from "@/lib/helpers/projects";
+import { Suspense } from "react";
+// import Link from "next/link";
+// import { Button } from "@/components/ui/button";
+// import { Card } from "@/components/ui/card";
+// import { fetchProjectsByEventId } from "@/lib/helpers/projects";
 
-const GoalSection = dynamic(() => import('@/components/journal/goal-section'), {
+const GoalSection = dynamic(() => import("@/components/journal/goal-section"), {
   ssr: false,
 });
-const JournalSection = dynamic(() => import('@/components/journal/journal-section'), {
-  ssr: false,
-});
-const ProjectDashboardSection = dynamic(
-  () => import('@/components/projects/project-dashboard'),
+const JournalSection = dynamic(
+  () => import("@/components/journal/journal-section"),
   {
     ssr: false,
   }
 );
-const ToolsSection = dynamic(() => import('@/components/utils/tools-section'), {
-  ssr: false,
-});
+// const ProjectDashboardSection = dynamic(
+//   () => import('@/components/projects/project-dashboard'),
+//   {
+//     ssr: false,
+//   }
+// );
+// const ToolsSection = dynamic(() => import('@/components/utils/tools-section'), {
+//   ssr: false,
+// });
 
 interface DashboardContentProps {
   eventId: string;
 }
 
 export default function DashboardContent({ eventId }: DashboardContentProps) {
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProjectId = async () => {
-      const projects = await fetchProjectsByEventId(eventId);
-      if (projects.length > 0) {
-        setProjectId(projects[0].id);
-      }
-    };
-
-    fetchProjectId();
-  }, [eventId]);
-
   return (
     <div className="space-y-6">
       <Suspense fallback={<div>Loading goals...</div>}>
@@ -49,7 +39,7 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
       <Suspense fallback={<div>Loading journal...</div>}>
         <JournalSection eventId={eventId} />
       </Suspense>
-      <Suspense fallback={<div>Loading project...</div>}>
+      {/* <Suspense fallback={<div>Loading project...</div>}>
         {projectId ? (
           <ProjectDashboardSection eventId={eventId} projectId={projectId} />
         ) : (
@@ -69,10 +59,10 @@ export default function DashboardContent({ eventId }: DashboardContentProps) {
             </div>
           </Card>
         )}
-      </Suspense>
-      <Suspense fallback={<div>Loading tools...</div>}>
+      </Suspense> */}
+      {/* <Suspense fallback={<div>Loading tools...</div>}>
         <ToolsSection />
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 }

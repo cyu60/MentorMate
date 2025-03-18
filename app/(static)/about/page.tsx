@@ -272,7 +272,10 @@ const AboutPage: React.FC = () => {
           </Link>
         </div>
       </div>
-      <Footer />
+      
+      <div className = "pt-10">
+          <Footer />    
+      </div>
     </div>
   );
 };

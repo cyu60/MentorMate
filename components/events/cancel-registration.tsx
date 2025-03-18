@@ -80,7 +80,7 @@ export function CancelRegistration({ eventId, onCancel }: CancelRegistrationProp
       disabled={isLoading}
       variant="ghost"
       size="sm"
-      className="text-gray-600 hover:text-red-600"
+      className="text-red-600 hover:text-red-800"
     >
       {isLoading ? (
         "Canceling..."

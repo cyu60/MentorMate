@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import UserSearch from '@/components/utils/UserSearch';
+import UserSearch from "@/components/utils/UserSearch";
 import {
   Form,
   FormControl,
@@ -48,7 +48,8 @@ const formSchema = z.object({
     .custom<FileList>()
     .optional()
     .refine(
-      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      (files) =>
+        !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
       {
         message: "File size must be less than 10MB",
       }
@@ -57,7 +58,8 @@ const formSchema = z.object({
     .custom<FileList>()
     .optional()
     .refine(
-      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      (files) =>
+        !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
       {
         message: "File size must be less than 10MB",
       }
@@ -79,6 +81,8 @@ export function ProjectSubmissionFormComponent({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,19 +102,16 @@ export function ProjectSubmissionFormComponent({
   }, [leadName, userEmail, form]);
 
   const [allUsers, setAllUsers] = useState<string[]>([]);
-
   useEffect(() => {
     const fetchUserDisplayNames = async () => {
       try {
         const { data, error } = await supabase
           .from("user_profiles")
           .select("display_name");
-
         if (error) {
           console.error("Error fetching user display names:", error);
           return;
         }
-
         if (data) {
           const displayNames = data.map((user) => user["display_name"]);
           setAllUsers(displayNames);
@@ -119,13 +120,36 @@ export function ProjectSubmissionFormComponent({
         console.error("Unexpected error:", err);
       }
     };
-
     fetchUserDisplayNames();
   }, []);
 
   const handleTeammatesChange = (tags: string[]) => {
     form.setValue("teammates", tags);
   };
+
+  // const isStepComplete = (step: number): boolean => {
+  //   const values = form.getValues();
+  //   switch (step) {
+  //     case 1:
+  //       return (
+  //         values.projectName.trim().length >= 2 &&
+  //         values.projectDescription.trim().length >= 10
+  //       );
+  //     case 2:
+  //       // Check that both file inputs have at least one file uploaded
+  //       return (
+  //         (values.coverImage?.length ?? 0) > 0 &&
+  //         (values.additionalMaterials?.length ?? 0) > 0
+  //       );
+  //     case 3:
+  //       return (
+  //         values.leadName.trim().length >= 2 &&
+  //         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.leadEmail)
+  //       );
+  //     default:
+  //       return false;
+  //   }
+  // };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -137,23 +161,15 @@ export function ProjectSubmissionFormComponent({
       if (values.coverImage && values.coverImage.length > 0) {
         const file = values.coverImage[0];
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random()
-          .toString(36)
-          .substring(2)}.${fileExt}`;
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `project-covers/${fileName}`;
-
         const { error: uploadError } = await supabase.storage
           .from("project-materials")
           .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
+        if (uploadError) throw uploadError;
         const {
           data: { publicUrl },
         } = supabase.storage.from("project-materials").getPublicUrl(filePath);
-
         coverImageUrl = publicUrl;
       }
 
@@ -163,17 +179,13 @@ export function ProjectSubmissionFormComponent({
         const fileExt = file.name.split(".").pop();
         const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `project-materials/${fileName}`;
-
         const { error: uploadError } = await supabase.storage
           .from("project-materials")
           .upload(filePath, file);
-
         if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("project-materials")
-          .getPublicUrl(filePath);
-
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("project-materials").getPublicUrl(filePath);
         additionalMaterialsUrl = publicUrl;
       }
 
@@ -209,11 +221,9 @@ export function ProjectSubmissionFormComponent({
           teammates: values.teammates || [],
         }),
       });
-
       if (!emailResponse.ok) {
         console.error("Failed to send confirmation email");
       }
-
       toast({
         title: "Project Submitted",
         description: "Your project has been submitted for feedback.",
@@ -225,7 +235,8 @@ export function ProjectSubmissionFormComponent({
       console.error("Error submitting project:", error);
       toast({
         title: "Error",
-        description: "There was an error submitting your project. Please try again.",
+        description:
+          "There was an error submitting your project. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -234,245 +245,311 @@ export function ProjectSubmissionFormComponent({
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto px-6 py-8 bg-white rounded-xl shadow-2xl">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-extrabold">Submit Your Project</h2>
-        <p className="text-gray-500 mt-2">
-          Enter your project details for mentor feedback.
+    <div className="w-full max-w-6xl mx-auto px-6 py-8 bg-white rounded-xl shadow-xl">
+      {/* Header & Progress Indicator */}
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-extrabold text-gray-900">
+          Submit Your Project
+        </h2>
+        <p className="mt-3 text-lg text-gray-600">
+          Provide your project details for mentor feedback and get started on your journey.
         </p>
+        <div className="mt-6">
+          <p className="text-lg text-gray-700">
+            Step {currentStep} of {totalSteps}
+          </p>
+        </div>
       </div>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="projectName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm">Project Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter project name" {...field} className="text-sm p-2" />
-                </FormControl>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
-          <div className="space-y-6">
-            <h3 className="text-sm font-medium">Submitted by:</h3>
-            <div className="pl-4 space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Step 1: Project Info */}
+          {currentStep === 1 && (
+            <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="leadName"
+                name="projectName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm flex items-center gap-2">
-                      Name
-                      {leadName && (
-                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
-                          Auto-filled
-                        </span>
-                      )}
-                    </FormLabel>
+                    <FormLabel className="text-base">Project Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} className={`text-sm p-2 ${leadName ? "bg-gray-200" : ""}`} />
+                      <Input
+                        placeholder="Enter project name"
+                        {...field}
+                        className="text-base p-3"
+                      />
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormMessage className="text-sm" />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="leadEmail"
+                name="projectDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm flex items-center gap-2">
-                      Email
-                      {userEmail && (
-                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
-                          Auto-filled
-                        </span>
-                      )}
+                    <FormLabel className="text-base">Project Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Briefly describe your project..."
+                        className="resize-none text-base p-3 min-h-[120px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-sm">
+                      Provide an overview of your project (max 500 characters).
+                    </FormDescription>
+                    <FormMessage className="text-sm" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="projectUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">
+                      GitHub Repository (Optional)
                     </FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="johndoe@example.com" {...field} className={`text-sm p-2 ${userEmail ? "bg-gray-200" : ""}`} />
+                      <Input
+                        type="url"
+                        placeholder="https://github.com/username/repository"
+                        {...field}
+                        className="text-base p-3"
+                      />
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormDescription className="text-sm">
+                      Link to your project&apos;s repository.
+                    </FormDescription>
+                    <FormMessage className="text-sm" />
                   </FormItem>
                 )}
               />
             </div>
+          )}
+
+          {/* Step 2: Documentation */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="coverImage"
+                render={({ field: { onChange, name, onBlur, ref } }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">
+                      Cover Image (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          name={name}
+                          ref={ref}
+                          onBlur={onBlur}
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              setSelectedCoverImage(files[0]);
+                              onChange(files);
+                            }
+                          }}
+                          accept="image/*"
+                          className="flex-1 text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        {selectedCoverImage && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedCoverImage(null);
+                              onChange(undefined);
+                              const fileInput = document.querySelector(
+                                `input[name="${name}"]`
+                              ) as HTMLInputElement;
+                              if (fileInput) {
+                                fileInput.value = "";
+                              }
+                            }}
+                            className="px-2 py-1"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-sm">
+                      Upload a cover image (max 10MB)
+                    </FormDescription>
+                    <FormMessage className="text-sm" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="additionalMaterials"
+                render={({ field: { onChange, name, onBlur, ref } }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">
+                      Additional Materials (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          name={name}
+                          ref={ref}
+                          onBlur={onBlur}
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              setSelectedFile(files[0]);
+                              onChange(files);
+                            }
+                          }}
+                          accept=".pdf,.ppt,.pptx,.doc,.docx"
+                          className="flex-1 text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        {selectedFile && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFile(null);
+                              onChange(undefined);
+                              const fileInput = document.querySelector(
+                                `input[name="${name}"]`
+                              ) as HTMLInputElement;
+                              if (fileInput) {
+                                fileInput.value = "";
+                              }
+                            }}
+                            className="px-2 py-1"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-sm">
+                      Upload pitch deck or other materials (max 10MB)
+                    </FormDescription>
+                    <FormMessage className="text-sm" />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
+          {/* Step 3: Team & Contact */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="leadName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base flex items-center gap-2">
+                        Name
+                        {leadName && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                            Auto-filled
+                          </span>
+                        )}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="John Doe"
+                          {...field}
+                          className={`text-base p-3 ${leadName ? "bg-gray-100" : ""}`}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-sm" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="leadEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base flex items-center gap-2">
+                        Email
+                        {userEmail && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                            Auto-filled
+                          </span>
+                        )}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="johndoe@example.com"
+                          {...field}
+                          className={`text-base p-3 ${userEmail ? "bg-gray-100" : ""}`}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-sm" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="teammates"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="text-base">Teammates</FormLabel>
+                    <FormControl>
+                      <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
+                    </FormControl>
+                    <FormMessage className="text-sm" />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-8">
+            {currentStep > 1 && (
+              <Button
+                type="button"
+                onClick={() => setCurrentStep(currentStep - 1)}
+                className="px-6 py-2"
+              >
+                Previous
+              </Button>
+            )}
+            {currentStep < totalSteps && (
+              <Button
+                type="button"
+                onClick={() => setCurrentStep(currentStep + 1)}
+                className="px-6 py-2"
+              >
+                Next
+              </Button>
+            )}
+            {currentStep === totalSteps && (
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full text-base py-3"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Project"
+                )}
+              </Button>
+            )}
           </div>
-          <FormField
-            control={form.control}
-            name="projectDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm">Project Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Briefly describe your project..."
-                    className="resize-none text-sm p-2 min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription className="text-xs">
-                  Provide a concise overview of your project (max 500 characters).
-                </FormDescription>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="projectUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  GitHub Repository (Optional)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="url"
-                    placeholder="https://github.com/username/repository"
-                    {...field}
-                    className="text-sm sm:text-base p-2 sm:p-3"
-                  />
-                </FormControl>
-                <FormDescription className="text-xs sm:text-sm">
-                  Link to your project&apos;s GitHub repository
-                </FormDescription>
-                <FormMessage className="text-xs sm:text-sm" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="coverImage"
-            render={({ field: { onChange, name, onBlur, ref } }) => (
-              <FormItem>
-                <FormLabel className="text-sm sm:text-base">
-                  Cover Image (Optional)
-                </FormLabel>
-                <FormControl>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      name={name}
-                      ref={ref}
-                      onBlur={onBlur}
-                      onChange={(e) => {
-                        const files = e.target.files;
-                        if (files && files.length > 0) {
-                          setSelectedCoverImage(files[0]);
-                          onChange(files);
-                        }
-                      }}
-                      accept="image/*"
-                      className="flex-1 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                    />
-                    {selectedCoverImage && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCoverImage(null);
-                          onChange(undefined);
-                          const fileInput = document.querySelector(
-                            `input[name="${name}"]`
-                          ) as HTMLInputElement;
-                          if (fileInput) {
-                            fileInput.value = "";
-                          }
-                        }}
-                        className="px-2 py-1"
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                </FormControl>
-                <FormDescription className="text-xs sm:text-sm">
-                  Upload a cover image for your project (max 10MB)
-                </FormDescription>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="additionalMaterials"
-            render={({ field: { onChange, name, onBlur, ref } }) => (
-              <FormItem>
-                <FormLabel className="text-sm">Additional Materials (Optional)</FormLabel>
-                <FormControl>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      name={name}
-                      ref={ref}
-                      onBlur={onBlur}
-                      onChange={(e) => {
-                        const files = e.target.files;
-                        if (files && files.length > 0) {
-                          setSelectedFile(files[0]);
-                          onChange(files);
-                        }
-                      }}
-                      accept=".pdf,.ppt,.pptx,.doc,.docx"
-                      className="flex-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                    />
-                    {selectedFile && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedFile(null);
-                          onChange(undefined);
-                          const fileInput = document.querySelector(
-                            `input[name="${name}"]`
-                          ) as HTMLInputElement;
-                          if (fileInput) {
-                            fileInput.value = "";
-                          }
-                        }}
-                        className="px-2 py-1"
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                </FormControl>
-                <FormDescription className="text-xs">
-                  Upload pitch deck or other project materials (max 10MB)
-                </FormDescription>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="teammates"
-            render={() => (
-              <FormItem>
-                <FormLabel className="text-sm">Teammates</FormLabel>
-                <FormControl>
-                  <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
-                </FormControl>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full text-sm py-2 sm:py-3" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Project"
-            )}
-          </Button>
         </form>
       </Form>
     </div>

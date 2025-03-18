@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { CancelRegistration } from '@/components/events/cancel-registration';
+import { CancelRegistration } from "@/components/events/cancel-registration";
+import { CheckCircle } from "lucide-react";
 
 interface EventStatusBarProps {
   eventId: string;
@@ -39,24 +40,15 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
   if (!hasJoined) return null;
 
   return (
-    <div className="bg-green-600 text-white py-1.5 w-full">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex items-center gap-2 pl-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>You are participating in this event</span>
+    <div className="w-full rounded-md shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <CheckCircle className="w-6 h-6" />
+          <span className="text-lg font-medium">
+            You are participating in this event
+          </span>
         </div>
-        <div className="pr-4">
+        <div>
           <CancelRegistration eventId={eventId} onCancel={checkJoinStatus} />
         </div>
       </div>

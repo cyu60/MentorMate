@@ -12,12 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/app/utils/supabase/client";
-
-// Initialize Supabase client once at module level
-const supabase = createClient();
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, CheckCircle2, XCircle } from "lucide-react";
+
+// Initialize Supabase client once at module level
+const supabase = createClient();
 
 interface GoalSectionProps {
   eventId?: string; // Optional: will get from URL if not provided
@@ -236,7 +236,7 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
       .from("platform_engagement")
       .update({ content: editedContent.trim() })
       .eq("id", goalId)
-      .eq("user_id", userProfile.uid); // Ensure we're only updating goals owned by this user
+      .eq("user_id", userProfile.uid);
 
     if (error) {
       toast({
@@ -282,7 +282,7 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
       .from("platform_engagement")
       .update({ status: newStatus })
       .eq("id", goal.id)
-      .eq("user_id", userProfile.uid); // Ensure we're only updating goals owned by this user
+      .eq("user_id", userProfile.uid);
 
     if (error) {
       toast({
@@ -315,74 +315,87 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
         </CardHeader>
         <CardContent className="p-6">
           {goals.length === 0 ? (
-            <p className="text-gray-500">
-              You haven&apos;t set any goals yet. Click the button above to get started!
+            <p className="text-gray-600 text-center">
+              You haven&apos;t set any goals yet. Click{" "}
+              <span className="font-medium text-gray-800">Set Goal</span> to get started!
             </p>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {goals.map((goal) => (
                 <li
                   key={goal.id}
-                  className="flex flex-col md:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow transition-shadow"
+                  className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow transition-shadow"
                 >
-                  <div className="flex items-center gap-3">
-                    {goal.status === "completed" ? (
-                      <div className="flex items-center gap-1">
-                        <CheckCircle2 className="h-6 w-6 text-green-600" />
-                        <span className="text-sm font-semibold text-green-600">Completed</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <XCircle className="h-6 w-6 text-red-600" />
-                        <span className="text-sm font-semibold text-red-600">In Progress</span>
-                      </div>
-                    )}
-                  </div>
-                  {editingGoalId === goal.id ? (
-                    <div className="flex flex-col md:flex-row items-center gap-3 w-full mt-2 md:mt-0">
-                      <Input
-                        value={editedContent}
-                        onChange={(e) => setEditedContent(e.target.value)}
-                        className="flex-1"
-                      />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {goal.status === "completed" ? (
+                        <div className="flex items-center gap-1 text-green-600">
+                          <CheckCircle2 className="h-5 w-5" />
+                          <span className="text-sm font-semibold">Finalized</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-yellow-500">
+                          <XCircle className="h-5 w-5" />
+                          <span className="text-sm font-semibold">Draft</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        onClick={() => handleSaveEdit(goal.id)}
-                        className="bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2"
+                        onClick={() => handleToggleStatus(goal)}
+                        className={
+                          goal.status === "completed"
+                            ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                            : "bg-green-600 hover:bg-green-700 text-white"
+                        }
                       >
-                        Save
+                        {goal.status === "completed" ? "Reopen Entry" : "Finalize Entry"}
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
-                        onClick={() => setEditingGoalId(null)}
-                        className="rounded px-4 py-2"
+                        variant="ghost"
+                        onClick={() => handleEditGoal(goal)}
+                        className="text-gray-600 hover:text-gray-900"
                       >
-                        Cancel
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     </div>
-                  ) : (
-                    <div className="flex flex-col md:flex-row items-center justify-between w-full mt-2 ml-2 md:mt-0">
-                      <span className={goal.status === "completed" ? "line-through text-gray-500" : "text-gray-800"}>
-                        {goal.content}
-                      </span>
-                      <div className="flex items-center gap-2">
+                  </div>
+                  {editingGoalId === goal.id ? (
+                    <div className="mt-4">
+                      <textarea
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded resize-none"
+                        rows={4}
+                      />
+                      <div className="mt-2 flex gap-2">
                         <Button
                           size="sm"
-                          onClick={() => handleToggleStatus(goal)}
-                          className={goal.status === "completed" ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"}
+                          onClick={() => handleSaveEdit(goal.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
                         >
-                          {goal.status === "completed" ? "Mark as Incomplete" : "Mark as Complete"}
+                          Save
                         </Button>
                         <Button
                           size="sm"
-                          variant="ghost"
-                          onClick={() => handleEditGoal(goal)}
-                          className="text-gray-600 hover:text-gray-800"
+                          variant="outline"
+                          onClick={() => setEditingGoalId(null)}
+                          className="px-4 py-2 rounded"
                         >
-                          <Pencil className="h-5 w-5" />
+                          Cancel
                         </Button>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <p className="text-gray-800 whitespace-pre-wrap">
+                        {goal.content}
+                      </p>
+                      <p className="mt-2 text-xs text-gray-500">
+                        {new Date(goal.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   )}
                 </li>
@@ -408,9 +421,7 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-400"
             />
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                Recommendations:
-              </h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Recommendations:</h4>
               <ul className="space-y-2">
                 {goalRecommendations.map((rec, index) => (
                   <li

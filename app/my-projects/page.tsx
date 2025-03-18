@@ -9,8 +9,9 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { ReturnUrlHandler } from '@/components/auth/ReturnUrlHandler';
-import { Footer } from '@/components/layout/footer';
+import { ReturnUrlHandler } from "@/components/auth/ReturnUrlHandler";
+import { AuthNavbar } from "@/components/layout/authNavbar";
+import { Footer } from "@/components/layout/footer";
 
 interface Project {
   id: string;
@@ -48,23 +49,19 @@ export default function MyProjectsPage() {
       if (!session?.user?.email) return;
       setIsLoading(true);
 
-      // Fetch projects where user is either the lead or a teammate
-      // First get projects where user is lead
       const { data: leadProjects } = await supabase
         .from("projects")
         .select()
         .eq("lead_email", session.user.email);
 
-      // Then get projects where user is a teammate
       const { data: teamProjects } = await supabase
         .from("projects")
         .select()
         .contains("teammates", [session.user.email]);
 
-      // Combine and deduplicate projects
       const allProjects = [
         ...(leadProjects || []),
-        ...(teamProjects || [])
+        ...(teamProjects || []),
       ].filter((project, index, self) =>
         index === self.findIndex((p) => p.id === project.id)
       );
@@ -81,12 +78,19 @@ export default function MyProjectsPage() {
   }, [session]);
 
   return (
-    <div className="min-h-full bg-blue-50 pt-10">
+    <div className="min-h-full bg-gray-50 pt-10">
+      <AuthNavbar />
       <ReturnUrlHandler />
-      <div className="container mx-auto">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
-          My Projects
-        </h1>
+      <div className="container mx-auto px-4 pb-16">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-900">
+            My Projects
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Manage your projects and collaborate with your team.
+          </p>
+        </div>
 
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -97,56 +101,57 @@ export default function MyProjectsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-8"
+            className="mx-auto"
           >
             {projects.length > 0 ? (
-              <>
-                <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto px-4">
-                  {projects.map((project) => (
-                    <Card key={project.id} className="overflow-hidden">
-                      <div 
-                        className="h-[200px] w-full bg-[#000080]"
-                        style={project.cover_image_url ? {
-                          backgroundImage: `url(${project.cover_image_url})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
-                        } : undefined}
-                      />
-                      <div className="p-6 space-y-4">
-                        <div>
-                          <div className="flex justify-between items-start gap-2">
-                            <CardTitle className="text-xl font-semibold">
-                              {project.project_name}
-                            </CardTitle>
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
-                              {project.lead_email === session?.user?.email ? 'Owner' : 'Team Member'}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-1">Lead: {project.lead_name}</p>
-                        </div>
-                        <CardDescription className="text-gray-600 text-sm">
-                          {project.project_description.slice(0, 100) + "..."}
-                        </CardDescription>
-                        <Link href={`/my-projects/${project.id}/dashboard`} className="block">
-                          <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                            View Project
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </>
+              projects.map((project) => (
+                <Card key={project.id} className="overflow-hidden shadow-lg">
+                  {/* Cover Image */}
+                  <div 
+                    className="h-48 w-full bg-gray-200"
+                    style={
+                      project.cover_image_url
+                        ? {
+                            backgroundImage: `url(${project.cover_image_url})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                        : {}
+                    }
+                  />
+                  <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-xl font-semibold">
+                        {project.project_name}
+                      </CardTitle>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                        {project.lead_email === session?.user?.email ? "Owner" : "Team Member"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Lead: {project.lead_name}
+                    </p>
+                    <CardDescription className="text-gray-600 text-sm">
+                      {project.project_description.length > 100
+                        ? project.project_description.slice(0, 100) + "..."
+                        : project.project_description}
+                    </CardDescription>
+                    <Link href={`/my-projects/${project.id}/dashboard`} className="block">
+                      <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
+                        View Project
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              ))
             ) : (
-              <div className="flex flex-col items-center justify-center space-y-4 mt-12 px-4">
-                <div className="text-center space-y-3">
-                  <h3 className="text-xl font-semibold text-gray-700">
-                    No Projects Found
-                  </h3>
-                  <p className="text-gray-500 max-w-sm">
-                    You are not currently part of any projects.
-                  </p>
-                </div>
+              <div className="flex flex-col items-center justify-center mt-12">
+                <h3 className="text-xl font-semibold text-gray-700">
+                  No Projects Found
+                </h3>
+                <p className="text-gray-500 mt-2">
+                  You are not currently part of any projects.
+                </p>
               </div>
             )}
           </motion.div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const navItems = [
   { name: "Overview", href: "/overview" },
@@ -10,6 +11,7 @@ const navItems = [
   { name: "Participants", href: "/participants/public" },
   { name: "Gallery", href: "/gallery" },
   { name: "Feed", href: "/feed/public" },
+  { name: "Tools", href: "/tools"}
 ];
 
 export function HackathonNav({ id }: { id: string }) {
@@ -18,23 +20,31 @@ export function HackathonNav({ id }: { id: string }) {
 
   return (
     <nav className="w-full">
-      <div className="w-full overflow-x-auto">
-        <div className="flex space-x-8 border-t border-white/20 pt-4 mt-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={`${basePath}${item.href}`}
-              className={cn(
-                "py-2 px-1 border-b-2 text-sm font-medium transition-colors hover:border-white/50 whitespace-nowrap",
-                pathname === `${basePath}${item.href}`
-                  ? "border-white text-white"
-                  : "border-transparent text-white/70 hover:text-white"
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
+      <div className="overflow-x-auto py-10">
+        <ul className="flex space-x-6 px-4 border-gray-200/30">
+          {navItems.map((item) => {
+            const isActive = pathname === `${basePath}${item.href}`;
+            return (
+              <motion.li
+                key={item.name}
+                whileHover={{ scale: 1.05 }}
+                className="flex-shrink-0"
+              >
+                <Link
+                  href={`${basePath}${item.href}`}
+                  className={cn(
+                    "py-3 text-base font-medium transition-all duration-200",
+                    isActive
+                      ? "border-b-2 border-blue-500 text-white"
+                      : "border-b-2 border-transparent text-gray-300 hover:text-white hover:border-gray-200"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              </motion.li>
+            );
+          })}
+        </ul>
       </div>
     </nav>
   );
