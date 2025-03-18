@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Sidebar } from '@/components/layout/sidebar';
+// import { Sidebar } from '@/components/layout/sidebar';
 
 type PathPattern = string | RegExp;
 
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {isAuthenticated && <Sidebar />}
+      {isAuthenticated}
       {children}
     </>
   );

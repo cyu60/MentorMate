@@ -9,6 +9,8 @@ import { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { Navbar } from "@/components/layout/navbar";
+import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from '@/components/layout/footer';
 import { Calendar, Folder, MessageSquare } from "lucide-react";
 
@@ -68,6 +70,7 @@ export default function HomePage() {
   if (!session) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
+        <Navbar />
         <LandingHero />
         <ServiceWorkerRegistration />
         <Footer />
@@ -77,6 +80,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-[80vh] w-full pb-4 bg-blue-50">
+      <AuthNavbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center justify-center text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
