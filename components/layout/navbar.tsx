@@ -63,8 +63,8 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 bg-white border-b z-50">
-        <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
+      <nav className="fixed top-0 left-0 right-0 bg-white/70 z-50">
+        <div className="flex justify-between items-center p-2 max-w-7xl mx-auto">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <Image
@@ -119,7 +119,7 @@ export function Navbar() {
               ) : (
                 <Button
                   size="lg"
-                  className="bg-black text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800 transition-all duration-300"
+                  className="bg-black text-white font-semibold px-6 rounded-full hover:bg-gray-800 transition-all duration-300"
                   onClick={handleLoginClick}
                 >
                   Login

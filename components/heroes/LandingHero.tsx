@@ -13,7 +13,7 @@ export function LandingHero() {
       <div className="max-w-5xl mx-auto px-2 sm:px-3 lg:px-4 py-4">
         <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
-            Mentor Mate
+            Mentor Mates
           </span>
         </h1>
         <div className="space-y-8 text-center">
@@ -32,10 +32,10 @@ export function LandingHero() {
             </span>
             ?
           </p>
-          <TextGenerateEffect
+          {/* <TextGenerateEffect
             words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
             className="text-xl text-blue-100 max-w-3xl mx-auto font-light"
-          />
+          /> */}
             <Link href="/select">
               <Button
                 className="inline-flex items-center mt-4 px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300"
