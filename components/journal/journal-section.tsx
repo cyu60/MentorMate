@@ -382,11 +382,11 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
             )}
             <div className="flex justify-end">
               <Button
-              onClick={editingId ? handleUpdateEntry : handleSubmitEntry}
-              disabled={isSubmitting || (!(editingId ? editContent : entry).trim())}
-              className="bg-blue-800 text-white rounded-full mt-2 px-6 py-2"
+                onClick={editingId ? handleUpdateEntry : handleSubmitEntry}
+                disabled={isSubmitting || (!(editingId ? editContent : entry).trim())}
+                className="bg-blue-800 text-white rounded-full mt-2 px-6 py-2"
               >
-              {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : editingId ? "Update Entry" : "Save Entry"}
+                {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : editingId ? "Update Entry" : "Save Entry"}
               </Button>
             </div>
           </div>
@@ -403,11 +403,18 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
                 return (
                   <div
                     key={entry.id}
-                    className="bg-gray-50 p-4 rounded-lg shadow cursor-pointer"
+                    className={`p-4 rounded-lg shadow cursor-pointer ${entry.is_private ? "bg-red-50" : "bg-gray-50"}`}
                     onClick={() => toggleExpansion(entry.id)}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">{entry.display_name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{entry.display_name}</span>
+                        {entry.is_private && (
+                          <span className="text-xs text-white bg-red-500 rounded-full px-2 py-0.5">
+                            Private
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs text-gray-400">
                         {new Date(entry.created_at).toLocaleDateString()}
                       </span>
