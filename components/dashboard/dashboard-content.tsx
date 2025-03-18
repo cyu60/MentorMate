@@ -1,18 +1,21 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 // import Link from "next/link";
 // import { Button } from "@/components/ui/button";
 // import { Card } from "@/components/ui/card";
-import { fetchProjectsByEventId } from "@/lib/helpers/projects";
+// import { fetchProjectsByEventId } from "@/lib/helpers/projects";
 
-const GoalSection = dynamic(() => import('@/components/journal/goal-section'), {
+const GoalSection = dynamic(() => import("@/components/journal/goal-section"), {
   ssr: false,
 });
-const JournalSection = dynamic(() => import('@/components/journal/journal-section'), {
-  ssr: false,
-});
+const JournalSection = dynamic(
+  () => import("@/components/journal/journal-section"),
+  {
+    ssr: false,
+  }
+);
 // const ProjectDashboardSection = dynamic(
 //   () => import('@/components/projects/project-dashboard'),
 //   {
@@ -28,19 +31,6 @@ interface DashboardContentProps {
 }
 
 export default function DashboardContent({ eventId }: DashboardContentProps) {
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProjectId = async () => {
-      const projects = await fetchProjectsByEventId(eventId);
-      if (projects.length > 0) {
-        setProjectId(projects[0].id);
-      }
-    };
-
-    fetchProjectId();
-  }, [eventId]);
-
   return (
     <div className="space-y-6">
       <Suspense fallback={<div>Loading goals...</div>}>
