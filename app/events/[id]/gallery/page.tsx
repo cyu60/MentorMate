@@ -28,6 +28,7 @@ export default function GalleryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Sets 'projects' state to a list of projects the event_id is associated with
   useEffect(() => {
     const fetchProjects = async () => {
       setIsLoading(true);
