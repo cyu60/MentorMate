@@ -11,21 +11,22 @@ import { ProjectBoardContext } from './ProjectBoardContext.enum';
 interface Project {
     id: string;
     project_name: string;
+    project_description: string;
     lead_name: string;
     lead_email: string;
-    project_description: string;
+    teammates?: string[];
+    event_id: string;
     created_at: string;
-    teammates: string[];
     project_url?: string;
     additional_materials_url?: string;
     cover_image_url?: string;
-  }
+}
 
 
 type ProjectBoardProps  = {
     isLoading: boolean,
     projectList: Project[],
-    session: Session,
+    session?: Session,
 
     /*
         This dictates the 'enviornment' the project board is being used in, e.g. being used in the 'my projects' page
@@ -69,9 +70,16 @@ const ProjectBoard = ( {isLoading, projectList, session, projectBoardContext}: P
                                         <CardTitle className="text-xl font-semibold">
                                             {projectList.project_name}
                                         </CardTitle>
-                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                            {projectList.lead_email === session?.user?.email ? "Owner" : "Team Member"}
-                                        </span>
+
+                                        {/* Display this span if in MyProjects to distinguish between Owner or Team Member */}
+                                        {
+                                            projectBoardContext === ProjectBoardContext.MyProjects &&
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                {projectList.lead_email === session?.user?.email ? "Owner" : "Team Member"}
+                                            </span>
+                                        }
+
+                                        
                                     </div>
                                     <p className="text-sm text-gray-500">
                                         Lead: {projectList.lead_name}

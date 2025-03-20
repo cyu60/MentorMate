@@ -13,11 +13,12 @@ import { ProjectBoardContext } from "@/components/projects/ProjectBoard/ProjectB
 interface Project {
   id: string;
   project_name: string;
+  project_description: string;
   lead_name: string;
   lead_email: string;
-  project_description: string;
+  teammates?: string[];
+  event_id: string;
   created_at: string;
-  teammates: string[];
   project_url?: string;
   additional_materials_url?: string;
   cover_image_url?: string;
