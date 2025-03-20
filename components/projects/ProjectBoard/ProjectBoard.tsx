@@ -27,11 +27,6 @@ type ProjectBoardProps  = {
     isLoading: boolean,
     projectList: Project[],
     session?: Session,
-
-    /*
-        This dictates the 'enviornment' the project board is being used in, e.g. being used in the 'my projects' page
-            versus an event gallery.
-    */
     projectBoardContext: ProjectBoardContext
 };
 

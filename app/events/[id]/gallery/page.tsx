@@ -87,11 +87,8 @@ export default function GalleryPage() {
             isLoading={isLoading}
             projectList={filteredProjects}
             projectBoardContext={ProjectBoardContext.EventGallery}
-
         />
 
-
-    
     </div>
   );
 }
