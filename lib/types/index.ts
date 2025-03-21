@@ -56,6 +56,7 @@ export interface Project {
   project_url?: string;
   additional_materials_url?: string;
   cover_image_url?: string;
+  event_name?: string;
 }
 
 export enum ProjectBoardContext {

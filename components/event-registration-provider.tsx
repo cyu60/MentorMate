@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useSession } from "@supabase/auth-helpers-react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ERROR_MESSAGES } from "@/lib/constants";
 

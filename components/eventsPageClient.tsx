@@ -3,13 +3,13 @@
 import { useState, useMemo } from "react";
 import { EventsList } from "@/components/events/events-list";
 import { Input } from "@/components/ui/input";
-import { EventsPageClientProps } from "@/lib/types";
+import { EventItem } from "@/lib/types";
 import { UI_TEXT, DEFAULT_VALUES } from "@/lib/constants";
 // import { DateRangePicker } from "react-date-range";
 // import "react-date-range/dist/styles.css";
 // import "react-date-range/dist/theme/default.css";
 
-export function EventsPageClient({ eventsList }: EventsPageClientProps) {
+export function EventsPageClient({ eventsList }: { eventsList: EventItem[] }) {
   const [searchTerm, setSearchTerm] = useState(DEFAULT_VALUES.SEARCH_TERM);
   // Default date range to today for both start and end.
   // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
