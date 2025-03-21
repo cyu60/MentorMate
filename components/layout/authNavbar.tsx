@@ -96,7 +96,7 @@ export function AuthNavbar() {
               Events
             </Button>
           </Link>
-          <Link href="/my-projects">
+          <Link href="/my-project-gallery">
             <Button
               variant="ghost"
               className="text-lg font-semibold hover:text-blue-900 hover:italic hover:bg-none"

@@ -147,7 +147,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="pt-16">
+    <div>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           alt="MentorMates"
