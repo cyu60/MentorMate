@@ -26,7 +26,7 @@ export default function MyProjectsLayout({
       }
 
       // Extract projectId from URL if present
-      const match = pathname.match(/\/my-projects\/([^\/]+)/);
+      const match = pathname.match(/\/my-project-gallery\/([^\/]+)/);
       const projectId = match ? match[1] : null;
 
       // If a projectId is in the URL, verify ownership or teammate status
@@ -42,7 +42,7 @@ export default function MyProjectsLayout({
 
         if (projectError || !project) {
           console.error("Project not found or error:", projectError);
-          router.push("/my-projects");
+          router.push("/my-project-gallery");
           return;
         }
 
@@ -53,7 +53,7 @@ export default function MyProjectsLayout({
 
         if (!isOwner && !isTeammate) {
           console.error("Unauthorized access attempt");
-          router.push("/my-projects");
+          router.push("/my-project-gallery");
           return;
         }
       }
