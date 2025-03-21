@@ -2,32 +2,18 @@ import React from "react";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Session } from "@supabase/supabase-js";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { ProjectBoardContext } from "./ProjectBoardContext.enum";
 
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  teammates?: string[];
-  event_id: string;
-  created_at: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  cover_image_url?: string;
-}
+import { Project, ProjectBoardContext } from "@/lib/types";
 
-type ProjectBoardProps = {
+export interface ProjectBoardProps {
   isLoading: boolean;
   projectList: Project[];
-  session?: Session | null;
+  session?: import("@supabase/supabase-js").Session | null;
   projectBoardContext: ProjectBoardContext;
-};
+}
 
 const ProjectBoard = ({
   isLoading,
@@ -77,15 +63,12 @@ const ProjectBoard = ({
                       </div>
                     )}
                   </div>
-                  <div className="p-6 flex flex-col h-[200px]">
-                    <div className="flex justify-between items-center mb-4">
+                  <div className="p-6 space-y-4 flex flex-col h-[200px]">
+                    <div className="flex justify-between items-center">
                       <CardTitle className="text-xl font-semibold">
                         {project.project_name}
                       </CardTitle>
-
-                      {/* Display this span if in MyProjects to distinguish between Owner or Team Member */}
-                      {projectBoardContext ===
-                        ProjectBoardContext.MyProjects && (
+                      {projectBoardContext === ProjectBoardContext.MyProjects && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                           {project.lead_email === session?.user?.email
                             ? "Owner"
@@ -93,7 +76,9 @@ const ProjectBoard = ({
                         </span>
                       )}
                     </div>
-
+                    <p className="text-sm text-gray-500">
+                      Lead: {project.lead_name}
+                    </p>
                     <CardDescription className="text-gray-600 text-sm flex-grow">
                       {project.project_description.length > 100
                         ? project.project_description.slice(0, 100) + "..."

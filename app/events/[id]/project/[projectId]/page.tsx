@@ -4,24 +4,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
-import FeedbackForm from '@/components/feedback/FeedbackForm';
-import { Navbar } from '@/components/layout/navbar';
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-}
+import FeedbackForm from "@/components/feedback/FeedbackForm";
+import { Navbar } from "@/components/layout/navbar";
+import { Project } from "@/lib/types";
 
 export default function ProjectFeedbackPage() {
   const params = useParams();
   const projectId = params.projectId as string;
   const eventId = params.id as string;
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -61,8 +52,10 @@ export default function ProjectFeedbackPage() {
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">Project Feedback</h1>
-        
+        <h1 className="text-3xl font-bold text-center mb-8">
+          Project Feedback
+        </h1>
+
         <div className="mt-8">
           <FeedbackForm
             projectId={projectId}

@@ -7,26 +7,15 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { Navbar } from '@/components/layout/navbar';
+import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-
-interface FeedbackItem {
-  id: string;
-  feedback_text: string;
-  mentor_name: string;
-  mentor_email: string;
-}
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-}
+import { Project, FeedbackItem } from "@/lib/types";
 
 export default function FeedbackPage() {
   const params = useParams();
   const projectId = params.projectId as string;
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSynthesizing, setIsSynthesizing] = useState(false);

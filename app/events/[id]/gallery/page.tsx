@@ -8,22 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
-import { ProjectBoardContext } from "@/components/projects/ProjectBoard/ProjectBoardContext.enum";
+import { ProjectBoardContext, Project } from "@/lib/types";
 import { useEventRegistration } from "@/components/event-registration-provider";
-
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  teammates?: string[];
-  event_id: string;
-  created_at: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  cover_image_url?: string;
-}
 
 export default function GalleryPage() {
   const params = useParams();

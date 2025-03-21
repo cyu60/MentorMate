@@ -9,18 +9,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Loader2, Plus } from "lucide-react";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { motion } from "framer-motion";
-import { Navbar } from '@/components/layout/navbar';
-
-interface Project {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  created_at: string;
-  teammates?: string[];
-  event_id: string;
-}
+import { Navbar } from "@/components/layout/navbar";
+import { Project } from "@/lib/types";
 
 export default function ProjectsListPage() {
   const params = useParams();
@@ -53,7 +43,9 @@ export default function ProjectsListPage() {
       <Navbar />
       <main className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-8 px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">Event Projects</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">
+            Event Projects
+          </h1>
           <Link href={`/events/${eventId}/projects`}>
             <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
               <Plus className="h-5 w-5" />
@@ -82,7 +74,9 @@ export default function ProjectsListPage() {
                       </CardTitle>
                       <div className="text-gray-600 text-sm mt-2">
                         <TextGenerateEffect
-                          words={project.project_description.slice(0, 100) + "..."}
+                          words={
+                            project.project_description.slice(0, 100) + "..."
+                          }
                           className="text-md font-light"
                         />
                       </div>
@@ -90,7 +84,8 @@ export default function ProjectsListPage() {
                     <CardContent>
                       <div className="space-y-2 mb-4">
                         <p className="text-sm text-gray-600">
-                          <span className="font-semibold">Lead:</span> {project.lead_name}
+                          <span className="font-semibold">Lead:</span>{" "}
+                          {project.lead_name}
                         </p>
                         {project.teammates && project.teammates.length > 0 && (
                           <div className="flex flex-wrap gap-2">

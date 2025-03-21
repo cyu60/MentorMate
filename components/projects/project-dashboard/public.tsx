@@ -9,28 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Card } from "@/components/ui/card";
 import SimpleFeedbackForm from "@/components/feedback/SimpleFeedbackForm";
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  teammates: string[];
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-  cover_image_url?: string | null;
-}
-
-interface FeedbackItem {
-  id: string;
-  project_id: string;
-  mentor_name: string;
-  mentor_email?: string;
-  feedback_text: string;
-  rating: number;
-  created_at: string;
-}
+import { FeedbackItem, Project } from "@/lib/types";
 
 interface ProjectDashboardSectionProps {
   eventId: string;
@@ -41,7 +20,7 @@ export default function PublicProjectDashboardSection({
   eventId,
   projectId,
 }: ProjectDashboardSectionProps) {
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(true);
@@ -190,7 +169,7 @@ export default function PublicProjectDashboardSection({
       if (error) {
         console.error("Error fetching project:", error);
       } else {
-        setProjectData(data);
+        setProjectData(data as Project);
       }
 
       setIsLoading(false);
@@ -246,7 +225,7 @@ export default function PublicProjectDashboardSection({
         <div
           className="w-full h-[200px] bg-[#000080] bg-cover bg-center"
           style={{
-            backgroundImage: `url(${projectData.cover_image_url})`
+            backgroundImage: `url(${projectData.cover_image_url})`,
           }}
         />
       ) : (
@@ -317,7 +296,7 @@ export default function PublicProjectDashboardSection({
               <div>
                 <span className="font-bold text-gray-800">Teammates:</span>{" "}
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {projectData.teammates.map((teammate, index) => {
+                  {projectData.teammates?.map((teammate, index) => {
                     const colors = ["blue", "deepskyblue", "royalblue", "teal"];
                     const color = colors[index % colors.length];
                     let className = "";

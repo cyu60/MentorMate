@@ -7,17 +7,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
-
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  event_id: string;
-}
+import { Project } from "@/lib/types";
 
 export default function ProjectPage({
   params,

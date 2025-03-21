@@ -27,7 +27,8 @@ export async function fetchProjectById(
         project_url,
         additional_materials_url,
         cover_image_url,
-        event_id
+        event_id,
+        created_at
       `)
       .eq("id", projectId)
       .single();
@@ -52,7 +53,7 @@ export async function fetchProjectById(
       additional_materials_url: data.additional_materials_url,
       cover_image_url: data.cover_image_url,
       event_id: data.event_id,
-      event_name: "",
+      created_at: data.created_at,
     };
 
     // Optionally fetch the event name
@@ -105,7 +106,8 @@ export async function fetchProjectsByEventId(
         project_url,
         additional_materials_url,
         cover_image_url,
-        event_id
+        event_id,
+        created_at
       `)
       .eq("event_id", eventId)
       .eq("lead_email", userEmail)
@@ -129,7 +131,8 @@ export async function fetchProjectsByEventId(
         project_url,
         additional_materials_url,
         cover_image_url,
-        event_id
+        event_id,
+        created_at
       `)
       .eq("event_id", eventId)
       .contains("teammates", [userEmail])
@@ -159,6 +162,7 @@ export async function fetchProjectsByEventId(
       additional_materials_url: item.additional_materials_url,
       cover_image_url: item.cover_image_url,
       event_id: item.event_id,
+      created_at: item.created_at,
     }));
   } catch (error) {
     console.error("Unexpected error fetching projects by event:", error);
