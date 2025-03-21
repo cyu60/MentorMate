@@ -7,22 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { ReturnUrlHandler } from "@/components/auth/ReturnUrlHandler";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
-import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard"
-import { ProjectBoardContext } from "@/components/projects/ProjectBoard/ProjectBoardContext.enum";
-
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  teammates?: string[];
-  event_id: string;
-  created_at: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  cover_image_url?: string;
-}
+import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
+import { ProjectBoardContext, Project } from "@/lib/types";
 
 export default function MyProjectsPage() {
   const router = useRouter();
@@ -32,7 +18,10 @@ export default function MyProjectsPage() {
 
   useEffect(() => {
     const fetchSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (error || !session) {
         router.push("/project_dashboard");
         return;
@@ -61,13 +50,15 @@ export default function MyProjectsPage() {
       const allProjects = [
         ...(leadProjects || []),
         ...(teamProjects || []),
-      ].filter((project, index, self) =>
-        index === self.findIndex((p) => p.id === project.id)
+      ].filter(
+        (project, index, self) =>
+          index === self.findIndex((p) => p.id === project.id)
       );
 
       setProjects(
-        allProjects.sort((a: Project, b: Project) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        allProjects.sort(
+          (a: Project, b: Project) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
       );
       setIsLoading(false);
@@ -83,16 +74,16 @@ export default function MyProjectsPage() {
       <div className="container mx-auto px-4 pb-16">
         {/* Hero Section */}
         <div className="text-center mb-12">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-900">
-                  My Projects
-              </h1>
-              <p className="mt-2 text-gray-600">
-                  Manage your projects and collaborate with your team.
-              </p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-blue-900">
+            My Projects
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Manage your projects and collaborate with your team.
+          </p>
         </div>
         <ProjectBoard
-          isLoading={isLoading} 
-          projectList={projects} 
+          isLoading={isLoading}
+          projectList={projects}
           session={session ?? undefined}
           projectBoardContext={ProjectBoardContext.MyProjects}
         />

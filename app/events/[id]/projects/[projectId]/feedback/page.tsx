@@ -4,24 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
-import FeedbackForm from '@/components/feedback/FeedbackForm';
-import { Navbar } from '@/components/layout/navbar';
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  project_url: string | null;
-  additional_materials_url: string | null;
-}
-
+import FeedbackForm from "@/components/feedback/FeedbackForm";
+import { Navbar } from "@/components/layout/navbar";
+import { Project } from "@/lib/types";
 export default function ProjectFeedback() {
   const params = useParams();
   const eventId = params.id as string;
   const projectId = params.projectId as string;
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -53,7 +43,9 @@ export default function ProjectFeedback() {
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <Navbar />
         <div className="relative z-10 text-center">
-          <p className="text-2xl text-blue-100 font-light">Loading project data...</p>
+          <p className="text-2xl text-blue-100 font-light">
+            Loading project data...
+          </p>
         </div>
       </div>
     );
@@ -63,7 +55,9 @@ export default function ProjectFeedback() {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
         <div className="relative z-10 text-center">
-          <p className="text-2xl text-blue-100 font-light">Project not found.</p>
+          <p className="text-2xl text-blue-100 font-light">
+            Project not found.
+          </p>
         </div>
       </div>
     );

@@ -1,33 +1,17 @@
 import React from "react";
-
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Session } from "@supabase/supabase-js";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { ProjectBoardContext } from "./ProjectBoardContext.enum";
+import { Project, ProjectBoardContext } from "@/lib/types";
 
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  teammates?: string[];
-  event_id: string;
-  created_at: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  cover_image_url?: string;
-}
-
-type ProjectBoardProps = {
+export interface ProjectBoardProps {
   isLoading: boolean;
   projectList: Project[];
-  session?: Session | null;
+  session?: import("@supabase/supabase-js").Session | null;
   projectBoardContext: ProjectBoardContext;
-};
+}
 
 const ProjectBoard = ({
   isLoading,

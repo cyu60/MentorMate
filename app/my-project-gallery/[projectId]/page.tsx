@@ -3,21 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from '@/components/layout/navbar';
+import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import FeedbackForm from '@/components/feedback/FeedbackForm';
-
-interface Project {
-  id: string;
-  project_name: string;
-  project_description: string;
-  lead_name: string;
-  lead_email: string;
-  project_url?: string;
-  additional_materials_url?: string;
-  event_id: string;
-}
+import FeedbackForm from "@/components/feedback/FeedbackForm";
+import { Project } from "@/lib/types";
 
 export default function ProjectPage({
   params,
@@ -87,12 +77,17 @@ export default function ProjectPage({
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 mb-6">
-          <Button onClick={() => router.push("/my-project-gallery")} variant="outline">
+          <Button
+            onClick={() => router.push("/my-project-gallery")}
+            variant="outline"
+          >
             ← Back to Projects
           </Button>
           <Button
             onClick={() =>
-              router.push(`/my-project-gallery/${resolvedParams.projectId}/dashboard`)
+              router.push(
+                `/my-project-gallery/${resolvedParams.projectId}/dashboard`
+              )
             }
             variant="outline"
             className="flex items-center gap-2"

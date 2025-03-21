@@ -20,30 +20,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import UserSearch from '@/components/utils/UserSearch';
+import UserSearch from "@/components/utils/UserSearch";
 import { Card } from "@/components/ui/card";
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  teammates: string[];
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-  cover_image_url?: string | null;
-}
-
-interface FeedbackItem {
-  id: string;
-  project_id: string;
-  mentor_name: string;
-  mentor_email?: string;
-  feedback_text: string;
-  rating: number;
-  created_at: string;
-}
+import { Project, FeedbackItem } from "@/lib/types";
 
 interface ProjectDashboardSectionProps {
   eventId: string;
@@ -55,10 +34,10 @@ export default function ProjectDashboardSection({
   projectId,
 }: ProjectDashboardSectionProps) {
   const router = useRouter();
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [editedData, setEditedData] = useState<Project | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
@@ -81,7 +60,7 @@ export default function ProjectDashboardSection({
       });
 
       // Only redirect if we're on the project page
-      if (!window.location.pathname.includes('/events/')) {
+      if (!window.location.pathname.includes("/events/")) {
         router.push(`/my-project-gallery`);
       }
     } catch (error) {
@@ -148,7 +127,9 @@ export default function ProjectDashboardSection({
           lead_email,
           project_url,
           additional_materials_url,
-          cover_image_url
+          cover_image_url,
+          event_id,
+          created_at
         `
         )
         .eq("id", projectId)
@@ -158,8 +139,8 @@ export default function ProjectDashboardSection({
         console.error("Error fetching project:", error);
         notFound();
       } else {
-        setProjectData(data);
-        setEditedData(data);
+        setProjectData(data as Project);
+        setEditedData(data as Project);
         if (data.additional_materials_url) {
           setCurrentFileName(getFileNameFromUrl(data.additional_materials_url));
         }
@@ -422,7 +403,7 @@ export default function ProjectDashboardSection({
         <div
           className="w-full h-[200px] bg-[#000080] bg-cover bg-center"
           style={{
-            backgroundImage: `url(${projectData.cover_image_url})`
+            backgroundImage: `url(${projectData.cover_image_url})`,
           }}
         />
       ) : (
@@ -530,39 +511,49 @@ export default function ProjectDashboardSection({
                 <div>
                   <span className="font-bold text-gray-800">Teammates:</span>{" "}
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {projectData.teammates.map((teammate, index) => {
-                      const colors = ["blue", "deepskyblue", "royalblue", "teal"];
-                      const color = colors[index % colors.length];
-                      let className = "";
+                    {projectData.teammates?.map(
+                      (teammate: string, index: number) => {
+                        const colors = [
+                          "blue",
+                          "deepskyblue",
+                          "royalblue",
+                          "teal",
+                        ];
+                        const color = colors[index % colors.length];
+                        let className = "";
 
-                      switch (color) {
-                        case "deepskyblue":
-                          className =
-                            "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
-                          break;
-                        case "blue":
-                          className =
-                            "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
-                          break;
-                        case "teal":
-                          className =
-                            "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
-                          break;
-                        case "royalblue":
-                          className =
-                            "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
-                          break;
-                        default:
-                          className =
-                            "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
+                        switch (color) {
+                          case "deepskyblue":
+                            className =
+                              "inline-flex items-center rounded-full bg-sky-200 px-2 py-1 text-xs font-medium text-sky-800";
+                            break;
+                          case "blue":
+                            className =
+                              "inline-flex items-center rounded-full bg-blue-200 px-2 py-1 text-xs font-medium text-blue-800";
+                            break;
+                          case "teal":
+                            className =
+                              "inline-flex items-center rounded-full bg-teal-200 px-2 py-1 text-xs font-medium text-teal-800";
+                            break;
+                          case "royalblue":
+                            className =
+                              "inline-flex items-center rounded-full bg-blue-300 px-2 py-1 text-xs font-medium text-blue-900";
+                            break;
+                          default:
+                            className =
+                              "inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600";
+                        }
+
+                        return (
+                          <span
+                            key={`${teammate}-${index}`}
+                            className={className}
+                          >
+                            {teammate}
+                          </span>
+                        );
                       }
-
-                      return (
-                        <span key={`${teammate}-${index}`} className={className}>
-                          {teammate}
-                        </span>
-                      );
-                    })}
+                    )}
                   </div>
                 </div>
                 <div className="bg-blue-100/70 p-4 rounded-lg">
@@ -701,7 +692,7 @@ export default function ProjectDashboardSection({
                             onClick={() => {
                               setEditedData((prev) => ({
                                 ...prev!,
-                                additional_materials_url: null,
+                                additional_materials_url: undefined,
                               }));
                               setCurrentFileName(null);
                             }}
@@ -711,13 +702,15 @@ export default function ProjectDashboardSection({
                           </Button>
                         </div>
                       )}
-                    {(!editedData?.additional_materials_url || selectedFile) && (
+                    {(!editedData?.additional_materials_url ||
+                      selectedFile) && (
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
                           {!editedData?.additional_materials_url ? (
                             <input
                               key={
-                                editedData?.additional_materials_url || "new-file"
+                                editedData?.additional_materials_url ||
+                                "new-file"
                               }
                               type="file"
                               onChange={(e) => {
@@ -728,7 +721,7 @@ export default function ProjectDashboardSection({
                                   setCurrentFileName(file.name);
                                   setEditedData((prev) => ({
                                     ...prev!,
-                                    additional_materials_url: null,
+                                    additional_materials_url: undefined,
                                   }));
                                 }
                               }}
@@ -750,7 +743,7 @@ export default function ProjectDashboardSection({
                                     setSelectedFile(files[0]);
                                     setEditedData((prev) => ({
                                       ...prev!,
-                                      additional_materials_url: null,
+                                      additional_materials_url: undefined,
                                     }));
                                   }
                                 };
@@ -779,7 +772,7 @@ export default function ProjectDashboardSection({
                               setEditedData((prev) => ({
                                 ...prev!,
                                 additional_materials_url:
-                                  projectData?.additional_materials_url || null,
+                                  projectData?.additional_materials_url,
                               }));
                             }}
                             className="px-2 py-1"

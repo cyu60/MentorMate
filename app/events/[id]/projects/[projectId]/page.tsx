@@ -11,32 +11,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Navbar } from '@/components/layout/navbar';
-import UserSearch from '@/components/utils/UserSearch';
+import { Navbar } from "@/components/layout/navbar";
+import UserSearch from "@/components/utils/UserSearch";
 import { fetchProjectById } from "@/lib/helpers/projects";
 import { Project } from "@/lib/types";
 
 type EditableProjectData = Project;
 
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  teammates: string[];
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-}
-
 export default function ProjectDetails() {
   const params = useParams();
   const eventId = params?.id as string;
   const projectId = params?.projectId as string;
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [editedData, setEditedData] = useState<Project | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
@@ -304,7 +293,7 @@ export default function ProjectDetails() {
                 <div>
                   <span className="font-bold text-gray-800">Teammates:</span>{" "}
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {projectData.teammates.map((teammate, index) => (
+                    {projectData.teammates?.map((teammate, index) => (
                       <span
                         key={`${teammate}-${index}`}
                         className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
@@ -366,7 +355,7 @@ export default function ProjectDetails() {
                   <Input
                     value={editedData?.project_name}
                     onChange={(e) =>
-                      setEditedData((prev) => ({
+                      setEditedData((prev: Project | null) => ({
                         ...prev!,
                         project_name: e.target.value,
                       }))
@@ -385,7 +374,7 @@ export default function ProjectDetails() {
                       <Input
                         value={editedData?.lead_name}
                         onChange={(e) =>
-                          setEditedData((prev) => ({
+                          setEditedData((prev: Project | null) => ({
                             ...prev!,
                             lead_name: e.target.value,
                           }))
@@ -400,7 +389,7 @@ export default function ProjectDetails() {
                         type="email"
                         value={editedData?.lead_email}
                         onChange={(e) =>
-                          setEditedData((prev) => ({
+                          setEditedData((prev: Project | null) => ({
                             ...prev!,
                             lead_email: e.target.value,
                           }))
@@ -417,7 +406,7 @@ export default function ProjectDetails() {
                     type="url"
                     value={editedData?.project_url || ""}
                     onChange={(e) =>
-                      setEditedData((prev) => ({
+                      setEditedData((prev: Project | null) => ({
                         ...prev!,
                         project_url: e.target.value,
                       }))
@@ -446,9 +435,9 @@ export default function ProjectDetails() {
                           variant="destructive"
                           size="sm"
                           onClick={() => {
-                            setEditedData((prev) => ({
+                            setEditedData((prev: Project | null) => ({
                               ...prev!,
-                              additional_materials_url: null,
+                              additional_materials_url: undefined,
                             }));
                             setCurrentFileName(null);
                           }}
@@ -483,7 +472,7 @@ export default function ProjectDetails() {
                     allTags={availableUsers}
                     initialTags={editedData?.teammates || []}
                     onTagsChange={(teammates) =>
-                      setEditedData((prev) => ({
+                      setEditedData((prev: Project | null) => ({
                         ...prev!,
                         teammates,
                       }))
@@ -497,7 +486,7 @@ export default function ProjectDetails() {
                   <Textarea
                     value={editedData?.project_description}
                     onChange={(e) =>
-                      setEditedData((prev) => ({
+                      setEditedData((prev: Project | null) => ({
                         ...prev!,
                         project_description: e.target.value,
                       }))

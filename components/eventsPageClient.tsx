@@ -3,24 +3,14 @@
 import { useState, useMemo } from "react";
 import { EventsList } from "@/components/events/events-list";
 import { Input } from "@/components/ui/input";
+import { EventsPageClientProps } from "@/lib/types";
+import { UI_TEXT, DEFAULT_VALUES } from "@/lib/constants";
 // import { DateRangePicker } from "react-date-range";
 // import "react-date-range/dist/styles.css";
-// import "react-date-range/dist/theme/default.css"; 
-
-type EventItem = {
-  event_id: string;
-  event_name: string;
-  event_date: string;
-  location: string;
-  cover_image_url?: string;
-};
-
-interface EventsPageClientProps {
-  eventsList: EventItem[];
-}
+// import "react-date-range/dist/theme/default.css";
 
 export function EventsPageClient({ eventsList }: EventsPageClientProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(DEFAULT_VALUES.SEARCH_TERM);
   // Default date range to today for both start and end.
   // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
   //   start: new Date().toISOString().split("T")[0],
@@ -77,12 +67,12 @@ export function EventsPageClient({ eventsList }: EventsPageClientProps) {
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <Input
           type="text"
-          placeholder="Search hackathons..."
+          placeholder={UI_TEXT.SEARCH_PLACEHOLDER}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
         />
-        
+
         {/* <div className="relative w-full md:w-1/4">
           <div
             className="border border-gray-300 rounded px-3 py-2 w-full h-10 cursor-pointer bg-white flex items-center"
@@ -117,7 +107,7 @@ export function EventsPageClient({ eventsList }: EventsPageClientProps) {
             </div>
           )}
         </div> */}
-      </div> 
+      </div>
 
       {/* Render Filtered Events */}
       <EventsList events={filteredEvents} />
@@ -125,7 +115,7 @@ export function EventsPageClient({ eventsList }: EventsPageClientProps) {
       {/* Empty State */}
       {filteredEvents.length === 0 && (
         <p className="text-center text-muted-foreground mt-4">
-          No events found for the selected filters.
+          {UI_TEXT.NO_EVENTS_FOUND}
         </p>
       )}
     </div>

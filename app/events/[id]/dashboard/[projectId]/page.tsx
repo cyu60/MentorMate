@@ -21,24 +21,14 @@ import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/layout/navbar";
 import UserSearch from "@/components/utils/UserSearch";
-
-interface ProjectData {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  teammates: string[];
-  project_url?: string | null;
-  additional_materials_url?: string | null;
-}
+import { Project } from "@/lib/types";
 
 export default function ParticipantDashboard() {
   const { projectId, id: eventId } = useParams();
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<ProjectData | null>(null);
+  const [editedData, setEditedData] = useState<Project | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
@@ -451,7 +441,7 @@ export default function ParticipantDashboard() {
                   <div>
                     <span className="font-bold text-gray-800">Teammates:</span>{" "}
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {projectData.teammates.map((teammate, index) => {
+                      {projectData.teammates?.map((teammate, index) => {
                         const colors = [
                           "blue",
                           "deepskyblue",
@@ -630,7 +620,7 @@ export default function ParticipantDashboard() {
                               onClick={() => {
                                 setEditedData((prev) => ({
                                   ...prev!,
-                                  additional_materials_url: null,
+                                  additional_materials_url: undefined,
                                 }));
                                 setCurrentFileName(null);
                               }}
@@ -659,7 +649,7 @@ export default function ParticipantDashboard() {
                                     setCurrentFileName(file.name);
                                     setEditedData((prev) => ({
                                       ...prev!,
-                                      additional_materials_url: null,
+                                      additional_materials_url: undefined,
                                     }));
                                   }
                                 }}
@@ -681,7 +671,7 @@ export default function ParticipantDashboard() {
                                       setSelectedFile(files[0]);
                                       setEditedData((prev) => ({
                                         ...prev!,
-                                        additional_materials_url: null,
+                                        additional_materials_url: undefined,
                                       }));
                                     }
                                   };
@@ -711,7 +701,7 @@ export default function ParticipantDashboard() {
                                   ...prev!,
                                   additional_materials_url:
                                     projectData?.additional_materials_url ||
-                                    null,
+                                    undefined,
                                 }));
                               }}
                               className="px-2 py-1"
