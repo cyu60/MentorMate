@@ -26,7 +26,7 @@ interface Project {
 type ProjectBoardProps  = {
     isLoading: boolean,
     projectList: Project[],
-    session?: Session,
+    session?: Session | null,
     projectBoardContext: ProjectBoardContext
 };
 
