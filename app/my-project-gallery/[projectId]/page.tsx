@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from '@/components/layout/navbar';
+import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import FeedbackForm from '@/components/feedback/FeedbackForm';
+import FeedbackForm from "@/components/feedback/FeedbackForm";
 
 interface Project {
   id: string;
@@ -87,12 +87,17 @@ export default function ProjectPage({
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 mb-6">
-          <Button onClick={() => router.push("/my-project-gallery")} variant="outline">
+          <Button
+            onClick={() => router.push("/my-project-gallery")}
+            variant="outline"
+          >
             ← Back to Projects
           </Button>
           <Button
             onClick={() =>
-              router.push(`/my-project-gallery/${resolvedParams.projectId}/dashboard`)
+              router.push(
+                `/my-project-gallery/${resolvedParams.projectId}/dashboard`
+              )
             }
             variant="outline"
             className="flex items-center gap-2"
@@ -111,6 +116,7 @@ export default function ProjectPage({
             project_url={project.project_url}
             additional_materials_url={project.additional_materials_url}
             eventId={project.event_id}
+            showMetadata={true}
           />
         </div>
       </div>
