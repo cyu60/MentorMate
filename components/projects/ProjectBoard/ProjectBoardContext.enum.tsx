@@ -1,6 +1,5 @@
 /*
-    This dictates the 'enviornment' the project board is being used in, e.g. being used in the 'my projects' page
-        versus an event gallery.
+    This dictates the 'enviornment' the project board is being used in, e.g. being used in the 'my projects' page versus an event gallery.
 
     MyProjects: Indicates that the ProjectBoard is being used in the 'My projects' page.
     EventGallery: Indicates that the ProjectBoard is being used as an event gallery (i.e. for a specific hackathon).
@@ -14,4 +13,4 @@
 export enum ProjectBoardContext {
     MyProjects,
     EventGallery
-  }
+}

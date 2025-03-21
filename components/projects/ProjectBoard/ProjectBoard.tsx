@@ -22,7 +22,6 @@ interface Project {
     cover_image_url?: string;
 }
 
-
 type ProjectBoardProps  = {
     isLoading: boolean,
     projectList: Project[],
@@ -30,7 +29,7 @@ type ProjectBoardProps  = {
     projectBoardContext: ProjectBoardContext
 };
 
-const ProjectBoard = ( {isLoading, projectList, session, projectBoardContext}: ProjectBoardProps ) => {
+const ProjectBoard = ({ isLoading, projectList, session, projectBoardContext }: ProjectBoardProps) => {
     return (
         <>
             {isLoading ? (
@@ -45,53 +44,52 @@ const ProjectBoard = ( {isLoading, projectList, session, projectBoardContext}: P
                     className="mx-auto"
                 >
                     {projectList.length > 0 ? (
-                        projectList.map((projectList) => (
-                            <Card key={projectList.id} className="overflow-hidden shadow-lg">
-                                {/* Cover Image */}
-                                <div 
-                                    className="h-48 w-full bg-gray-200"
-                                    style={
-                                        projectList.cover_image_url
-                                        ? {
-                                            backgroundImage: `url(${projectList.cover_image_url})`,
-                                            backgroundSize: "cover",
-                                            backgroundPosition: "center",
+                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {projectList.map((project) => (
+                                <Card key={project.id} className="overflow-hidden shadow-lg">
+                                    {/* Cover Image */}
+                                    <div 
+                                        className="h-48 w-full bg-gray-200"
+                                        style={
+                                            project.cover_image_url
+                                            ? {
+                                                backgroundImage: `url(${project.cover_image_url})`,
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center",
+                                            }
+                                            : {}
                                         }
-                                        : {}
-                                    }
-                                />
-                                <div className="p-6 space-y-4">
-                                    <div className="flex justify-between items-center">
-                                        <CardTitle className="text-xl font-semibold">
-                                            {projectList.project_name}
-                                        </CardTitle>
+                                    />
+                                    <div className="p-6 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <CardTitle className="text-xl font-semibold">
+                                                {project.project_name}
+                                            </CardTitle>
 
-                                        {/* Display this span if in MyProjects to distinguish between Owner or Team Member */}
-                                        {
-                                            projectBoardContext === ProjectBoardContext.MyProjects &&
-                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                                {projectList.lead_email === session?.user?.email ? "Owner" : "Team Member"}
-                                            </span>
-                                        }
-
-                                        
+                                            {/* Display this span if in MyProjects to distinguish between Owner or Team Member */}
+                                            {projectBoardContext === ProjectBoardContext.MyProjects && (
+                                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                    {project.lead_email === session?.user?.email ? "Owner" : "Team Member"}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-gray-500">
+                                            Lead: {project.lead_name}
+                                        </p>
+                                        <CardDescription className="text-gray-600 text-sm">
+                                            {project.project_description.length > 100
+                                                ? project.project_description.slice(0, 100) + "..."
+                                                : project.project_description}
+                                        </CardDescription>
+                                        <Link href={`/my-projects/${project.id}/dashboard`} className="block">
+                                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
+                                                View Project
+                                            </Button>
+                                        </Link>
                                     </div>
-                                    <p className="text-sm text-gray-500">
-                                        Lead: {projectList.lead_name}
-                                    </p>
-                                    <CardDescription className="text-gray-600 text-sm">
-                                        {projectList.project_description.length > 100
-                                            ? projectList.project_description.slice(0, 100) + "..."
-                                            : projectList.project_description}
-                                    </CardDescription>
-                                    <Link href={`/my-projects/${projectList.id}/dashboard`} className="block">
-                                        <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
-                                            View Project
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </Card>
-                        ))
+                                </Card>
+                            ))}
+                        </div>
                     ) : (
                         <>
                             {(() => {
@@ -121,7 +119,6 @@ const ProjectBoard = ( {isLoading, projectList, session, projectBoardContext}: P
                         </>
                     )}
                 </motion.div>
-
             )}
         </>
     )
