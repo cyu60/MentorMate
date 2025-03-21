@@ -125,7 +125,7 @@ export default function GalleryPage() {
                       </div>
                     </div>
                     <Link
-                      href={`/public-project/${project.id}`}
+                      href={`/public-project-details/${project.id}`}
                       target="_blank"
                     >
                       <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">

@@ -113,7 +113,7 @@ export default function PublicProjectPage() {
     );
   }
 
-  const fullUrl = `${window.location.origin}/public-project/${projectId}`;
+  const fullUrl = `${window.location.origin}/public-project-details/${projectId}`;
 
   return (
     <div className="min-h-screen bg-blue-50">
