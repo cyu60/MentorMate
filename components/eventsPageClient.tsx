@@ -66,7 +66,7 @@ export function EventsPageClient({ eventsList }: EventsPageClientProps) {
       // Return only the name match (date filtering is disabled)
       return nameMatch; // && dateMatch;
     });
-  }, [eventsList]);
+  }, [eventsList, searchTerm]);
 
   // Display formatted date range in the input-like field
   // const formattedDateRange = `${dateRange.start} to ${dateRange.end}`;

@@ -93,7 +93,7 @@ export default function MyProjectsPage() {
         <ProjectBoard
           isLoading={isLoading} 
           projectList={projects} 
-          session={session}
+          session={session ?? undefined}
           projectBoardContext={ProjectBoardContext.MyProjects}
         />
       </div>
