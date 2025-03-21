@@ -79,6 +79,7 @@ interface FeedbackFormProps {
   additional_materials_url?: string | null;
   eventId: string;
   noBorder?: boolean;
+  showMetadata?: boolean;
 }
 
 export default function FeedbackForm({
@@ -91,6 +92,7 @@ export default function FeedbackForm({
   additional_materials_url,
   eventId,
   noBorder = false,
+  showMetadata = false,
 }: FeedbackFormProps) {
   const [feedback, setFeedback] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -583,53 +585,57 @@ export default function FeedbackForm({
           noBorder ? "" : "shadow-lg"
         } rounded-lg`}
       >
-        <div className="p-4">
-          <h2 className="text-blue-900 text-2xl font-semibold">
-            {projectName}
-          </h2>
-          <p className="text-black text-md">{projectDescription}</p>
-          <p className="text-black text-sm font-bold">Submitted by:</p>
-          <div className="ml-4 space-y-1 mt-1">
-            <p className="text-black text-sm">
-              <span className="font-bold text-gray-600">Name:</span>{" "}
-              <span className="text-gray-700">{projectLeadName}</span>
-            </p>
-            <p className="text-black text-sm">
-              <span className="font-bold text-gray-600">Email:</span>{" "}
-              <span className="text-gray-700">{projectLeadEmail}</span>
-            </p>
-          </div>
-        </div>
+        {showMetadata && (
+          <>
+            <div className="p-4">
+              <h2 className="text-blue-900 text-2xl font-semibold">
+                {projectName}
+              </h2>
+              <p className="text-black text-md">{projectDescription}</p>
+              <p className="text-black text-sm font-bold">Submitted by:</p>
+              <div className="ml-4 space-y-1 mt-1">
+                <p className="text-black text-sm">
+                  <span className="font-bold text-gray-600">Name:</span>{" "}
+                  <span className="text-gray-700">{projectLeadName}</span>
+                </p>
+                <p className="text-black text-sm">
+                  <span className="font-bold text-gray-600">Email:</span>{" "}
+                  <span className="text-gray-700">{projectLeadEmail}</span>
+                </p>
+              </div>
+            </div>
 
-        {(project_url || additional_materials_url) && (
-          <div className="p-4 space-y-2">
-            {project_url && (
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-4 h-4 text-gray-600" />
-                <a
-                  href={project_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  View Project Repository
-                </a>
+            {(project_url || additional_materials_url) && (
+              <div className="p-4 space-y-2">
+                {project_url && (
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4 text-gray-600" />
+                    <a
+                      href={project_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Project Repository
+                    </a>
+                  </div>
+                )}
+                {additional_materials_url && (
+                  <div className="flex items-center gap-2">
+                    <Download className="w-4 h-4 text-gray-600" />
+                    <a
+                      href={additional_materials_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Download Project Materials
+                    </a>
+                  </div>
+                )}
               </div>
             )}
-            {additional_materials_url && (
-              <div className="flex items-center gap-2">
-                <Download className="w-4 h-4 text-gray-600" />
-                <a
-                  href={additional_materials_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  Download Project Materials
-                </a>
-              </div>
-            )}
-          </div>
+          </>
         )}
 
         {!session && (

@@ -9,19 +9,20 @@ import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext } from "@/components/projects/ProjectBoard/ProjectBoardContext.enum";
+import { useEventRegistration } from "@/components/event-registration-provider";
 
 interface Project {
-    id: string;
-    project_name: string;
-    project_description: string;
-    lead_name: string;
-    lead_email: string;
-    teammates?: string[];
-    event_id: string;
-    created_at: string;
-    project_url?: string;
-    additional_materials_url?: string;
-    cover_image_url?: string;
+  id: string;
+  project_name: string;
+  project_description: string;
+  lead_name: string;
+  lead_email: string;
+  teammates?: string[];
+  event_id: string;
+  created_at: string;
+  project_url?: string;
+  additional_materials_url?: string;
+  cover_image_url?: string;
 }
 
 export default function GalleryPage() {
@@ -30,6 +31,7 @@ export default function GalleryPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const { isRegistered } = useEventRegistration();
 
   // Sets 'projects' state to a list of projects the event_id is associated with
   useEffect(() => {
@@ -55,36 +57,39 @@ export default function GalleryPage() {
   const filteredProjects = projects.filter(
     (project) =>
       project.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.project_description.toLowerCase().includes(searchQuery.toLowerCase())
+      project.project_description
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
-        <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
-            <Link href={`/events/${eventId}/projects`}>
-                <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Submit Project
-                </Button>
-            </Link>
-        </div>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
+        {isRegistered && (
+          <Link href={`/events/${eventId}/projects`}>
+            <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Submit Project
+            </Button>
+          </Link>
+        )}
+      </div>
 
-        <div className="mb-8">
-            <Input
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full p-3 border rounded-md"
-            />
-        </div>
-
-        <ProjectBoard 
-            isLoading={isLoading}
-            projectList={filteredProjects}
-            projectBoardContext={ProjectBoardContext.EventGallery}
+      <div className="mb-8">
+        <Input
+          placeholder="Search projects..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-3 border rounded-md"
         />
+      </div>
 
+      <ProjectBoard
+        isLoading={isLoading}
+        projectList={filteredProjects}
+        projectBoardContext={ProjectBoardContext.EventGallery}
+      />
     </div>
   );
 }
