@@ -81,11 +81,28 @@ const ProjectBoard = ({ isLoading, projectList, session, projectBoardContext }: 
                                                 ? project.project_description.slice(0, 100) + "..."
                                                 : project.project_description}
                                         </CardDescription>
-                                        <Link href={`/my-projects/${project.id}/dashboard`} className="block">
-                                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
-                                                View Project
-                                            </Button>
-                                        </Link>
+
+                                        {(() => {
+                                            switch (projectBoardContext) {
+                                                case ProjectBoardContext.MyProjects:
+                                                    return (
+                                                        <Link href={`/my-project-gallery/${project.id}/dashboard`} className="block">
+                                                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
+                                                                View Project
+                                                            </Button>
+                                                        </Link>
+                                                    );
+                                                case ProjectBoardContext.EventGallery:
+                                                    return (
+                                                        <Link href={`/public-project-details/${project.id}`} target="_blank">
+                                                            <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                                                                View Details
+                                                            </Button>
+                                                        </Link>
+
+                                                    );
+                                            }
+                                        })()}
                                     </div>
                                 </Card>
                             ))}

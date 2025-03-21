@@ -39,7 +39,7 @@ export default function ProjectPage({
 
       if (error) {
         console.error("Error fetching project:", error);
-        router.push("/my-projects");
+        router.push("/my-project-gallery");
         return;
       }
 
@@ -71,7 +71,7 @@ export default function ProjectPage({
               Project not found
             </h1>
             <Button
-              onClick={() => router.push("/my-projects")}
+              onClick={() => router.push("/my-project-gallery")}
               className="mt-4"
             >
               Return to Projects
@@ -87,12 +87,12 @@ export default function ProjectPage({
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 mb-6">
-          <Button onClick={() => router.push("/my-projects")} variant="outline">
+          <Button onClick={() => router.push("/my-project-gallery")} variant="outline">
             ← Back to Projects
           </Button>
           <Button
             onClick={() =>
-              router.push(`/my-projects/${resolvedParams.projectId}/dashboard`)
+              router.push(`/my-project-gallery/${resolvedParams.projectId}/dashboard`)
             }
             variant="outline"
             className="flex items-center gap-2"

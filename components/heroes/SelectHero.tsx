@@ -30,7 +30,7 @@ export function SelectHero() {
     if (!session) {
       router.push("/login");
     } else {
-      router.push("/my-projects");
+      router.push("/my-project-gallery");
     }
   };
 

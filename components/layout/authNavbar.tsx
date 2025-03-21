@@ -147,7 +147,7 @@ export function AuthNavbar() {
             Events
           </Link>
           <Link
-            href="/my-projects"
+            href="/my-project-gallery"
             className="block py-2 font-semibold"
             onClick={() => setIsOpen(false)}
           >

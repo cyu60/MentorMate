@@ -82,7 +82,7 @@ export default function ProjectDashboardSection({
 
       // Only redirect if we're on the project page
       if (!window.location.pathname.includes('/events/')) {
-        router.push(`/my-projects`);
+        router.push(`/my-project-gallery`);
       }
     } catch (error) {
       console.error("Error deleting project:", error);

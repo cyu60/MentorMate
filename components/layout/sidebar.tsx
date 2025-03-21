@@ -29,7 +29,7 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { name: "Events", href: "/events", icon: Calendar },
-  { name: "My Projects", href: "/my-projects", icon: Folder },
+  { name: "My Projects", href: "/my-project-gallery", icon: Folder },
   {
     name: "Feedback Given",
     href: "/feedback/given",
