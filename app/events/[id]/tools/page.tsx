@@ -2,11 +2,10 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 import { Lightbulb, Pencil, Globe } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function ToolsPage() {
-  const router = useRouter()
 
   const tools = [
     {
@@ -29,6 +28,12 @@ export default function ToolsPage() {
     }
   ]
 
+  const handleToolClick = (href: string) => {
+    toast("Features are coming soon!")
+    console.log("Tool href:", href)
+    // router.push(`./${href}`)
+  }
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Project Tools</h1>
@@ -46,7 +51,7 @@ export default function ToolsPage() {
                 </div>
                 <p className="text-gray-600 mb-6 flex-grow">{tool.description}</p>
                 <Button 
-                  onClick={() => router.push(`./${tool.href}`)}
+                  onClick={() => handleToolClick(tool.href)}
                   className="w-full bg-black text-white hover:bg-black/90"
                 >
                   Launch Tool

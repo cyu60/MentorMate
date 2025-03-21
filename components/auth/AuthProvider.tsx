@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const BASE_PUBLIC_PATHS = ["/", "/login", "/select", "/auth/callback", "/about", "/teams"];
     return [
       ...BASE_PUBLIC_PATHS,
-      /^\/public-project($|\/.*$)/, // Matches /public-project and all its sub-routes
+      /^\/public-project-details($|\/.*$)/, // Matches /public-project and all its sub-routes
     ];
   }, []);
 
