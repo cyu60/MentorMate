@@ -4,25 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useEventRegistration } from "@/components/event-registration-provider";
 
 const navItems = [
-  { name: "Overview", href: "/overview" },
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Participants", href: "/participants/public" },
-  { name: "Gallery", href: "/gallery" },
-  { name: "Feed", href: "/feed/public" },
-  { name: "Tools", href: "/tools"}
+  { name: "Overview", href: "/overview", public: true },
+  { name: "Dashboard", href: "/dashboard", public: false },
+  { name: "Participants", href: "/participants/public", public: false },
+  { name: "Gallery", href: "/gallery", public: false },
+  { name: "Feed", href: "/feed/public", public: false },
+  { name: "Tools", href: "/tools", public: false },
 ];
 
 export function HackathonNav({ id }: { id: string }) {
   const pathname = usePathname();
   const basePath = `/events/${id}`;
+  const { isRegistered } = useEventRegistration();
+
+  const visibleNavItems = navItems.filter(
+    (item) => item.public || isRegistered
+  );
 
   return (
     <nav className="w-full">
       <div className="overflow-x-auto py-10">
         <ul className="flex space-x-6 px-4 border-gray-200/30">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === `${basePath}${item.href}`;
             return (
               <motion.li

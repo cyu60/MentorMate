@@ -106,6 +106,7 @@ export default function ProjectPage({
             project_url={project.project_url}
             additional_materials_url={project.additional_materials_url}
             eventId={project.event_id}
+            showMetadata={true}
           />
         </div>
       </div>

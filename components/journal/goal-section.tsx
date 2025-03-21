@@ -14,7 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
-import { Pencil, CheckCircle2, XCircle } from "lucide-react";
+import { Pencil, CheckCircle2 } from "lucide-react";
 
 // Initialize Supabase client once at module level
 const supabase = createClient();
@@ -41,7 +41,9 @@ const goalRecommendations = [
   "Conduct user research with 3 target users and document key insights by [date]",
 ];
 
-export default function GoalSection({ eventId: propEventId }: GoalSectionProps) {
+export default function GoalSection({
+  eventId: propEventId,
+}: GoalSectionProps) {
   const params = useParams();
   const eventId = propEventId || (params.id as string);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -309,7 +311,10 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
       <Card className="w-full bg-white shadow-lg rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between bg-blue-900 text-white p-4 rounded-t-xl">
           <CardTitle className="text-2xl font-bold">Your Goals</CardTitle>
-          <Button onClick={handleSetGoal} className="bg-black hover:bg-black/90 text-white rounded-full px-4 py-2">
+          <Button
+            onClick={handleSetGoal}
+            className="bg-black hover:bg-black/90 text-white rounded-full px-4 py-2"
+          >
             Set Goal
           </Button>
         </CardHeader>
@@ -317,26 +322,33 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
           {goals.length === 0 ? (
             <p className="text-gray-600 text-center">
               You haven&apos;t set any goals yet. Click{" "}
-              <span className="font-medium text-gray-800">Set Goal</span> to get started!
+              <span className="font-medium text-gray-800">Set Goal</span> to get
+              started!
             </p>
           ) : (
-            <ul className="space-y-6">
+            <ul className="space-y-4">
               {goals.map((goal) => (
                 <li
                   key={goal.id}
-                  className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow transition-shadow"
+                  className={`p-4 rounded-lg transition-all ${
+                    goal.status === "completed"
+                      ? "bg-green-50"
+                      : "bg-white hover:bg-gray-50"
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {goal.status === "completed" ? (
-                        <div className="flex items-center gap-1 text-green-600">
+                        <div className="flex items-center gap-2 text-green-600">
                           <CheckCircle2 className="h-5 w-5" />
-                          <span className="text-sm font-semibold">Finalized</span>
+                          <span className="text-sm font-medium">Done</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1 text-yellow-500">
-                          <XCircle className="h-5 w-5" />
-                          <span className="text-sm font-semibold">Draft</span>
+                        <div className="flex items-center gap-2 text-gray-500">
+                          <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+                          <span className="text-sm font-medium">
+                            In Progress
+                          </span>
                         </div>
                       )}
                     </div>
@@ -344,13 +356,16 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
                       <Button
                         size="sm"
                         onClick={() => handleToggleStatus(goal)}
+                        variant="ghost"
                         className={
                           goal.status === "completed"
-                            ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                            : "bg-green-600 hover:bg-green-700 text-white"
+                            ? "text-green-600 hover:text-green-700 hover:bg-green-50"
+                            : "text-gray-600 hover:text-gray-700 hover:bg-gray-50"
                         }
                       >
-                        {goal.status === "completed" ? "Reopen Entry" : "Finalize Entry"}
+                        {goal.status === "completed"
+                          ? "Mark as Not Done"
+                          : "Mark as Done"}
                       </Button>
                       <Button
                         size="sm"
@@ -367,14 +382,14 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
                       <textarea
                         value={editedContent}
                         onChange={(e) => setEditedContent(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded resize-none"
+                        className="w-full p-2 border border-gray-300 rounded resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows={4}
                       />
                       <div className="mt-2 flex gap-2">
                         <Button
                           size="sm"
                           onClick={() => handleSaveEdit(goal.id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           Save
                         </Button>
@@ -382,14 +397,13 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
                           size="sm"
                           variant="outline"
                           onClick={() => setEditingGoalId(null)}
-                          className="px-4 py-2 rounded"
                         >
                           Cancel
                         </Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <p className="text-gray-800 whitespace-pre-wrap">
                         {goal.content}
                       </p>
@@ -408,7 +422,9 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Set a New Goal</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              Set a New Goal
+            </DialogTitle>
           </DialogHeader>
           <div className="mt-4 space-y-6">
             <Input
@@ -421,7 +437,9 @@ export default function GoalSection({ eventId: propEventId }: GoalSectionProps) 
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-400"
             />
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Recommendations:</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                Recommendations:
+              </h4>
               <ul className="space-y-2">
                 {goalRecommendations.map((rec, index) => (
                   <li
