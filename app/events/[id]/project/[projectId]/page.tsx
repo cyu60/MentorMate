@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
-import { Navbar } from "@/components/layout/navbar";
+import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Project } from "@/lib/types";
 
 export default function ProjectFeedbackPage() {
@@ -50,7 +50,7 @@ export default function ProjectFeedbackPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-100/80">
-      <Navbar />
+      <AuthNavbar />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
           Project Feedback

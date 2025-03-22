@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Navbar } from '@/components/layout/navbar';
+import { AuthNavbar } from '@/components/layout/authNavbar';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -24,7 +24,7 @@ export default function ProjectDashboard() {
 
   return (
     <div>
-      <Navbar />
+      <AuthNavbar />
       <div className="relative flex flex-col items-center justify-start min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80 pb-10 pt-16">
         <div className="w-full max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-6">
