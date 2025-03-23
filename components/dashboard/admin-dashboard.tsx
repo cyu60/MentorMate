@@ -1,7 +1,7 @@
 //TODO: fix this page based on the event schema and the roles information
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Table,
@@ -36,13 +36,7 @@ export function AdminDashboard({ event }: AdminDashboardProps) {
   const [mentors, setMentors] = useState<MentorType[]>([]);
   const [feedback, setFeedback] = useState<ExtendedFeedback[]>([]);
 
-  useEffect(() => {
-    fetchProjects();
-    fetchMentors();
-    fetchFeedbackWithProjects();
-  }, [event]);
-
-  async function fetchProjects() {
+  const fetchProjects = useCallback(async () => {
     const query = supabase
       .from("projects")
       .select("*")
@@ -59,9 +53,9 @@ export function AdminDashboard({ event }: AdminDashboardProps) {
     } else {
       setProjects(data || []);
     }
-  }
+  }, [event]);
 
-  async function fetchMentors() {
+  const fetchMentors = useCallback(async () => {
     const { data, error } = await supabase
       .from("mentors")
       .select("*")
@@ -72,9 +66,9 @@ export function AdminDashboard({ event }: AdminDashboardProps) {
     } else {
       setMentors(data || []);
     }
-  }
+  }, []);
 
-  async function fetchFeedbackWithProjects() {
+  const fetchFeedbackWithProjects = useCallback(async () => {
     const query = supabase
       .from("feedback")
       .select(
@@ -105,7 +99,13 @@ export function AdminDashboard({ event }: AdminDashboardProps) {
         })) || [];
       setFeedback(formattedData);
     }
-  }
+  }, [event]);
+
+  useEffect(() => {
+    fetchProjects();
+    fetchMentors();
+    fetchFeedbackWithProjects();
+  }, [fetchProjects, fetchFeedbackWithProjects]);
 
   return (
     <Tabs defaultValue="projects" className="space-y-4">
