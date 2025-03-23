@@ -5,23 +5,92 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useEventRegistration } from "@/components/event-registration-provider";
+import { EventRole } from "@/lib/types";
 
 const navItems = [
-  { name: "Overview", href: "/overview", public: true },
-  { name: "Dashboard", href: "/dashboard", public: false },
-  { name: "Participants", href: "/participants/public", public: false },
-  { name: "Gallery", href: "/gallery", public: false },
-  { name: "Feed", href: "/feed/public", public: false },
-  // { name: "Tools", href: "/tools", public: false },
+  {
+    name: "Overview",
+    href: "/overview",
+    public: true,
+    roles: [
+      EventRole.Participant,
+      EventRole.Mentor,
+      EventRole.Judge,
+      EventRole.Organizer,
+      EventRole.Admin,
+    ],
+  },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    public: false,
+    roles: [
+      EventRole.Participant,
+      EventRole.Mentor,
+      EventRole.Judge,
+      EventRole.Organizer,
+      EventRole.Admin,
+    ],
+  },
+  {
+    name: "Participants",
+    href: "/participants/public",
+    public: false,
+    roles: [
+      EventRole.Participant,
+      EventRole.Mentor,
+      EventRole.Judge,
+      EventRole.Organizer,
+      EventRole.Admin,
+    ],
+  },
+  {
+    name: "Gallery",
+    href: "/gallery",
+    public: false,
+    roles: [
+      EventRole.Participant,
+      EventRole.Mentor,
+      EventRole.Judge,
+      EventRole.Organizer,
+      EventRole.Admin,
+    ],
+  },
+  {
+    name: "Feed",
+    href: "/feed/public",
+    public: false,
+    roles: [
+      EventRole.Participant,
+      EventRole.Mentor,
+      EventRole.Judge,
+      EventRole.Organizer,
+      EventRole.Admin,
+    ],
+  },
+  {
+    name: "Judging",
+    href: "/judging",
+    public: false,
+    roles: [EventRole.Judge, EventRole.Admin],
+  },
+  {
+    name: "Mentoring",
+    href: "/mentoring",
+    public: false,
+    roles: [EventRole.Mentor, EventRole.Admin],
+  },
+  { name: "Admin", href: "/admin", public: false, roles: [EventRole.Admin] },
 ];
 
 export function HackathonNav({ id }: { id: string }) {
   const pathname = usePathname();
   const basePath = `/events/${id}`;
-  const { isRegistered } = useEventRegistration();
+  const { isRegistered, userRole } = useEventRegistration();
 
   const visibleNavItems = navItems.filter(
-    (item) => item.public || isRegistered
+    (item) =>
+      item.public || (isRegistered && userRole && item.roles.includes(userRole))
   );
 
   return (

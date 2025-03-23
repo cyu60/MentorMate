@@ -1,4 +1,12 @@
 // Core Event Types
+export enum EventRole {
+  Participant = "participant",
+  Mentor = "mentor",
+  Judge = "judge",
+  Organizer = "organizer",
+  Admin = "admin",
+}
+
 export type EventItem = {
   event_id: string;
   event_name: string;
@@ -73,4 +81,36 @@ export interface FeedbackItem {
   feedback_text: string;
   rating: number;
   created_at: string;
+}
+
+// Scoring Types
+export interface ScoringCriterion {
+  id: string;
+  name: string;
+  description: string;
+  weight?: number;
+  min?: number;
+  max?: number;
+}
+
+export interface EventScoringConfig {
+  criteria: ScoringCriterion[];
+  defaultMin?: number;
+  defaultMax?: number;
+  defaultWeight?: number;
+}
+
+export interface ProjectScore {
+  id: string;
+  project_id: string;
+  judge_id: string;
+  scores: Record<string, number>;
+  comments?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScoreFormData {
+  scores: Record<string, number>;
+  comments?: string;
 } 
