@@ -40,14 +40,14 @@ export function Navbar() {
 
   const handleLoginClick = () => {
     // Save current URL before redirecting
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const currentPath = window.location.pathname;
       if (currentPath !== "/mentor") {
-        localStorage.setItem('returnUrl', currentPath);
+        localStorage.setItem("returnUrl", currentPath);
         console.log("Setting returnUrl:", currentPath);
       }
     }
-    router.push("/select");
+    router.push("/select-role");
   };
 
   const handleSignOutClick = async () => {
@@ -56,7 +56,7 @@ export function Navbar() {
       console.error("Error signing out:", error);
     } else {
       setSession(null);
-      localStorage.removeItem('returnUrl'); // Clear returnUrl on sign out
+      localStorage.removeItem("returnUrl"); // Clear returnUrl on sign out
       window.location.href = "/";
     }
   };

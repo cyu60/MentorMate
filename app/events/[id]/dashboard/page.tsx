@@ -1,15 +1,41 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import DashboardContent from '@/components/dashboard/dashboard-content';
+import { useEventRegistration } from "@/components/event-registration-provider";
+import { EventRole } from "@/lib/types";
+import { ParticipantDashboard } from "@/components/dashboard/participant-dashboard";
+import { JudgeDashboard } from "@/components/dashboard/judge-dashboard";
+import { MentorDashboard } from "@/components/dashboard/mentor-dashboard";
 
 export default function DashboardPage() {
   const params = useParams();
-  const id = params.id as string;
+  const eventId = params.id as string;
+  const { userRole } = useEventRegistration();
 
-  return (
-    <div className="space-y-8">
-      <DashboardContent eventId={id} />
-    </div>
-  );
+  const renderDashboard = () => {
+    switch (userRole) {
+      case EventRole.Participant:
+        return <ParticipantDashboard eventId={eventId} />;
+      case EventRole.Judge:
+        return <JudgeDashboard eventId={eventId} />;
+      case EventRole.Mentor:
+        return <MentorDashboard eventId={eventId} />;
+      case EventRole.Admin:
+      case EventRole.Organizer:
+        // For now, show mentor dashboard for admin/organizer
+        // TODO: Create specific admin/organizer dashboard
+        return <MentorDashboard eventId={eventId} />;
+      default:
+        return (
+          <div className="text-center py-8">
+            <h2 className="text-2xl font-bold">Access Denied</h2>
+            <p className="text-gray-600">
+              You do not have access to this dashboard.
+            </p>
+          </div>
+        );
+    }
+  };
+
+  return <div className="space-y-8">{renderDashboard()}</div>;
 }

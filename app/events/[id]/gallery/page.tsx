@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext, Project } from "@/lib/types";
 import { useEventRegistration } from "@/components/event-registration-provider";
+import { EventRole } from "@/lib/types";
 
 export default function GalleryPage() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function GalleryPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const { isRegistered } = useEventRegistration();
+  const { isRegistered, userRole } = useEventRegistration();
 
   // Sets 'projects' state to a list of projects the event_id is associated with
   useEffect(() => {
@@ -52,8 +53,8 @@ export default function GalleryPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-bold">Project Gallery</h2>
-        {isRegistered && (
-          <Link href={`/events/${eventId}/projects`}>
+        {isRegistered && userRole === EventRole.Participant && (
+          <Link href={`/events/${eventId}/submit`}>
             <Button className="button-gradient text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Submit Project

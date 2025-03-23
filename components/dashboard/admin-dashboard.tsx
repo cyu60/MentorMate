@@ -1,7 +1,8 @@
-'use client'
+//TODO: fix this page based on the event schema and the roles information
+"use client";
 
-import { useState, useEffect } from 'react'
-import { supabase } from "@/lib/supabase"
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   Table,
   TableBody,
@@ -10,95 +11,99 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Project, EventItem, FeedbackItem } from "@/lib/types";
 
-interface Project {
-  id: string;
-  project_name: string;
-  lead_name: string;
-  lead_email: string;
-  project_description: string;
-  created_at: string;
+interface AdminDashboardProps {
+  event?: EventItem;
 }
 
-interface Mentor {
+interface MentorType {
   id: string;
   name: string;
   email: string;
   created_at: string;
 }
 
-interface FeedbackWithProject {
-  id: string;
-  project_id: string;
+interface ExtendedFeedback extends FeedbackItem {
   project_name: string;
   project_description: string;
-  mentor_id: string;
-  mentor_name: string;
-  mentor_email: string;
-  feedback_text: string;
-  created_at: string;
 }
 
-export function AdminDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [mentors, setMentors] = useState<Mentor[]>([])
-  const [feedback, setFeedback] = useState<FeedbackWithProject[]>([])
+export function AdminDashboard({ event }: AdminDashboardProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [mentors, setMentors] = useState<MentorType[]>([]);
+  const [feedback, setFeedback] = useState<ExtendedFeedback[]>([]);
 
   useEffect(() => {
-    fetchProjects()
-    fetchMentors()
-    fetchFeedbackWithProjects()
-  }, [])
+    fetchProjects();
+    fetchMentors();
+    fetchFeedbackWithProjects();
+  }, [event]);
 
   async function fetchProjects() {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const query = supabase
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (event) {
+      query.eq("event_id", event.event_id);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching projects:', error)
+      console.error("Error fetching projects:", error);
     } else {
-      setProjects(data || [])
+      setProjects(data || []);
     }
   }
 
   async function fetchMentors() {
     const { data, error } = await supabase
-      .from('mentors')
-      .select('*')
-      .order('created_at', { ascending: false })
+      .from("mentors")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('Error fetching mentors:', error)
+      console.error("Error fetching mentors:", error);
     } else {
-      setMentors(data || [])
+      setMentors(data || []);
     }
   }
 
   async function fetchFeedbackWithProjects() {
-    const { data, error } = await supabase
-      .from('feedback')
-      .select(`
+    const query = supabase
+      .from("feedback")
+      .select(
+        `
         *,
         projects:project_id (
           project_name,
           project_description
         )
-      `)
-      .order('created_at', { ascending: false })
+      `
+      )
+      .order("created_at", { ascending: false });
+
+    if (event) {
+      query.eq("projects.event_id", event.event_id);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching feedback:', error)
+      console.error("Error fetching feedback:", error);
     } else {
-      const formattedData = data?.map(item => ({
-        ...item,
-        project_name: item.projects.project_name,
-        project_description: item.projects.project_description
-      })) || []
-      setFeedback(formattedData)
+      const formattedData =
+        data?.map((item) => ({
+          ...item,
+          project_name: item.projects.project_name,
+          project_description: item.projects.project_description,
+        })) || [];
+      setFeedback(formattedData);
     }
   }
 
@@ -111,9 +116,13 @@ export function AdminDashboard() {
       </TabsList>
 
       <TabsContent value="projects">
-        <h2 className="text-2xl font-bold mb-4">All Projects</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          {event ? `Projects for ${event.event_name}` : "All Projects"}
+        </h2>
         <Table>
-          <TableCaption>A list of all submitted projects.</TableCaption>
+          <TableCaption>
+            A list of {event ? "event" : "all"} projects.
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Project Name</TableHead>
@@ -130,7 +139,9 @@ export function AdminDashboard() {
                 <TableCell>{project.lead_name}</TableCell>
                 <TableCell>{project.lead_email}</TableCell>
                 <TableCell>{project.project_description}</TableCell>
-                <TableCell>{new Date(project.created_at).toLocaleString()}</TableCell>
+                <TableCell>
+                  {new Date(project.created_at).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -153,7 +164,9 @@ export function AdminDashboard() {
               <TableRow key={mentor.id}>
                 <TableCell>{mentor.name}</TableCell>
                 <TableCell>{mentor.email}</TableCell>
-                <TableCell>{new Date(mentor.created_at).toLocaleString()}</TableCell>
+                <TableCell>
+                  {new Date(mentor.created_at).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -161,16 +174,20 @@ export function AdminDashboard() {
       </TabsContent>
 
       <TabsContent value="feedback">
-        <h2 className="text-2xl font-bold mb-4">All Feedback</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          {event ? `Feedback for ${event.event_name}` : "All Feedback"}
+        </h2>
         <Table>
-          <TableCaption>A list of all submitted feedback.</TableCaption>
+          <TableCaption>
+            A list of {event ? "event" : "all"} feedback.
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Project Name</TableHead>
               <TableHead>Project Description</TableHead>
               <TableHead>Mentor Name</TableHead>
-              <TableHead>Mentor Email</TableHead>
               <TableHead>Feedback</TableHead>
+              <TableHead>Rating</TableHead>
               <TableHead>Submitted At</TableHead>
             </TableRow>
           </TableHeader>
@@ -180,15 +197,16 @@ export function AdminDashboard() {
                 <TableCell>{item.project_name}</TableCell>
                 <TableCell>{item.project_description}</TableCell>
                 <TableCell>{item.mentor_name}</TableCell>
-                <TableCell>{item.mentor_email}</TableCell>
                 <TableCell>{item.feedback_text}</TableCell>
-                <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
+                <TableCell>{item.rating}</TableCell>
+                <TableCell>
+                  {new Date(item.created_at).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TabsContent>
     </Tabs>
-  )
+  );
 }
-
