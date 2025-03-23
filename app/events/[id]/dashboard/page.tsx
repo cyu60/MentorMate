@@ -6,6 +6,7 @@ import { EventRole } from "@/lib/types";
 import { ParticipantDashboard } from "@/components/dashboard/participant-dashboard";
 import { JudgeDashboard } from "@/components/dashboard/judge-dashboard";
 import { MentorDashboard } from "@/components/dashboard/mentor-dashboard";
+import { OrganizerDashboard } from "@/components/dashboard/organizer-dashboard";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -22,9 +23,8 @@ export default function DashboardPage() {
         return <MentorDashboard eventId={eventId} />;
       case EventRole.Admin:
       case EventRole.Organizer:
-        // For now, show mentor dashboard for admin/organizer
-        // TODO: Create specific admin/organizer dashboard
-        return <MentorDashboard eventId={eventId} />;
+        return <OrganizerDashboard eventId={eventId} />;
+
       default:
         return (
           <div className="text-center py-8">
