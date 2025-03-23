@@ -23,6 +23,7 @@ import { Toaster } from "@/components/ui/toaster";
 import UserSearch from "@/components/utils/UserSearch";
 import { Card } from "@/components/ui/card";
 import { Project, FeedbackItem } from "@/lib/types";
+import { fetchProjectById } from "@/lib/helpers/projects";
 
 interface ProjectDashboardSectionProps {
   eventId: string;
@@ -115,34 +116,16 @@ export default function ProjectDashboardSection({
       if (!projectId) return;
       setIsLoading(true);
 
-      const { data, error } = await supabase
-        .from("projects")
-        .select(
-          `
-          id,
-          project_name,
-          project_description,
-          teammates,
-          lead_name,
-          lead_email,
-          project_url,
-          additional_materials_url,
-          cover_image_url,
-          event_id,
-          created_at
-        `
-        )
-        .eq("id", projectId)
-        .single();
+      const project = await fetchProjectById(projectId, true);
 
-      if (error) {
-        console.error("Error fetching project:", error);
+      if (!project) {
         notFound();
       } else {
-        setProjectData(data as Project);
-        setEditedData(data as Project);
-        if (data.additional_materials_url) {
-          setCurrentFileName(getFileNameFromUrl(data.additional_materials_url));
+
+        setProjectData(project as Project);
+        setEditedData(project as Project);
+        if (project.additional_materials_url) {
+          setCurrentFileName(getFileNameFromUrl(project.additional_materials_url));
         }
       }
 
@@ -489,6 +472,13 @@ export default function ProjectDashboardSection({
                   <span className="font-bold text-gray-800">Project Name:</span>{" "}
                   <span className="text-gray-700">
                     {projectData.project_name}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="font-bold text-gray-800">Event Name:</span>{" "}
+                  <span className="text-gray-700">
+                    {projectData.event_name}
                   </span>
                 </div>
                 <div>

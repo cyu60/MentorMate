@@ -60,12 +60,12 @@ export async function fetchProjectById(
     if (includeEventName && data.event_id) {
       const { data: eventData, error: eventError } = await supabase
         .from("events")
-        .select("name")
-        .eq("id", data.event_id)
+        .select("event_name")
+        .eq("event_id", data.event_id)
         .single();
 
       if (!eventError && eventData) {
-        project.event_name = eventData.name;
+        project.event_name = eventData.event_name;
       }
     }
 
