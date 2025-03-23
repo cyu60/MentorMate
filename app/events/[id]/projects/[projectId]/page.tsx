@@ -604,7 +604,7 @@ export default function ProjectDetails() {
               <ProjectScoringForm
                 projectId={projectId}
                 criteria={criteria}
-                existingScore={existingScore}
+                existingScore={existingScore || undefined}
                 onScoreSubmitted={() => {
                   toast({
                     title: "Success",
