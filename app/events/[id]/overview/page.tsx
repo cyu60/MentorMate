@@ -92,6 +92,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
     if (profile) {
       const events = profile.events || [];
       hasJoined = events.includes(id);
+
     }
   }
 

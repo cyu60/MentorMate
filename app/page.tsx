@@ -25,6 +25,7 @@ export default function HomePage() {
   const [feedbackCount, setFeedbackCount] = useState(0);
 
   useEffect(() => {
+
     const syncUserProfile = async () => {
       try {
         const {
@@ -37,8 +38,6 @@ export default function HomePage() {
           const profileData = {
             email: user.email,
             display_name: user.user_metadata.full_name,
-            events: [],
-            pulse: 0,
           };
 
           const { data: profile, error } = await supabase
