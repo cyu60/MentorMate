@@ -1,7 +1,7 @@
 "use client";
 
 import { ProjectSubmissionFormComponent } from "@/components/projects/ProjectSubmissionForm";
-import { createClient } from "@/app/utils/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -11,7 +11,6 @@ export default function ProjectSubmissionPage() {
   const eventId = params.id as string;
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {
@@ -43,7 +42,7 @@ export default function ProjectSubmissionPage() {
       }
     };
     getUser();
-  }, [supabase]);
+  }, []);
 
   return (
     <div className="container mx-auto py-8">

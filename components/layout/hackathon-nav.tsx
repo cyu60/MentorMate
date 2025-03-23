@@ -12,7 +12,7 @@ const navItems = [
   { name: "Participants", href: "/participants/public", public: false },
   { name: "Gallery", href: "/gallery", public: false },
   { name: "Feed", href: "/feed/public", public: false },
-  { name: "Tools", href: "/tools", public: false },
+  // { name: "Tools", href: "/tools", public: false },
 ];
 
 export function HackathonNav({ id }: { id: string }) {

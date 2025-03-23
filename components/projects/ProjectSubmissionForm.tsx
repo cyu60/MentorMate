@@ -107,14 +107,14 @@ export function ProjectSubmissionFormComponent({
       try {
         const { data, error } = await supabase
           .from("user_profiles")
-          .select("display_name");
+          .select("email");
         if (error) {
           console.error("Error fetching user display names:", error);
           return;
         }
         if (data) {
-          const displayNames = data.map((user) => user["display_name"]);
-          setAllUsers(displayNames);
+          const emails = data.map((user) => user["email"]);
+          setAllUsers(emails);
         }
       } catch (err) {
         console.error("Unexpected error:", err);

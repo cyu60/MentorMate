@@ -18,13 +18,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function getTeammateEmails(displayNames: string[]) {
-  if (!displayNames.length) return [];
+async function getTeammateEmails(emails: string[]) {
+  if (!emails.length) return [];
   
   const { data, error } = await supabase
     .from('user_profiles')
     .select('email')
-    .in('display_name', displayNames);
+    .in('email', emails);
 
   if (error) {
     console.error('Error fetching teammate emails:', error);

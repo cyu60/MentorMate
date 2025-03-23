@@ -42,6 +42,7 @@ export default function MyProjectsPage() {
         .select()
         .eq("lead_email", session.user.email);
 
+      //problem: teammates are not being stored as emails. This fetch will not work.
       const { data: teamProjects } = await supabase
         .from("projects")
         .select()
