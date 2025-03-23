@@ -70,12 +70,32 @@ export function ProjectScoringForm({
         return;
       }
 
-      const { error } = await supabase.from("project_scores").upsert({
-        project_id: projectId,
-        judge_id: session.user.id,
-        scores: formData.scores,
-        comments: formData.comments,
-      });
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select()
+        .eq("id", projectId)
+        .single();
+
+      if (!projectData) {
+        toast({
+          title: "Error",
+          description: "Project data not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.from("project_scores").upsert(
+        {
+          project_id: projectId,
+          judge_id: session.user.id,
+          scores: formData.scores,
+          comments: formData.comments,
+        },
+        {
+          onConflict: "project_id,judge_id",
+        }
+      );
 
       if (error) throw error;
 

@@ -21,36 +21,9 @@ import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRegistrationProvider } from "@/components/event-registration-provider";
 import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
 import { supabase } from "@/lib/supabase";
+import { defaultCriteria } from "@/lib/constants";
 
-// Default scoring criteria if none are configured for the event
-const defaultCriteria: ScoringCriterion[] = [
-  {
-    id: "technical",
-    name: "Technical Implementation",
-    description: "Quality of code, technical complexity, and implementation",
-    weight: 1,
-  },
-  {
-    id: "innovation",
-    name: "Innovation",
-    description: "Originality, creativity, and uniqueness of the solution",
-    weight: 1,
-  },
-  {
-    id: "impact",
-    name: "Impact",
-    description: "Potential impact and real-world applicability",
-    weight: 1,
-  },
-  {
-    id: "presentation",
-    name: "Presentation",
-    description: "Quality of documentation, demo, and overall presentation",
-    weight: 1,
-  },
-];
-
-function ProjectPageContent() {
+function ProjectPageContent(): JSX.Element {
   const { id: projectId } = useParams();
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -119,6 +92,71 @@ function ProjectPageContent() {
 
     loadProject();
   }, [projectId, userRole]);
+
+  const handleCopyQR = async () => {
+    try {
+      const svg = document.querySelector("#project-qr-code");
+      if (!svg) throw new Error("QR Code SVG not found");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = svg.clientWidth;
+      canvas.height = svg.clientHeight;
+
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.src = svgUrl;
+
+      await new Promise((resolve) => {
+        img.onload = () => {
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0);
+          URL.revokeObjectURL(svgUrl);
+          resolve(null);
+        };
+      });
+
+      // Get the project URL that the QR code represents
+      const projectUrl = `${window.location.origin}/public-project-details/${projectId}`;
+
+      // Try modern clipboard API first
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        const blob = await (await fetch(dataUrl)).blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob,
+          }),
+        ]);
+      } catch (clipboardError) {
+        console.error("Error copying QR Code:", clipboardError);
+        // Fallback for mobile: copy the URL instead
+        await navigator.clipboard.writeText(projectUrl);
+        toast({
+          title: "Copied Project URL",
+          description:
+            "QR code image copying not supported on this device. Project URL copied instead.",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "QR Code copied to clipboard",
+      });
+    } catch (error) {
+      console.error("Error copying QR Code:", error);
+      toast({
+        title: "Error",
+        description: "Failed to copy QR Code",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDownloadQR = async () => {
     try {
@@ -403,6 +441,12 @@ function ProjectPageContent() {
               </h3>
               <div className="flex flex-col items-center">
                 <QRCode value={fullUrl} size={200} id="project-qr-code" />
+                <Button
+                  onClick={handleCopyQR}
+                  className="mt-4 w-full button-gradient text-white"
+                >
+                  Copy QR Code
+                </Button>
                 <Button
                   onClick={handleDownloadQR}
                   className="mt-4 w-full button-gradient text-white"

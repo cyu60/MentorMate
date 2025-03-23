@@ -15,7 +15,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Define public paths that don't require authentication using useMemo
   const PUBLIC_PATH_PATTERNS = useMemo(() => {
-    const BASE_PUBLIC_PATHS = ["/", "/login", "/select", "/auth/callback", "/about", "/teams"];
+    const BASE_PUBLIC_PATHS = [
+      "/",
+      "/login",
+      "/select-role",
+      "/auth/callback",
+      "/about",
+      "/teams",
+    ];
     return [
       ...BASE_PUBLIC_PATHS,
       /^\/public-project-details($|\/.*$)/, // Matches /public-project and all its sub-routes

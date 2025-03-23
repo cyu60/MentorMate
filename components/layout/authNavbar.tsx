@@ -48,7 +48,7 @@ export function AuthNavbar() {
         console.log("Setting returnUrl:", currentPath);
       }
     }
-    router.push("/select");
+    router.push("/select-role");
   };
 
   const handleSignOutClick = async () => {
