@@ -14,9 +14,42 @@ import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/layout/navbar";
 import UserSearch from "@/components/utils/UserSearch";
 import { fetchProjectById } from "@/lib/helpers/projects";
-import { Project } from "@/lib/types";
+import {
+  Project,
+  EventRole,
+  ScoringCriterion,
+  ScoreFormData,
+} from "@/lib/types";
+import { useEventRegistration } from "@/components/event-registration-provider";
+import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
 
-type EditableProjectData = Project;
+// Default scoring criteria if none are configured for the event
+const defaultCriteria: ScoringCriterion[] = [
+  {
+    id: "technical",
+    name: "Technical Implementation",
+    description: "Quality of code, technical complexity, and implementation",
+    weight: 1,
+  },
+  {
+    id: "innovation",
+    name: "Innovation",
+    description: "Originality, creativity, and uniqueness of the solution",
+    weight: 1,
+  },
+  {
+    id: "impact",
+    name: "Impact",
+    description: "Potential impact and real-world applicability",
+    weight: 1,
+  },
+  {
+    id: "presentation",
+    name: "Presentation",
+    description: "Quality of documentation, demo, and overall presentation",
+    weight: 1,
+  },
+];
 
 export default function ProjectDetails() {
   const params = useParams();
@@ -29,6 +62,11 @@ export default function ProjectDetails() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+  const [criteria, setCriteria] = useState<ScoringCriterion[]>(defaultCriteria);
+  const [existingScore, setExistingScore] = useState<ScoreFormData | null>(
+    null
+  );
+  const { userRole } = useEventRegistration();
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -72,25 +110,61 @@ export default function ProjectDetails() {
       if (!projectId) return;
       setIsLoading(true);
 
-      const project = await fetchProjectById(projectId as string);
-
-      if (!project) {
-        notFound();
-      } else {
+      try {
+        // Fetch project data
+        const project = await fetchProjectById(projectId as string);
+        if (!project) {
+          notFound();
+        }
         setProjectData(project);
-        setEditedData(project as EditableProjectData);
+        setEditedData(project);
         if (project.additional_materials_url) {
           setCurrentFileName(
             getFileNameFromUrl(project.additional_materials_url)
           );
         }
-      }
 
-      setIsLoading(false);
+        // Fetch event scoring config
+        const { data: eventData, error: eventError } = await supabase
+          .from("events")
+          .select("scoring_config")
+          .eq("id", eventId)
+          .single();
+
+        if (eventError) {
+          console.error("Error fetching event scoring config:", eventError);
+        } else if (eventData?.scoring_config?.criteria) {
+          setCriteria(eventData.scoring_config.criteria);
+        }
+
+        // If user is a judge, fetch their existing score for this project
+        if (userRole === EventRole.Judge || userRole === EventRole.Admin) {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (session) {
+            const { data: scoreData } = await supabase
+              .from("project_scores")
+              .select("*")
+              .eq("project_id", projectId)
+              .eq("judge_id", session.user.id)
+              .single();
+
+            if (scoreData) {
+              setExistingScore(scoreData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading project:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadProject();
-  }, [projectId]);
+  }, [projectId, eventId, userRole]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -498,6 +572,49 @@ export default function ProjectDetails() {
             )}
           </div>
         </div>
+
+        {/* Scoring Section for Judges */}
+        {(userRole === EventRole.Judge || userRole === EventRole.Admin) && (
+          <div className="w-full max-w-4xl mt-8">
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-semibold text-blue-900 mb-6">
+                Project Scoring
+              </h2>
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3">Scoring Criteria</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {criteria.map((criterion) => (
+                    <div
+                      key={criterion.id}
+                      className="p-4 bg-gray-50 rounded-lg"
+                    >
+                      <h4 className="font-medium">{criterion.name}</h4>
+                      <p className="text-sm text-gray-600">
+                        {criterion.description}
+                      </p>
+                      {criterion.weight && criterion.weight !== 1 && (
+                        <p className="text-sm text-blue-600 mt-1">
+                          Weight: {criterion.weight}x
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <ProjectScoringForm
+                projectId={projectId}
+                criteria={criteria}
+                existingScore={existingScore || undefined}
+                onScoreSubmitted={() => {
+                  toast({
+                    title: "Success",
+                    description: "Score submitted successfully",
+                  });
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-700 break-all">

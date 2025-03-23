@@ -29,51 +29,20 @@ export function CancelRegistration({
         return;
       }
 
-      console.log("Session:", session.user.email);
+      // Delete from user_event_roles
+      const { error: deleteError } = await supabase
+        .from("user_event_roles")
+        .delete()
+        .eq("user_id", session.user.id)
+        .eq("event_id", eventId);
 
-      const { data: profile, error: fetchError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("email", session.user.email)
-        .single();
-
-      if (fetchError) {
-        console.error("Error fetching profile:", fetchError.message);
+      if (deleteError) {
+        console.error("Error removing user role:", deleteError.message);
         return;
       }
 
-      if (!profile) {
-        console.error("No profile found");
-        return;
-      }
-
-      console.log("Current profile:", profile);
-      console.log("Current events:", profile.events);
-
-      if (!Array.isArray(profile.events)) {
-        console.error("Events is not an array:", profile.events);
-        return;
-      }
-
-      const updatedEvents = profile.events.filter(
-        (id: string) => id !== eventId
-      );
-      console.log("Updated events:", updatedEvents);
-
-      const { error: updateError } = await supabase
-        .from("user_profiles")
-        .update({ events: updatedEvents })
-        .eq("email", session.user.email);
-
-      if (updateError) {
-        console.error("Error updating profile:", updateError.message);
-        return;
-      }
-
-      console.log("Successfully updated profile");
-      await onCancel(); // Update parent state first
-      router.refresh(); // Refresh Next.js cache
-      window.location.reload(); // Force full page refresh to re-render layout
+      await onCancel();
+      router.refresh();
     } catch (error) {
       console.error("Error canceling registration:", error);
     } finally {

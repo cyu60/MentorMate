@@ -4,6 +4,21 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { EventRole } from "@/lib/types";
 
 export interface JoinEventButtonProps {
   eventId: string;
@@ -13,6 +28,10 @@ export interface JoinEventButtonProps {
 export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<EventRole>(
+    EventRole.Participant
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,15 +42,15 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         } = await supabase.auth.getSession();
         if (!session) return;
 
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select()
-          .eq("email", session.user.email)
+        const { data: roleData } = await supabase
+          .from("user_event_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("event_id", eventId)
           .single();
 
-        if (profile) {
-          const events = profile.events || [];
-          setHasJoined(events.includes(eventId));
+        if (roleData) {
+          setHasJoined(true);
         }
       } catch (error) {
         console.error("Error checking event status:", error);
@@ -54,59 +73,22 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return;
       }
 
-      let { data: profile, error: fetchError } = await supabase
-        .from("user_profiles")
-        .select()
-        .eq("email", session.user.email)
-        .single();
+      // Insert into user_event_roles
+      const { error: roleError } = await supabase
+        .from("user_event_roles")
+        .insert({
+          user_id: session.user.id,
+          event_id: eventId,
+          role: selectedRole,
+        });
 
-      if (!profile && !fetchError) {
-        const { error: insertError } = await supabase
-          .from("user_profiles")
-          .insert({
-            email: session.user.email,
-            user_id: session.user.id,
-          });
-
-        if (insertError) {
-          console.error("Error inserting user profile:", insertError.message);
-          return;
-        }
-
-        // Retry fetching the profile after insertion
-        const retryResult = await supabase
-          .from("user_profiles")
-          .select()
-          .eq("email", session.user.email)
-          .single();
-
-        profile = retryResult.data;
-        fetchError = retryResult.error;
-      }
-
-      if (fetchError) {
-        console.error("Error fetching user profile:", fetchError.message);
-        return;
-      }
-
-      const currentEvents: string[] = profile.events || [];
-
-      if (currentEvents.includes(eventId)) {
-        setHasJoined(true);
-        return;
-      }
-
-      const { error: updateError } = await supabase
-        .from("user_profiles")
-        .update({ events: [...currentEvents, eventId] })
-        .eq("email", session.user.email);
-
-      if (updateError) {
-        console.error("Error updating profile:", updateError.message);
+      if (roleError) {
+        console.error("Error setting user role:", roleError.message);
         return;
       }
 
       setHasJoined(true);
+      setIsDialogOpen(false);
       router.refresh();
       window.location.reload();
     } catch (error) {
@@ -125,12 +107,45 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   }
 
   return (
-    <Button
-      onClick={handleJoinEvent}
-      disabled={isLoading}
-      className="bg-blue-700 hover:bg-blue-800"
-    >
-      {isLoading ? "Joining..." : `Join ${eventName}`}
-    </Button>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-700 hover:bg-blue-800">
+          Join {eventName}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Choose Your Role</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select your role:</label>
+            <Select
+              value={selectedRole}
+              onValueChange={(value) => setSelectedRole(value as EventRole)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={EventRole.Participant}>
+                  Participant
+                </SelectItem>
+                <SelectItem value={EventRole.Mentor}>Mentor</SelectItem>
+                <SelectItem value={EventRole.Judge}>Judge</SelectItem>
+                <SelectItem value={EventRole.Organizer}>Organizer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={handleJoinEvent}
+            disabled={isLoading}
+            className="w-full bg-blue-700 hover:bg-blue-800"
+          >
+            {isLoading ? "Joining..." : "Confirm"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
