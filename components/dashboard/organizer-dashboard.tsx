@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Edit, Plus, Calendar, List, Trophy, Book } from "lucide-react";
+import { Edit, Calendar, List, Trophy, Book } from "lucide-react";
 import { EventDetails, EventRole } from "@/lib/types";
 
 interface UpdateEventData {
