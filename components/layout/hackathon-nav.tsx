@@ -26,15 +26,15 @@ const navItems = [
     public: false,
     roles: [
       EventRole.Participant,
-      EventRole.Mentor,
-      EventRole.Judge,
-      EventRole.Organizer,
       EventRole.Admin,
+      EventRole.Organizer,
+      EventRole.Judge,
+      EventRole.Mentor,
     ],
   },
   {
     name: "Participants",
-    href: "/participants/public",
+    href: "/participants",
     public: false,
     roles: [
       EventRole.Participant,
@@ -58,7 +58,7 @@ const navItems = [
   },
   {
     name: "Feed",
-    href: "/feed/public",
+    href: "/feed",
     public: false,
     roles: [
       EventRole.Participant,
@@ -68,19 +68,7 @@ const navItems = [
       EventRole.Admin,
     ],
   },
-  {
-    name: "Judging",
-    href: "/judging",
-    public: false,
-    roles: [EventRole.Judge, EventRole.Admin],
-  },
-  {
-    name: "Mentoring",
-    href: "/mentoring",
-    public: false,
-    roles: [EventRole.Mentor, EventRole.Admin],
-  },
-  { name: "Admin", href: "/admin", public: false, roles: [EventRole.Admin] },
+  // TODO: add admin data page?
 ];
 
 export function HackathonNav({ id }: { id: string }) {

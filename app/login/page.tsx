@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { Navbar } from '@/components/layout/navbar';
+import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import Image from "next/image";
 
@@ -38,7 +38,7 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/select");
+        router.push("/select-role");
       }
     };
 
@@ -86,7 +86,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/select");
+      router.push("/select-role");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -101,7 +101,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push("/select");
+      router.push("/select-role");
     }
   };
 
@@ -123,15 +123,11 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    localStorage.setItem("returnUrl", "/select");
-    const returnUrl = localStorage.getItem("returnUrl");
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const options = {
       provider,
       options: {
-        redirectTo: `${baseUrl}/auth/callback${
-          returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ""
-        }`,
+        redirectTo: `${baseUrl}/auth/callback`,
       },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);

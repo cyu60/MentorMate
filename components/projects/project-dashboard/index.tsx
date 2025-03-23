@@ -394,7 +394,7 @@ export default function ProjectDashboardSection({
     );
   }
 
-  const fullUrl = `${window.location.origin}/events/${eventId}/dashboard/${projectId}`;
+  const fullUrl = `${window.location.origin}/public-project-details/${projectId}`;
 
   return (
     <Card className="p-0 overflow-hidden">
