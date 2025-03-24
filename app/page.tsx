@@ -72,15 +72,15 @@ export default function HomePage() {
       setIsLoadingStats(true);
 
       const userEmail = session.user.email;
+      const userId = session.user.id;
 
       // TOTAL EVENTS
-      const { data: userProfile } = await supabase
-        .from("user_profiles")
-        .select("events")
-        .eq("email", userEmail)
-        .single();
+      const { data: userEventRoles } = await supabase
+        .from("user_event_roles")
+        .select("event_id")
+        .eq("user_id", userId);
 
-      const totalEventsCount = userProfile?.events?.length ?? 0;
+      const totalEventsCount = userEventRoles?.length ?? 0;
 
       // SUBMITTED PROJECTS
       const { data: leadProjects } = await supabase

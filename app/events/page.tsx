@@ -11,7 +11,7 @@ export default async function EventsPage() {
 
   const { data: events } = await supabase
     .from("events")
-    .select("event_id, event_name, event_date, location, cover_image_url")
+    .select("event_id, event_name, event_date, location, cover_image_url, scoring_config")
     .order("event_date", { ascending: true });
 
   const eventsList = events || [];
