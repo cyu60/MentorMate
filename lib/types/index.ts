@@ -13,6 +13,7 @@ export type EventItem = {
   event_date: string;
   location: string;
   cover_image_url?: string;
+  scoring_config?: EventScoringConfig;
 };
 
 // Event Overview Types
