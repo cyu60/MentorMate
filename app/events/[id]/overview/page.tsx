@@ -1,51 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createSupabaseClient } from "@/app/utils/supabase/server";
+import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
-import { JoinEventButton } from '@/components/events/join-event-button';
-import { EventStatusBar } from '@/components/events/event-status-bar';
+import { JoinEventButton } from "@/components/events/join-event-button";
+import { EventStatusBar } from "@/components/events/event-status-bar";
+import {
+  EventDetails,
+  Rule,
+  ScheduleDay,
+  ScheduleEvent,
+  Prize,
+  Resource,
+} from "@/lib/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-}
-
-interface ScheduleEvent {
-  name: string;
-  time: string;
-}
-
-interface ScheduleDay {
-  time: string;
-  events: ScheduleEvent[];
-}
-
-interface Prize {
-  track: string;
-  prize: string;
-  description: string;
-}
-
-interface Resource {
-  name: string;
-  link: string;
-}
-
-interface Rule {
-  title: string;
-  items: string[];
-}
-
-interface Event {
-  event_id: string;
-  event_name: string;
-  event_date: string;
-  location: string;
-  event_description: string;
-  event_schedule: ScheduleDay[];
-  event_prizes: Prize[];
-  event_resources: Resource[];
-  created_at: string;
-  rules: Rule[];
-  cover_image_url?: string | null;
 }
 
 const defaultRules: Rule[] = [
@@ -68,13 +36,8 @@ const defaultRules: Rule[] = [
   },
 ];
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
 export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
-  const supabase = createSupabaseClient();
 
   // Check if user has joined
   const {
@@ -98,7 +61,8 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .select(`
+    .select(
+      `
       event_id,
       event_name,
       event_date,
@@ -110,7 +74,8 @@ export default async function EventOverviewPage({ params }: PageProps) {
       created_at,
       rules,
       cover_image_url
-    `)
+    `
+    )
     .eq("event_id", id)
     .single();
 
@@ -118,7 +83,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
     notFound();
   }
 
-  const typedEvent = event as Event;
+  const typedEvent = event as EventDetails;
 
   return (
     <div className="space-y-4">
@@ -231,7 +196,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
       {/* Resources */}
       {typedEvent.event_resources && typedEvent.event_resources.length > 0 && (
         <Card className="shadow-lg rounded-lg">
-          <CardHeader className= "pb-4">
+          <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
               Important Links
             </CardTitle>
