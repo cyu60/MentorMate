@@ -45,6 +45,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
   } = await supabase.auth.getSession();
   let hasJoined = false;
 
+  // TODO: Should be pulling from user_event_roles table
   if (session) {
     const { data: profile } = await supabase
       .from("user_profiles")
@@ -55,7 +56,6 @@ export default async function EventOverviewPage({ params }: PageProps) {
     if (profile) {
       const events = profile.events || [];
       hasJoined = events.includes(id);
-
     }
   }
 
