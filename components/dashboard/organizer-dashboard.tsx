@@ -50,7 +50,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           .eq("user_id", session.user.id)
           .eq("event_id", eventId)
           .eq("role", EventRole.Organizer)
-          .single();
+          .maybeSingle();
 
         if (!roleData) {
           toast.error("You don't have permission to edit this event");
