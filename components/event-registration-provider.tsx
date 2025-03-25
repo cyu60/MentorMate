@@ -49,7 +49,7 @@ export function EventRegistrationProvider({
           .select("role")
           .eq("user_id", session.user.id)
           .eq("event_id", eventId)
-          .single();
+          .maybeSingle();
 
         if (roleData) {
           setIsRegistered(true);

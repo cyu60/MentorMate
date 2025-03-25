@@ -47,14 +47,13 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
   // TODO: Should be pulling from user_event_roles table
   if (session) {
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select()
-      .eq("uid", session.user.id)
-      .maybeSingle();
+    const { data: userEventRoles } = await supabase
+      .from("user_event_roles")
+      .select("event_id")
+      .in("user_id", [session.user.id]);
 
-    if (profile) {
-      const events = profile.events || [];
+    if (userEventRoles) {
+      const events = userEventRoles.map((role) => role.event_id);
       hasJoined = events.includes(id);
     }
   }
