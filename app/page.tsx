@@ -13,6 +13,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import { Calendar, Folder, MessageSquare } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export default function HomePage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -25,7 +26,6 @@ export default function HomePage() {
   const [feedbackCount, setFeedbackCount] = useState(0);
 
   useEffect(() => {
-
     const syncUserProfile = async () => {
       try {
         const {
@@ -71,8 +71,24 @@ export default function HomePage() {
       if (!session?.user?.email) return;
       setIsLoadingStats(true);
 
+      // Get uid from user_profiles using email from auth session
+      const { data: userProfile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("uid")
+        .eq("email", session.user.email)
+        .single();
+
+      if (profileError || !userProfile) {
+        toast({
+          title: "Error finding user profile",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const userId = userProfile.uid;
       const userEmail = session.user.email;
-      const userId = session.user.id;
 
       // TOTAL EVENTS
       const { data: userEventRoles } = await supabase
