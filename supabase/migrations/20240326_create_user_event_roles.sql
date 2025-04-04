@@ -1,10 +1,6 @@
--- Create enum for event roles
-CREATE TYPE event_role AS ENUM ('participant', 'mentor', 'judge', 'organizer', 'admin');
-
--- Create user_event_roles table
 CREATE TABLE user_event_roles (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.user_profiles(uid) ON DELETE CASCADE,
     event_id UUID NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
     role event_role NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),

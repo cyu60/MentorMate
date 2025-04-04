@@ -43,11 +43,26 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           return;
         }
 
+        if (!session?.user?.email) return;
+
+        // Get uid from user_profiles using email from auth session
+        const { data: userProfile, error: profileError } = await supabase
+          .from("user_profiles")
+          .select("uid")
+          .eq("email", session.user.email)
+          .single();
+
+        if (profileError || !userProfile) {
+          return;
+        }
+
+        const userId = userProfile.uid;
+
         // Check if user is an organizer for this event
         const { data: roleData } = await supabase
           .from("user_event_roles")
           .select("role")
-          .eq("user_id", session.user.id)
+          .eq("user_id", userId)
           .eq("event_id", eventId)
           .eq("role", EventRole.Organizer)
           .maybeSingle();
