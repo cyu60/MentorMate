@@ -90,18 +90,23 @@ export function AuthNavbar() {
         <div className="hidden sm:flex space-x-4">
           <Link href="/events">
             <Button
-              variant="ghost"
-              className="text-lg font-semibold hover:text-blue-900 hover:italic hover:bg-none"
+              variant="nav"
             >
               Events
             </Button>
           </Link>
           <Link href="/my-project-gallery">
             <Button
-              variant="ghost"
-              className="text-lg font-semibold hover:text-blue-900 hover:italic hover:bg-none"
+              variant="nav"
             >
               My Projects
+            </Button>
+          </Link>
+          <Link href="#">
+            <Button
+              variant="nav"
+            >
+              Resources
             </Button>
           </Link>
         </div>
