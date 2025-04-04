@@ -102,7 +102,7 @@ export function AuthNavbar() {
               My Projects
             </Button>
           </Link>
-          <Link href="#">
+          <Link href="/resources">
             <Button
               variant="nav"
             >
