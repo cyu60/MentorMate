@@ -7,6 +7,11 @@ export enum EventRole {
   Admin = "admin",
 }
 
+export interface UserProfile {
+  uid: string;
+  display_name: string;
+}
+
 export type EventItem = {
   event_id: string;
   event_name: string;
@@ -115,3 +120,4 @@ export interface ScoreFormData {
   scores: Record<string, number>;
   comments?: string;
 } 
+
