@@ -15,7 +15,7 @@ export default function ResourcesLayout() {
                         <img
                             src={resource.thumbnail}
                             alt={resource.title}
-                            className="mb-4 h-10 w-10 object-contain"
+                            className="mb-4 object-contain"
                         />
                         <h3 className="text-lg font-semibold text-gray-800 group-hover:text-gray-900">
                             {resource.title}
