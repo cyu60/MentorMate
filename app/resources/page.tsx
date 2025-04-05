@@ -1,6 +1,7 @@
 
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
+import Resource from "@/components/resources";
 
 export default function Resources() {
     return (
@@ -15,6 +16,8 @@ export default function Resources() {
                     Check out these resources to help you get started with your projects.
                 </p>
             </div>
+
+            <Resource />
 
             <div className="absolute bottom-0 w-full">   
                 <Footer />
