@@ -9,7 +9,6 @@ const ITEMS_PER_PAGE = 5
 
 type UserProfile = {
   uid: string
-  email: string | null
   display_name: string | null
 }
 
@@ -28,11 +27,12 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
-export default async function FeedPage({
+export default async function PublicFeedPage({
   params,
   searchParams,
 }: PageProps) {
   const supabase = createSupabaseClient()
+  
   // Note: This Next.js warning is a false positive. In Server Components,
   // route params are already resolved and don't need to be awaited.
   // See: https://github.com/vercel/next.js/discussions/54929
@@ -40,7 +40,7 @@ export default async function FeedPage({
   const currentPage = parseInt(resolvedSearchParams.page || "1")
 
   try {
-    // Fetch all feed items
+    // Fetch all public feed items
     const { data: feedItems, error: feedError } = await supabase
       .from("platform_engagement")
       .select("*")
@@ -61,10 +61,10 @@ export default async function FeedPage({
     // Get unique user IDs
     const userIds = [...new Set(feedItems.map(item => item.user_id))]
 
-    // Fetch user profiles
+    // Fetch user display names only
     const { data: users, error: usersError } = await supabase
       .from("user_profiles")
-      .select("uid, email, display_name")
+      .select("uid, display_name")
       .in("uid", userIds)
 
     if (usersError) {
@@ -96,12 +96,12 @@ export default async function FeedPage({
               <div className="flex items-start space-x-4">
                 <Avatar>
                   <AvatarFallback>
-                    {item.display_name?.[0] || item.user?.display_name?.[0] || item.user?.email?.[0]?.toUpperCase()}
+                    {item.display_name?.[0] || item.user?.display_name?.[0] || '?'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
                   <h3 className="font-semibold">
-                    {item.display_name || item.user?.display_name || item.user?.email}
+                    {item.display_name || item.user?.display_name || 'Anonymous User'}
                   </h3>
                   <p className="text-gray-600">{item.content}</p>
                   <div className="flex items-center space-x-2">
@@ -121,7 +121,7 @@ export default async function FeedPage({
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-6">
             {currentPage > 1 && (
-              <Link href={`/events/${id}/feed?page=${currentPage - 1}`}>
+              <Link href={`/events/${id}/feed/public?page=${currentPage - 1}`}>
                 <Button variant="outline">Previous</Button>
               </Link>
             )}
@@ -129,7 +129,7 @@ export default async function FeedPage({
               Page {currentPage} of {totalPages}
             </span>
             {currentPage < totalPages && (
-              <Link href={`/events/${id}/feed?page=${currentPage + 1}`}>
+              <Link href={`/events/${id}/feed/public?page=${currentPage + 1}`}>
                 <Button variant="outline">Next</Button>
               </Link>
             )}

@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import Image from "next/image";
 
 const supabase = createClient(
@@ -21,8 +22,8 @@ function LoginContent() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
-    const mode = searchParams.get('mode');
-    if (mode === 'signup') {
+    const mode = searchParams.get("mode");
+    if (mode === "signup") {
       setIsSignUp(true);
     }
   }, [searchParams]);
@@ -37,7 +38,7 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/select");
+        router.push("/select-role");
       }
     };
 
@@ -60,7 +61,7 @@ function LoginContent() {
         email,
         password,
       });
-      
+
       if (error) {
         const errorMessage = error.message.includes("unique")
           ? "This email is already registered. Please sign in instead."
@@ -72,11 +73,11 @@ function LoginContent() {
 
       if (data?.user) {
         const { error: profileError } = await supabase
-          .from('user_profiles')
+          .from("user_profiles")
           .upsert({
             email: data.user.email,
-            display_name: data.user.email?.split('@')[0],
-            created_at: new Date().toISOString()
+            display_name: data.user.email?.split("@")[0],
+            created_at: new Date().toISOString(),
           });
 
         if (profileError) {
@@ -85,12 +86,12 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/select");
+      router.push("/select-role");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
       if (error) {
         const errorMessage = error.message.includes("Invalid")
@@ -100,7 +101,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push("/select");
+      router.push("/select-role");
     }
   };
 
@@ -122,14 +123,12 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    localStorage.setItem('returnUrl', '/select');
-    const returnUrl = localStorage.getItem('returnUrl');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const options = {
       provider,
       options: {
-        redirectTo: `${baseUrl}/auth/callback${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`
-      }
+        redirectTo: `${baseUrl}/auth/callback`,
+      },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);
     if (error) {
@@ -147,7 +146,7 @@ function LoginContent() {
     <div>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
-          alt="MentorMate"
+          alt="MentorMates"
           src="/mentormate.png"
           width={40}
           height={40}
@@ -158,12 +157,10 @@ function LoginContent() {
         </h2>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
+      <div className="sm:mx-auto sm:w-full sm:max-w-[400px] pl-5 pr-5">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           {error && (
-            <div className="mb-4 text-center text-sm text-red-600">
-              {error}
-            </div>
+            <div className="mb-4 text-center text-sm text-red-600">{error}</div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -317,9 +314,7 @@ function LoginContent() {
 
           {/* Toggle between Sign In and Sign Up */}
           <p className="mt-10 text-center text-sm text-gray-500">
-            {isSignUp
-              ? "Already have an account? "
-              : "Don't have an account? "}
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
             <a
               href="#"
               onClick={(e) => {
@@ -344,6 +339,7 @@ export default function LoginPage() {
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />
       </Suspense>
-    </ div>
+      <Footer />
+    </div>
   );
 }

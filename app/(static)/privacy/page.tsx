@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
           <section className="border-b border-gray-200 pb-4">
             <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
             <p className="text-gray-700 leading-relaxed">
-              This Privacy Policy explains how MentorMate (&quot;we&quot;,
+              This Privacy Policy explains how MentorMates (&quot;we&quot;,
               &quot;our&quot;, or &quot;us&quot;) collects, uses, shares, and
               protects your personal information. This policy applies to all
               users of our platform, including mentors, participants, and
@@ -154,10 +154,10 @@ export default function PrivacyPolicy() {
             <p className="text-gray-700">
               Email:{" "}
               <a
-                href="mailto:stanfordhackathon@gmail.com"
+                href="mailto:hello@mentor-mates.com"
                 className="text-blue-900 hover:underline"
               >
-                stanfordhackathon@gmail.com
+                hello@mentor-mates.com
               </a>
               <br />
               Address: 353 Jane Stanford Way, Stanford University, California
