@@ -22,6 +22,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       "/auth/callback",
       "/about",
       "/teams",
+      "/invite",
+      "/invite/process",
     ];
     return [
       ...BASE_PUBLIC_PATHS,

@@ -38,7 +38,9 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
         .select("*")
         .eq("event_id", eventId)
         .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .maybeSingle();
+        ;
 
       if (error) {
         console.error("Error fetching projects:", error);

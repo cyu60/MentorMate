@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Edit, Calendar, List, Trophy, Book } from "lucide-react";
+import { Edit, Calendar, List, Trophy, Book, Users } from "lucide-react";
 import { EventDetails, EventRole } from "@/lib/types";
+import { GenerateInviteLink } from "@/components/events/generate-invite-link";
 
 interface UpdateEventData {
   event_name?: string;
@@ -169,7 +170,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-5 gap-4 mb-6">
+        <TabsList className="grid grid-cols-6 gap-4 mb-6">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Basic Info
@@ -189,6 +190,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           <TabsTrigger value="rules" className="flex items-center gap-2">
             <Book className="h-4 w-4" />
             Rules
+          </TabsTrigger>
+          <TabsTrigger value="manage" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Manage
           </TabsTrigger>
         </TabsList>
 
@@ -586,6 +591,44 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                 >
                   {saving ? "Saving..." : "Save Rules"}
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="manage">
+          <Card>
+            <CardHeader>
+              <CardTitle>Event Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <GenerateInviteLink eventId={eventId} eventName={event.event_name} />
+                
+                <div className="p-6 border rounded-lg shadow-sm bg-white">
+                  <h3 className="text-lg font-medium mb-4">About Invite Links</h3>
+                  <div className="space-y-4 text-sm">
+                    <p>
+                      Invite links allow you to easily add new users to your event with
+                      specific roles.
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li>
+                        Links are valid for 1 day by default
+                      </li>
+                      <li>
+                        You can create links for specific email addresses or make them
+                        usable by anyone
+                      </li>
+                      <li>
+                        Users will authenticate via Google or GitHub before joining
+                      </li>
+                      <li>
+                        Only Organizers and Admins can create invite links
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
