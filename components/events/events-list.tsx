@@ -35,10 +35,25 @@ export function EventsList({ events }: EventsListProps) {
         } = await supabase.auth.getSession();
         if (!session) return;
 
+        if (!session?.user?.email) return;
+
+        // Get uid from user_profiles using email from auth session
+        const { data: userProfile, error: profileError } = await supabase
+          .from("user_profiles")
+          .select("uid")
+          .eq("email", session.user.email)
+          .single();
+
+        if (profileError || !userProfile) {
+          return;
+        }
+
+        const userId = userProfile.uid;
+
         const { data, error } = await supabase
           .from("user_event_roles")
           .select("event_id, role")
-          .eq("user_id", session.user.id);
+          .eq("user_id", userId);
 
         if (error) {
           console.error("Error fetching user event roles:", error);
@@ -57,11 +72,15 @@ export function EventsList({ events }: EventsListProps) {
   }, []);
 
   const getUserRoleForEvent = (eventId: string): EventRole | null => {
-    const userEventRole = userEventRoles.find(role => role.event_id === eventId);
+    const userEventRole = userEventRoles.find(
+      (role) => role.event_id === eventId
+    );
     return userEventRole ? userEventRole.role : null;
   };
 
-  const getRoleBadgeVariant = (role: EventRole): "participant" | "mentor" | "judge" | "organizer" | "admin" => {
+  const getRoleBadgeVariant = (
+    role: EventRole
+  ): "participant" | "mentor" | "judge" | "organizer" | "admin" => {
     switch (role) {
       case EventRole.Admin:
         return "admin";
@@ -82,9 +101,12 @@ export function EventsList({ events }: EventsListProps) {
     <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto">
       {events.map((event) => {
         const userRole = getUserRoleForEvent(event.event_id);
-        
+
         return (
-          <Link href={`/events/${event.event_id}/overview`} key={event.event_id}>
+          <Link
+            href={`/events/${event.event_id}/overview`}
+            key={event.event_id}
+          >
             <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
               <div
                 className="h-[200px] w-full bg-[#000080]"
@@ -114,7 +136,10 @@ export function EventsList({ events }: EventsListProps) {
                     </div>
                   </div>
                   {userRole && (
-                    <Badge variant={getRoleBadgeVariant(userRole)} className="capitalize">
+                    <Badge
+                      variant={getRoleBadgeVariant(userRole)}
+                      className="capitalize"
+                    >
                       {userRole}
                     </Badge>
                   )}
