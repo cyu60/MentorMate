@@ -16,20 +16,29 @@ export function LandingHero() {
           </span>
         </h1>
         <div className="space-y-8 text-center">
-          <p className="text-xl italic font-medium text-gray-800 max-w-3xl mx-auto leading-relaxed">
-            Need better feedback than generic comments for your{" "}
-            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
-              hackathons
-            </span>
-            ,{" "}
-            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
-              projects
-            </span>
-            , and{" "}
-            <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
-              presentations
-            </span>
-            ?
+          <h2 className="text-2xl font-medium text-gray-800 max-w-3xl mx-auto leading-relaxed">
+            All-in-One Platform for{" "}
+            <div className="inline-flex flex-col h-[40px] overflow-hidden">
+              <div className="animate-word-slide flex flex-col">
+                <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
+                  Student Hackathons
+                </span>
+                <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
+                  Game Jams
+                </span>
+                <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
+                  Pitch Competitions
+                </span>
+                <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
+                  Innovation Challenges
+                </span>
+              </div>
+            </div>
+          </h2>
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            Your all-in-one solution—no need for multiple platforms. Simplify
+            event logistics and access comprehensive resources to learn about
+            hackathons and build ideas that stick.
           </p>
           {/* <TextGenerateEffect
             words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
@@ -53,13 +62,14 @@ export function LandingHero() {
           },
           {
             icon: Lightbulb,
-            title: "Actionable Guidance",
-            description: "Clear steps to drive your projects forward.",
+            title: "Simplified Logistics",
+            description: "Streamlined event management and team coordination.",
           },
           {
             icon: Target,
-            title: "Uplifting Support",
-            description: "Encouraging insights to boost your strengths.",
+            title: "Continuous Learning",
+            description:
+              "Resources to master hackathons and build impactful projects.",
           },
         ].map((item, index) => (
           <div key={index} className="text-center bg-white/50 p-4 rounded-md">
@@ -123,6 +133,67 @@ export function LandingHero() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slideWords {
+          0%,
+          20% {
+            transform: translateY(0%);
+          }
+          25%,
+          45% {
+            transform: translateY(-25%);
+          }
+          50%,
+          70% {
+            transform: translateY(-50%);
+          }
+          75%,
+          95% {
+            transform: translateY(-75%);
+          }
+          100% {
+            transform: translateY(-100%);
+          }
+        }
+
+        .animate-word-slide {
+          animation: slideWords 8s infinite;
+        }
+
+        .animate-word-slide span {
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .animate-word-slide {
+          /* Add the first item again at the bottom to create seamless loop */
+          transform: translateY(0);
+        }
+
+        .animate-word-slide span:first-child {
+          /* Clone the first item to the bottom */
+          position: relative;
+        }
+
+        .animate-word-slide span:first-child::after {
+          content: "Student Hackathons";
+          position: absolute;
+          top: 160px; /* 4 * 40px to position after the last item */
+          left: 0;
+          right: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(147, 197, 253, 0.3);
+          border-radius: 0.25rem;
+          color: rgb(30, 58, 138);
+          font-weight: 700;
+          padding: 0.25rem 0.5rem;
+        }
+      `}</style>
     </div>
   );
 }
