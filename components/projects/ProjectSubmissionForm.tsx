@@ -528,43 +528,40 @@ export function ProjectSubmissionFormComponent({
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
-            <div>
-              {currentStep > 1 && (
-                <Button
-                  type="button"
-                  onClick={() => setCurrentStep(currentStep - 1)}
-                  className="px-6 py-2"
-                >
-                  Previous
-                </Button>
-              )}
-            </div>
-            <div>
-              {currentStep < totalSteps ? (
-                <Button
-                  type="button"
-                  onClick={() => setCurrentStep(currentStep + 1)}
-                  className="px-6 py-2"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    "Submit Project"
-                  )}
-                </Button>
-              )}
-            </div>
+            {currentStep > 1 && (
+              <Button
+                type="button"
+                onClick={() => setCurrentStep(currentStep - 1)}
+                className="px-6 py-2"
+              >
+                Previous
+              </Button>
+            )}
+            {currentStep < totalSteps && (
+              <Button
+                type="button"
+                onClick={() => setCurrentStep(currentStep + 1)}
+                className="px-6 py-2"
+              >
+                Next
+              </Button>
+            )}
+            {currentStep === totalSteps && (
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Project"
+                )}
+              </Button>
+            )}
           </div>
         </form>
       </Form>
