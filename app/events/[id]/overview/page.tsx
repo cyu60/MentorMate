@@ -45,27 +45,13 @@ export default async function EventOverviewPage({ params }: PageProps) {
   } = await supabase.auth.getSession();
   let hasJoined = false;
 
-  // TODO: Should be pulling from user_event_roles table
   if (session) {
     if (!session?.user?.email) return;
-
-      // Get uid from user_profiles using email from auth session
-      const { data: userProfile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("uid")
-        .eq("email", session.user.email)
-        .single();
-
-      if (profileError || !userProfile) {
-        return;
-      }
-
-      const userId = userProfile.uid;
 
     const { data: userEventRoles } = await supabase
       .from("user_event_roles")
       .select("event_id")
-      .in("user_id", [userId]);
+      .in("uid", [session.user.id]);
 
     if (userEventRoles) {
       const events = userEventRoles.map((role) => role.event_id);

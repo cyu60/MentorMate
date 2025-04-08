@@ -43,20 +43,7 @@ export function EventRegistrationProvider({
         } = await supabase.auth.getSession();
         if (!session) return;
 
-        if (!session?.user?.email) return;
-
-        // Get uid from user_profiles using email from auth session
-        const { data: userProfile, error: profileError } = await supabase
-          .from("user_profiles")
-          .select("uid")
-          .eq("email", session.user.email)
-          .single();
-
-        if (profileError || !userProfile) {
-          return;
-        }
-
-        const userId = userProfile.uid;
+        const userId = session.user.id;
 
         // Check user_event_roles table for role
         const { data: roleData } = await supabase

@@ -18,7 +18,7 @@ export default async function PublicParticipantsPage({ params }: PageProps) {
 
   const { data: participants, error } = await supabase
     .from("user_event_roles")
-    .select("user_id, user_profiles:user_id(uid, display_name)")
+    .select("user_id, user_profiles!user_id(uid, display_name)")
     .eq("event_id", id)
     .eq("role", "participant")
     .overrideTypes<

@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
+import { UUID } from "crypto";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -105,15 +106,27 @@ export function ProjectSubmissionFormComponent({
   useEffect(() => {
     const fetchUserDisplayNames = async () => {
       try {
+
         const { data, error } = await supabase
-          .from("user_profiles")
-          .select("email");
+          .from("user_event_roles")
+          .select("user_id, user_profiles!user_id(email)")
+          .eq("role", "participant")
+          .eq("event_id", eventId)
+          .overrideTypes<
+            Array<{
+              user_id: UUID;
+              user_profiles: {
+                email: string;
+              };
+            }>
+          >();
+
         if (error) {
           console.error("Error fetching user display names:", error);
           return;
         }
         if (data) {
-          const emails = data.map((user) => user["email"]);
+          const emails = data.map((user) => user.user_profiles.email);
           setAllUsers(emails);
         }
       } catch (err) {
@@ -230,7 +243,7 @@ export function ProjectSubmissionFormComponent({
       });
       form.reset();
       onProjectSubmitted?.();
-      router.push(`/events/${eventId}/projects/public/${data[0].id}`);
+      router.push(`/my-project-gallery/${data[0].id}/dashboard`);
     } catch (error) {
       console.error("Error submitting project:", error);
       toast({
@@ -515,40 +528,43 @@ export function ProjectSubmissionFormComponent({
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
-            {currentStep > 1 && (
-              <Button
-                type="button"
-                onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-6 py-2"
-              >
-                Previous
-              </Button>
-            )}
-            {currentStep < totalSteps && (
-              <Button
-                type="button"
-                onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-6 py-2"
-              >
-                Next
-              </Button>
-            )}
-            {currentStep === totalSteps && (
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full text-base py-3"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Project"
-                )}
-              </Button>
-            )}
+            <div>
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep(currentStep - 1)}
+                  className="px-6 py-2"
+                >
+                  Previous
+                </Button>
+              )}
+            </div>
+            <div>
+              {currentStep < totalSteps ? (
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep(currentStep + 1)}
+                  className="px-6 py-2"
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Project"
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </Form>

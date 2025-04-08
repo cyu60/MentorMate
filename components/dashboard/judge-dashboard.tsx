@@ -28,7 +28,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
         const { data: eventData, error: eventError } = await supabase
           .from("events")
           .select("scoring_config")
-          .eq("id", eventId)
+          .eq("event_id", eventId)
           .single();
 
         if (eventError) {

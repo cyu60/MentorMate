@@ -36,6 +36,7 @@ export default function HomePage() {
           const user = currentSession.user;
 
           const profileData = {
+            uid: user.id,
             email: user.email,
             display_name: user.user_metadata.full_name,
           };
