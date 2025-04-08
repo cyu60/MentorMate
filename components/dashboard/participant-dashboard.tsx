@@ -91,7 +91,7 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
           <CardHeader>
             <CardTitle>My Projects</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto max-h-[500px]">
             {isLoading ? (
               <p>Loading...</p>
             ) : myProjects.length === 0 ? (
