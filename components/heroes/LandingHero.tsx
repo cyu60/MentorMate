@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 
 export function LandingHero() {
   return (
-    <div className="min-h-screen bg-artistic py-2 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto px-2 sm:px-3 lg:px-4 py-4">
-        <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
+    <div className="min-h-screen bg-artistic py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-2 sm:px-3 lg:px-4 py-8">
+        <h1 className="text-5xl sm:text-3xl md:text-6xl font-extrabold mb-12 flex items-center justify-center">
           <span className="flex items-center gap-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
             Mentor Mates
           </span>
         </h1>
-        <div className="space-y-8 text-center">
+        <div className="space-y-12 text-center">
           <h2 className="text-2xl font-medium text-gray-800 max-w-3xl mx-auto leading-relaxed">
             All-in-One Platform for{" "}
             <div className="inline-flex flex-col h-[40px] overflow-hidden">
@@ -35,17 +35,20 @@ export function LandingHero() {
               </div>
             </div>
           </h2>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            Your all-in-one solution—no need for multiple platforms. Simplify
-            event logistics and access comprehensive resources to learn about
-            hackathons and build ideas that stick.
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+            Built <strong>by students, for students</strong>, and backed by{" "}
+            <strong>learning sciences</strong> and <strong>pedagogy</strong>,
+            Mentor Mates guides you through every step of your hackathon or
+            innovation event. From structured learning resources to streamlined
+            logistics, our platform helps you focus on what truly matters:
+            creating <em>impactful</em> projects.
           </p>
           {/* <TextGenerateEffect
             words="Elevate your project with smart, actionable and encouraging feedback that drives real learning."
             className="text-xl text-blue-100 max-w-3xl mx-auto font-light"
           /> */}
-          <Link href="/select-role">
-            <Button className="inline-flex items-center mt-4 px-6 py-2 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300">
+          <Link href="/select-role" className="mt-8 inline-block">
+            <Button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300">
               Get Started
               <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
             </Button>
@@ -53,12 +56,12 @@ export function LandingHero() {
         </div>
       </div>
 
-      <div className="mt-16 grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+      <div className="mt-24 grid gap-12 md:grid-cols-3 max-w-5xl mx-auto">
         {[
           {
             icon: Users,
-            title: "Targeted Feedback",
-            description: "Pinpoint insights that help you continually improve.",
+            title: "Peer Feedback",
+            description: "Leverage peer feedback and support to improve.",
           },
           {
             icon: Lightbulb,
@@ -84,7 +87,7 @@ export function LandingHero() {
         ))}
       </div>
 
-      <div className="mt-16 text-center space-y-4">
+      <div className="mt-24 text-center space-y-8">
         <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
           Supported by:
         </p>
@@ -104,8 +107,8 @@ export function LandingHero() {
         </p>
       </div>
 
-      <div className="mt-16 bg-blue-900 rounded-2xl max-w-5xl mx-auto shadow-xl overflow-hidden">
-        <div className="py-8 px-4 sm:px-6 lg:py-12 lg:px-8 text-center">
+      <div className="mt-24 bg-blue-900 rounded-2xl max-w-5xl mx-auto shadow-xl overflow-hidden">
+        <div className="py-12 px-4 sm:px-6 lg:py-16 lg:px-8 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">Ready to start your journey?</span>
             <span className="block text-blue-200 mt-2">
