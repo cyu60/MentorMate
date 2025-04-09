@@ -146,7 +146,7 @@ export default function HomePage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
+      <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-50 pb-4">
         <Navbar />
         <LandingHero />
         <ServiceWorkerRegistration />
