@@ -118,11 +118,12 @@ export function Navbar() {
                 </DropdownMenu>
               ) : (
                 <Button
-                  size="lg"
+                  // size="lg"
+                  variant="logIn"
                   className="bg-black text-white font-semibold px-6 rounded-full hover:bg-gray-800 transition-all duration-300"
                   onClick={handleLoginClick}
                 >
-                  Login
+                  Log in
                 </Button>
               )}
             </div>
