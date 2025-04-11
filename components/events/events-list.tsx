@@ -114,10 +114,10 @@ export function EventsList({ events }: EventsListProps) {
                       {event.event_name}
                     </CardTitle>
                     <div className="flex gap-2 mt-2">
-                      <Badge variant="secondary" className="text-sm">
+                      <Badge variant="secondary" className="text-sm truncate max-w-[125px]">
                         {event.event_date}
                       </Badge>
-                      <Badge variant="outline" className="text-sm">
+                      <Badge variant="outline" className="text-sm truncate line-clamp-1">
                         {event.location}
                       </Badge>
                     </div>
