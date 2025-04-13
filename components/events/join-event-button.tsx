@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+// import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -18,7 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { EventRole } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
 export interface JoinEventButtonProps {
   eventId: string;
@@ -31,7 +34,9 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const [selectedRole, setSelectedRole] = useState<EventRole>(
     EventRole.Participant
   );
+  const [password, setPassword] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -62,6 +67,13 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
     checkIfJoined();
   }, [eventId]);
 
+  const handleRoleSelect = (value: EventRole) => {
+    setSelectedRole(value);
+    // Show password input only for protected roles
+    setShowPasswordInput(value === EventRole.Judge || value === EventRole.Organizer);
+    setPassword("");
+  };
+
   const handleJoinEvent = async () => {
     try {
       setIsLoading(true);
@@ -75,19 +87,28 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         return;
       }
 
-      const userId = session.user.id;
-
-      // Insert into user_event_roles
-      const { error: roleError } = await supabase
-        .from("user_event_roles")
-        .insert({
-          user_id: userId,
-          event_id: eventId,
+      // Use the verify endpoint for all roles
+      const response = await fetch('/api/roles/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
           role: selectedRole,
-        });
+          password: showPasswordInput ? password : undefined,
+          userId: session.user.id
+        }),
+      });
 
-      if (roleError) {
-        console.error("Error setting user role:", roleError.message);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to join event",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -96,11 +117,12 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
       router.refresh();
       window.location.reload();
     } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error joining event:", error.message);
-      } else {
-        console.error("Error joining event:", error);
-      }
+      console.error("Error joining event:", error);
+      toast({
+        title: "Error",
+        description: "Failed to join event",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +148,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
             <label className="text-sm font-medium">Select your role:</label>
             <Select
               value={selectedRole}
-              onValueChange={(value) => setSelectedRole(value as EventRole)}
+              onValueChange={handleRoleSelect}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -141,9 +163,24 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
               </SelectContent>
             </Select>
           </div>
+
+          {showPasswordInput && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Enter {selectedRole} Password:
+              </label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+              />
+            </div>
+          )}
+
           <Button
             onClick={handleJoinEvent}
-            disabled={isLoading}
+            disabled={isLoading || (showPasswordInput && !password)}
             className="w-full bg-blue-700 hover:bg-blue-800"
           >
             {isLoading ? "Joining..." : "Confirm"}

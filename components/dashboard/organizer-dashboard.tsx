@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Edit, Calendar, List, Trophy, Book } from "lucide-react";
+import { Edit, Calendar, List, Trophy, Book, Lock } from "lucide-react";
 import { EventDetails, EventRole } from "@/lib/types";
+import { RolePasswordSettings } from "./role-password-settings";
 
 interface UpdateEventData {
   event_name?: string;
@@ -156,7 +157,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-5 gap-4 mb-6">
+        <TabsList className="grid grid-cols-6 gap-4 mb-6">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Basic Info
@@ -176,6 +177,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           <TabsTrigger value="rules" className="flex items-center gap-2">
             <Book className="h-4 w-4" />
             Rules
+          </TabsTrigger>
+          <TabsTrigger value="passwords" className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Passwords
           </TabsTrigger>
         </TabsList>
 
@@ -576,6 +581,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="passwords">
+          <RolePasswordSettings eventId={eventId} />
         </TabsContent>
       </Tabs>
     </div>
