@@ -4,6 +4,13 @@ import * as bcrypt from 'bcrypt';
 import { EventRole } from '@/lib/types';
 
 export async function POST(request: Request) {
+
+  // requires ssr supabase client
+  const supabase = createSupabaseClient();
+
+  // Verify user has permission to set password (must be admin or organizer)
+  const { data: user } = await supabase.auth.getUser();
+  console.log('user', user);
   try {
     const { eventId, role, password } = await request.json();
     
@@ -23,12 +30,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // requires ssr supabase client
-    const supabase = createSupabaseClient();
-
-    // Verify user has permission to set password (must be admin or organizer)
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) {
+    if (!user?.user) {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
     const { data: userRole } = await supabase
       .from('user_event_roles')
       .select('role')
-      .eq('user_id', session.session.user.id)
+      .eq('user_id', user.user.id)
       .eq('event_id', eventId)
       .single();
 

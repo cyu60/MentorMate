@@ -50,6 +50,8 @@ export async function POST(request: Request) {
         .eq("event_id", eventId)
         .eq("role", role)
         .single();
+      
+      console.log("Role password", rolePassword);
 
       if (fetchError || !rolePassword) {
         return NextResponse.json(
@@ -63,6 +65,8 @@ export async function POST(request: Request) {
         password,
         rolePassword.password_hash
       );
+
+      console.log("Password", password);
 
       if (!isValid) {
         return NextResponse.json(
