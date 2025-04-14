@@ -1,26 +1,16 @@
 import { NextResponse } from "next/server";
 import { EventRole } from "@/lib/types";
 import * as bcrypt from "bcrypt";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseClient } from "@/app/utils/supabase/server";
 
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
 export async function POST(request: Request) {
 
-    //doesn't work; supabase client does not connect to the server for some reason
+  const supabase = await createSupabaseClient();
 
   try {
     // Get request data
     const { eventId, role, password, userId } = await request.json();
-
-    console.log("Event ID", eventId);
-    console.log("Role", role);
-    console.log("Password", password);
-    console.log("User ID", userId);
 
     // Input validation
     if (!eventId || !role || !userId) {
@@ -51,8 +41,6 @@ export async function POST(request: Request) {
         .eq("role", role)
         .single();
       
-      console.log("Role password", rolePassword);
-
       if (fetchError || !rolePassword) {
         return NextResponse.json(
           { success: false, message: "No password set for this role" },
@@ -65,8 +53,6 @@ export async function POST(request: Request) {
         password,
         rolePassword.password_hash
       );
-
-      console.log("Password", password);
 
       if (!isValid) {
         return NextResponse.json(
@@ -90,7 +76,7 @@ export async function POST(request: Request) {
     // So we can proceed with role assignment
 
     // Assign role to user
-    const { data: roleData, error: roleError } = await supabase
+    const { error: roleError } = await supabase
       .from("user_event_roles")
       .upsert(
         {
@@ -102,9 +88,7 @@ export async function POST(request: Request) {
         {
           onConflict: "user_id,event_id",
         }
-      ).select();
-
-    console.log("Role data", roleData);
+      );
 
     if (roleError) {
       return NextResponse.json(

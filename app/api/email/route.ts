@@ -3,12 +3,7 @@ import nodemailer from 'nodemailer';
 import { getProjectSubmissionEmailTemplate } from '@/app/email-templates/project-submission';
 import { getProjectTeammateEmailTemplate } from '@/app/email-templates/project-teammate';
 import { getFeedbackNotificationEmailTemplate } from '@/app/email-templates/feedback-notification';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { createSupabaseClient } from '@/app/utils/supabase/server';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -19,6 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function getTeammateEmails(emails: string[]) {
+  const supabase = await createSupabaseClient();
   if (!emails.length) return [];
   
   const { data, error } = await supabase
@@ -50,6 +46,8 @@ async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export async function POST(request: Request) {
+  const supabase = await createSupabaseClient();
+
   try {
     const { type, ...data } = await request.json();
 

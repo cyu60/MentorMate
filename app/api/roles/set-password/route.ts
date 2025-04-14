@@ -6,7 +6,7 @@ import { EventRole } from '@/lib/types';
 export async function POST(request: Request) {
 
   // requires ssr supabase client
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   // Verify user has permission to set password (must be admin or organizer)
   const { data: user } = await supabase.auth.getUser();
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         password_hash: passwordHash,
         updated_at: new Date().toISOString()
       }, {
-        onConflict: '(event_id,role)'
+        onConflict: 'event_id,role'
       });
 
     if (error) {

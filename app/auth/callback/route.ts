@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
   console.log("Starting auth callback with code");
   console.log("Starting auth callback with code");
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
   
   // First, get the current session
 

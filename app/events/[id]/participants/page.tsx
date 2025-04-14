@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function PublicParticipantsPage({ params }: PageProps) {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
   const { id } = await params;
 
   const { data: participants, error } = await supabase

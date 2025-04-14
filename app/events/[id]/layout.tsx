@@ -15,7 +15,7 @@ export default async function Layout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await Promise.resolve(params);
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const { data: event } = await supabase
     .from("events")
@@ -64,7 +64,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await Promise.resolve(params);
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
   const { data: event } = await supabase
     .from("events")
     .select("event_name")
