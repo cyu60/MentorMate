@@ -319,6 +319,7 @@ function ProjectPageContent(): JSX.Element {
                       projectId={projectId as string}
                       criteria={criteria}
                       existingScore={existingScore}
+                      trackId={projectData.track_ids[0]}
                       onScoreSubmitted={() => {
                         toast({
                           title: "Success",
