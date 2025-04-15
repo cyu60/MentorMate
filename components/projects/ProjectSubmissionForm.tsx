@@ -22,8 +22,19 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 import { UUID } from "crypto";
+import { ScoringCriterion } from "@/lib/types";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+interface Track {
+  name: string;
+  description?: string;
+  criteria?: ScoringCriterion[];
+}
+
+interface ScoringConfig {
+  tracks: Record<string, Track>;
+}
 
 const formSchema = z.object({
   projectName: z.string().min(2, {
@@ -45,12 +56,14 @@ const formSchema = z.object({
     }),
   teammates: z.array(z.string()).optional(),
   projectUrl: z.string().url().optional().or(z.literal("")),
+  trackIds: z.array(z.string()).min(1, {
+    message: "Please select at least one track.",
+  }),
   coverImage: z
     .custom<FileList>()
     .optional()
     .refine(
-      (files) =>
-        !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
       {
         message: "File size must be less than 10MB",
       }
@@ -59,8 +72,7 @@ const formSchema = z.object({
     .custom<FileList>()
     .optional()
     .refine(
-      (files) =>
-        !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
       {
         message: "File size must be less than 10MB",
       }
@@ -80,7 +92,12 @@ export function ProjectSubmissionFormComponent({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
+  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(
+    null
+  );
+  const [availableTracks, setAvailableTracks] = useState<
+    { id: string; name: string }[]
+  >([]);
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
@@ -94,6 +111,7 @@ export function ProjectSubmissionFormComponent({
       projectDescription: "",
       teammates: [],
       projectUrl: "",
+      trackIds: [],
     },
   });
 
@@ -106,7 +124,6 @@ export function ProjectSubmissionFormComponent({
   useEffect(() => {
     const fetchUserDisplayNames = async () => {
       try {
-
         const { data, error } = await supabase
           .from("user_event_roles")
           .select("user_id, user_profiles!user_id(email)")
@@ -135,6 +152,38 @@ export function ProjectSubmissionFormComponent({
     };
     fetchUserDisplayNames();
   }, []);
+
+  // Fetch available tracks from event config
+  useEffect(() => {
+    const fetchEventTracks = async () => {
+      try {
+        const { data: eventData, error } = await supabase
+          .from("events")
+          .select("scoring_config")
+          .eq("event_id", eventId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching event tracks:", error);
+          return;
+        }
+
+        const scoringConfig = eventData?.scoring_config as ScoringConfig;
+        if (scoringConfig?.tracks) {
+          const tracks = Object.entries(scoringConfig.tracks).map(
+            ([id, track]) => ({
+              id,
+              name: track.name || id,
+            })
+          );
+          setAvailableTracks(tracks);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    };
+    fetchEventTracks();
+  }, [eventId]);
 
   const handleTeammatesChange = (tags: string[]) => {
     form.setValue("teammates", tags);
@@ -174,7 +223,9 @@ export function ProjectSubmissionFormComponent({
       if (values.coverImage && values.coverImage.length > 0) {
         const file = values.coverImage[0];
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const fileName = `${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
         const filePath = `project-covers/${fileName}`;
         const { error: uploadError } = await supabase.storage
           .from("project-materials")
@@ -190,7 +241,9 @@ export function ProjectSubmissionFormComponent({
       if (values.additionalMaterials && values.additionalMaterials.length > 0) {
         const file = values.additionalMaterials[0];
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const fileName = `${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
         const filePath = `project-materials/${fileName}`;
         const { error: uploadError } = await supabase.storage
           .from("project-materials")
@@ -218,6 +271,7 @@ export function ProjectSubmissionFormComponent({
           coverImageUrl,
           additionalMaterialsUrl,
           eventId,
+          trackIds: values.trackIds,
         }),
       });
 
@@ -254,16 +308,16 @@ export function ProjectSubmissionFormComponent({
       console.error("Error submitting project:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "There was an error submitting your project. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "There was an error submitting your project. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
-    
   }
-  
-
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-8 bg-white rounded-xl shadow-xl">
@@ -273,7 +327,8 @@ export function ProjectSubmissionFormComponent({
           Submit Your Project
         </h2>
         <p className="mt-3 text-lg text-gray-600">
-          Provide your project details for mentor feedback and get started on your journey.
+          Provide your project details for mentor feedback and get started on
+          your journey.
         </p>
         <div className="mt-6">
           <p className="text-lg text-gray-700">
@@ -309,7 +364,9 @@ export function ProjectSubmissionFormComponent({
                 name="projectDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Project Description</FormLabel>
+                    <FormLabel className="text-base">
+                      Project Description
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Briefly describe your project..."
@@ -319,6 +376,44 @@ export function ProjectSubmissionFormComponent({
                     </FormControl>
                     <FormDescription className="text-sm">
                       Provide an overview of your project (max 500 characters).
+                    </FormDescription>
+                    <FormMessage className="text-sm" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="trackIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">Project Tracks</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {availableTracks.map((track) => (
+                          <label
+                            key={track.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={field.value.includes(track.id)}
+                              onChange={(e) => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, track.id]
+                                  : field.value.filter((id) => id !== track.id);
+                                field.onChange(newValue);
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700">
+                              {track.name}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-sm">
+                      Select the tracks your project will participate in.
                     </FormDescription>
                     <FormMessage className="text-sm" />
                   </FormItem>
@@ -485,7 +580,9 @@ export function ProjectSubmissionFormComponent({
                         <Input
                           placeholder="John Doe"
                           {...field}
-                          className={`text-base p-3 ${leadName ? "bg-gray-100" : ""}`}
+                          className={`text-base p-3 ${
+                            leadName ? "bg-gray-100" : ""
+                          }`}
                         />
                       </FormControl>
                       <FormMessage className="text-sm" />
@@ -510,7 +607,9 @@ export function ProjectSubmissionFormComponent({
                           type="email"
                           placeholder="johndoe@example.com"
                           {...field}
-                          className={`text-base p-3 ${userEmail ? "bg-gray-100" : ""}`}
+                          className={`text-base p-3 ${
+                            userEmail ? "bg-gray-100" : ""
+                          }`}
                         />
                       </FormControl>
                       <FormMessage className="text-sm" />
@@ -525,7 +624,10 @@ export function ProjectSubmissionFormComponent({
                   <FormItem>
                     <FormLabel className="text-base">Teammates</FormLabel>
                     <FormControl>
-                      <UserSearch allTags={allUsers} onTagsChange={handleTeammatesChange} />
+                      <UserSearch
+                        allTags={allUsers}
+                        onTagsChange={handleTeammatesChange}
+                      />
                     </FormControl>
                     <FormMessage className="text-sm" />
                   </FormItem>
