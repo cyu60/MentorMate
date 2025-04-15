@@ -354,6 +354,18 @@ function ProjectPageContent(): JSX.Element {
                         </>
                       )}
                     </div>
+                    <ProjectScoringForm
+                      projectId={projectId as string}
+                      criteria={criteria}
+                      existingScore={existingScore}
+                      trackId={projectData.track_ids[0]}
+                      onScoreSubmitted={() => {
+                        toast({
+                          title: "Success",
+                          description: "Score submitted successfully",
+                        });
+                      }}
+                    />
                   </div>
                 )}
               </div>
