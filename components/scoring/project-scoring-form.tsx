@@ -91,6 +91,7 @@ export function ProjectScoringForm({
           judge_id: session.user.id,
           scores: formData.scores,
           comments: formData.comments,
+          updated_at: new Date(),
         },
         {
           onConflict: "project_id,judge_id",
