@@ -66,7 +66,9 @@ export async function POST(request: Request) {
     // Validate track_ids exist in event scoring config
     if (trackIds?.length > 0 && eventData.scoring_config) {
       const validTracks = Object.keys(eventData.scoring_config.tracks || {});
-      const invalidTracks = trackIds.filter((id) => !validTracks.includes(id));
+      const invalidTracks = trackIds.filter(
+        (id: string) => !validTracks.includes(id)
+      );
       if (invalidTracks.length > 0) {
         return NextResponse.json(
           { error: `Invalid track IDs: ${invalidTracks.join(", ")}` },
