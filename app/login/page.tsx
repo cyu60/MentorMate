@@ -38,7 +38,7 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/select-role");
+        router.push("/login");
       }
     };
 
@@ -86,7 +86,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/select-role");
+      router.push("/login");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -101,7 +101,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push("/select-role");
+      router.push("/login");
     }
   };
 
@@ -144,7 +144,7 @@ function LoginContent() {
 
   return (
     <div>
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md pt-5">
         <Image
           alt="MentorMates"
           src="/mentormate.png"
@@ -157,7 +157,7 @@ function LoginContent() {
         </h2>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-[400px] pl-5 pr-5">
+      <div className="sm:mx-auto sm:w-full sm:max-w-[400px] pl-5 pr-5 pb-10">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           {error && (
             <div className="mb-4 text-center text-sm text-red-600">{error}</div>
@@ -334,7 +334,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="pb-10 bg-gradient-to-b from-white to-blue-100/80 items-center">
+    <div className="min-h-screen pb-10 bg-gradient-to-b from-white to-blue-100/80 flex flex-col items-center">
       <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />

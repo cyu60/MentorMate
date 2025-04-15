@@ -40,20 +40,12 @@ const ProjectBoard = ({
                 <Card key={project.id} className="overflow-hidden shadow-lg">
                   {/* Cover Image or Gradient Fallback */}
                   <div
-                    className={`h-48 w-full relative ${
-                      !project.cover_image_url
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                        : ""
-                    }`}
-                    style={
-                      project.cover_image_url
-                        ? {
-                            backgroundImage: `url(${project.cover_image_url})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }
-                        : {}
-                    }
+                    className="h-48 w-full relative"
+                    style={{
+                      backgroundImage: `url(${project.cover_image_url || "/img/placeholder.png"})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
                   >
                     {!project.cover_image_url && (
                       <div className="absolute inset-0 flex items-center justify-center p-4">

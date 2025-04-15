@@ -87,7 +87,7 @@ export default function MentorLoginPage() {
   };
 
   return (
-    <div className="pb-10 bg-gradient-to-b from-white to-blue-100/80 items-center">
+    <div className="bg-gradient-to-b from-white to-blue-100/80 items-center">
       <Navbar />
       <div className="overflow-auto flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

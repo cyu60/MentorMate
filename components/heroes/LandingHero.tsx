@@ -51,7 +51,7 @@ export function LandingHero() {
 
           {/* Call to Action */}
           <div className="mt-8">
-            <Link href="/select-role" className="inline-block">
+            <Link href="/login" className="inline-block">
               <Button className="inline-flex items-center px-6 py-3 text-base font-medium rounded-full text-white bg-blue-900 hover:bg-gray-800 transition-colors duration-300">
                 Get Started
                 <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
@@ -135,7 +135,7 @@ export function LandingHero() {
 
             <div className="mt-8 flex justify-center space-x-4">
               <Link
-                href="/select-role"
+                href="/login"
                 className="inline-flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-blue-900 bg-white hover:bg-blue-200/20 hover:text-white transition-colors duration-300"
               >
                 Get Started

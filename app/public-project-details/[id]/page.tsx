@@ -5,7 +5,7 @@ import { useParams, notFound } from "next/navigation";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/footer";
-import { Navbar } from "@/components/layout/navbar";
+import { AuthNavbar } from "@/components/layout/authNavbar";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
@@ -208,7 +208,7 @@ function ProjectPageContent(): JSX.Element {
   if (isLoading) {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
-        <Navbar />
+        <AuthNavbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
             Loading project data...
@@ -221,7 +221,7 @@ function ProjectPageContent(): JSX.Element {
   if (!projectData) {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
-        <Navbar />
+        <AuthNavbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
             Project not found.
@@ -236,7 +236,7 @@ function ProjectPageContent(): JSX.Element {
   return (
     <div className="min-h-screen bg-blue-50">
       <Toaster />
-      <Navbar />
+      <AuthNavbar />
 
       {/* Hero Section */}
       <div className="pt-16 pb-8">
@@ -491,7 +491,7 @@ export default function PublicProjectPage() {
   if (isLoading) {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
-        <Navbar />
+        <AuthNavbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">Loading...</p>
         </div>
@@ -502,7 +502,7 @@ export default function PublicProjectPage() {
   if (!eventId) {
     return (
       <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-blue-50">
-        <Navbar />
+        <AuthNavbar />
         <div className="relative z-10 text-center">
           <p className="text-2xl text-blue-100 font-light">
             Project not found.
