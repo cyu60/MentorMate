@@ -21,7 +21,7 @@ export default function MyProjectsLayout({
         error,
       } = await supabase.auth.getSession();
       if (error || !session) {
-        router.push("/select-role");
+        router.push("/login");
         return;
       }
 
@@ -67,7 +67,7 @@ export default function MyProjectsLayout({
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
-        router.push("/select-role");
+        router.push("/login");
       }
     });
 

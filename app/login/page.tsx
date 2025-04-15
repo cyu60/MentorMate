@@ -38,7 +38,7 @@ function LoginContent() {
         console.error("Error fetching session:", sessionError);
       }
       if (session) {
-        router.push("/select-role");
+        router.push("/login");
       }
     };
 
@@ -86,7 +86,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/select-role");
+      router.push("/login");
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -101,7 +101,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push("/select-role");
+      router.push("/login");
     }
   };
 
