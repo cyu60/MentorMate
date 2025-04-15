@@ -103,10 +103,10 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!response.ok || data.error) {
         toast({
           title: "Error",
-          description: data.message || "Failed to join event",
+          description: data.error || "Failed to join event",
           variant: "destructive"
         });
         return;
