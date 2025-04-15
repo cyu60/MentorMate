@@ -7,7 +7,7 @@ import { EventsPageClient } from "@/components/eventsPageClient";
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const { data: events } = await supabase
     .from("events")

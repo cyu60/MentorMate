@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseClient } from "@/app/utils/supabase/server";
 import OpenAI from "openai";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: Request) {
+  const supabase = await createSupabaseClient();
+
   try {
     console.log("Starting feedback synthesis...");
     const body = await request.json();

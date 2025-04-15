@@ -2,6 +2,9 @@
 
 import { HackathonNav } from "@/components/layout/hackathon-nav";
 import { Badge } from "@/components/ui/badge";
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface EventHeaderProps {
   eventName: string;
@@ -20,8 +23,20 @@ export function EventHeader({
   description,
   eventId,
 }: EventHeaderProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [needsTruncation, setNeedsTruncation] = useState(false);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const contentHeight = contentRef.current.scrollHeight;
+      const clampedHeight = contentRef.current.clientHeight;
+      setNeedsTruncation(contentHeight > clampedHeight);
+    }
+  }, [description]);
+
   return (
-    <div className="relative w-full h-[300px] rounded-lg overflow-hidden">
+    <div className={`relative w-full ${isExpanded ? 'h-auto' : 'h-[300px]'} rounded-lg overflow-hidden transition-all duration-300`}>
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -59,7 +74,32 @@ export function EventHeader({
           </div>
         )}
         {description && (
-          <p className="text-white/80 max-w-3xl mb-2">{description}</p>
+          <div>
+            <p 
+              ref={contentRef}
+              className={`text-white/80 max-w-3xl ${!isExpanded ? 'line-clamp-2' : ''}`}
+            >
+              {description}
+            </p>
+            {needsTruncation && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? (
+                  <>
+                    Show less <ChevronUp className="ml-1 h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Show more <ChevronDown className="ml-1 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         )}
         <HackathonNav id={eventId} />
       </div>

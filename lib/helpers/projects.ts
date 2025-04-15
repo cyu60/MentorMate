@@ -17,7 +17,8 @@ export async function fetchProjectById(
     // Fetch project data
     const { data, error } = await supabase
       .from("projects")
-      .select(`
+      .select(
+        `
         id,
         project_name,
         lead_name,
@@ -28,8 +29,10 @@ export async function fetchProjectById(
         additional_materials_url,
         cover_image_url,
         event_id,
+        track_ids,
         created_at
-      `)
+      `
+      )
       .eq("id", projectId)
       .single();
 
@@ -53,6 +56,7 @@ export async function fetchProjectById(
       additional_materials_url: data.additional_materials_url,
       cover_image_url: data.cover_image_url,
       event_id: data.event_id,
+      track_ids: data.track_ids || [],
       created_at: data.created_at,
     };
 
@@ -88,7 +92,9 @@ export async function fetchProjectsByEventId(
 
   try {
     // Get current user's session
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session?.user?.email) return [];
 
     const userEmail = session.user.email;
@@ -96,7 +102,8 @@ export async function fetchProjectsByEventId(
     // Fetch projects where user is lead
     const { data: leadProjects, error: leadError } = await supabase
       .from("projects")
-      .select(`
+      .select(
+        `
         id,
         project_name,
         lead_name,
@@ -107,8 +114,10 @@ export async function fetchProjectsByEventId(
         additional_materials_url,
         cover_image_url,
         event_id,
+        track_ids,
         created_at
-      `)
+      `
+      )
       .eq("event_id", eventId)
       .eq("lead_email", userEmail)
       .order("project_name");
@@ -121,7 +130,8 @@ export async function fetchProjectsByEventId(
     // Fetch projects where user is a teammate
     const { data: teamProjects, error: teamError } = await supabase
       .from("projects")
-      .select(`
+      .select(
+        `
         id,
         project_name,
         lead_name,
@@ -132,8 +142,10 @@ export async function fetchProjectsByEventId(
         additional_materials_url,
         cover_image_url,
         event_id,
+        track_ids,
         created_at
-      `)
+      `
+      )
       .eq("event_id", eventId)
       .contains("teammates", [userEmail])
       .order("project_name");
@@ -146,9 +158,10 @@ export async function fetchProjectsByEventId(
     // Combine and deduplicate projects
     const allProjects = [
       ...(leadProjects || []),
-      ...(teamProjects || [])
-    ].filter((project, index, self) =>
-      index === self.findIndex((p) => p.id === project.id)
+      ...(teamProjects || []),
+    ].filter(
+      (project, index, self) =>
+        index === self.findIndex((p) => p.id === project.id)
     );
 
     return allProjects.map((item) => ({
@@ -162,10 +175,11 @@ export async function fetchProjectsByEventId(
       additional_materials_url: item.additional_materials_url,
       cover_image_url: item.cover_image_url,
       event_id: item.event_id,
+      track_ids: item.track_ids || [],
       created_at: item.created_at,
     }));
   } catch (error) {
     console.error("Unexpected error fetching projects by event:", error);
     return [];
   }
-} 
+}

@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { JoinEventButton } from "@/components/events/join-event-button";
 import { EventStatusBar } from "@/components/events/event-status-bar";
+import ReactMarkdown from "react-markdown";
 import {
   EventDetails,
   Rule,
@@ -67,6 +68,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
       event_name,
       event_date,
       location,
+      event_blurb,
       event_description,
       event_schedule,
       event_prizes,
@@ -96,6 +98,24 @@ export default async function EventOverviewPage({ params }: PageProps) {
           <JoinEventButton eventId={id} eventName={typedEvent.event_name} />
         </div>
       )}
+
+      {/* Event Description */}
+      {typedEvent.event_description && (
+        <Card className="shadow-lg rounded-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl font-semibold text-gray-800">
+              About the Event
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-blue max-w-none">
+              <ReactMarkdown>{typedEvent.event_description}</ReactMarkdown>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      
 
       {/* Rules */}
       <Card className="shadow-lg rounded-lg">

@@ -15,7 +15,7 @@ export default async function Layout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await Promise.resolve(params);
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const { data: event } = await supabase
     .from("events")
@@ -24,6 +24,7 @@ export default async function Layout({
       event_name,
       event_date,
       location,
+      event_blurb,
       event_description,
       cover_image_url
     `)
@@ -45,7 +46,7 @@ export default async function Layout({
               coverImageUrl={event.cover_image_url}
               eventDate={event.event_date}
               location={event.location}
-              description={event.event_description}
+              description={event.event_blurb || event.event_description}
               eventId={id}
             />
             {children}
@@ -63,7 +64,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await Promise.resolve(params);
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
   const { data: event } = await supabase
     .from("events")
     .select("event_name")

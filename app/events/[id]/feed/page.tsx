@@ -31,7 +31,7 @@ export default async function PublicFeedPage({
   params,
   searchParams,
 }: PageProps) {
-  const supabase = createSupabaseClient()
+  const supabase = await createSupabaseClient()
   
   // Note: This Next.js warning is a false positive. In Server Components,
   // route params are already resolved and don't need to be awaited.

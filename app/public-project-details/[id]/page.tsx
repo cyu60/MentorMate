@@ -34,6 +34,7 @@ function ProjectPageContent(): JSX.Element {
   );
   const { userRole } = useEventRegistration();
   const [scoringOpen, setScoringOpen] = useState(true);
+  const [selectedTrackId, setSelectedTrackId] = useState<string>("");
 
   useEffect(() => {
     const loadProject = async () => {
@@ -294,31 +295,70 @@ function ProjectPageContent(): JSX.Element {
                   <div className="p-6 border-t">
                     <div className="mb-6">
                       <h3 className="text-lg font-semibold mb-3">
-                        Scoring Criteria
+                        Track Selection
                       </h3>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {criteria.map((criterion) => (
-                          <div
-                            key={criterion.id}
-                            className="p-4 bg-gray-50 rounded-lg"
-                          >
-                            <h4 className="font-medium">{criterion.name}</h4>
-                            <p className="text-sm text-gray-600">
-                              {criterion.description}
-                            </p>
-                            {criterion.weight && criterion.weight !== 1 && (
-                              <p className="text-sm text-blue-600 mt-1">
-                                Weight: {criterion.weight}x
-                              </p>
-                            )}
-                          </div>
+                      <select
+                        value={selectedTrackId}
+                        onChange={(e) => setSelectedTrackId(e.target.value)}
+                        className="w-full p-2 border rounded-md mb-4"
+                      >
+                        <option value="">Select a track</option>
+                        {projectData?.track_ids?.map((trackId) => (
+                          <option key={trackId} value={trackId}>
+                            {trackId}
+                          </option>
                         ))}
-                      </div>
+                      </select>
+                      {!selectedTrackId && (
+                        <p className="text-sm text-red-500 mb-4">
+                          Please select a track to start scoring
+                        </p>
+                      )}
+                      {selectedTrackId && (
+                        <>
+                          <h3 className="text-lg font-semibold mb-3">
+                            Scoring Criteria
+                          </h3>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            {criteria.map((criterion) => (
+                              <div
+                                key={criterion.id}
+                                className="p-4 bg-gray-50 rounded-lg"
+                              >
+                                <h4 className="font-medium">
+                                  {criterion.name}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {criterion.description}
+                                </p>
+                                {criterion.weight && criterion.weight !== 1 && (
+                                  <p className="text-sm text-blue-600 mt-1">
+                                    Weight: {criterion.weight}x
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <ProjectScoringForm
+                            projectId={projectId as string}
+                            trackId={selectedTrackId}
+                            criteria={criteria}
+                            existingScore={existingScore}
+                            onScoreSubmitted={() => {
+                              toast({
+                                title: "Success",
+                                description: "Score submitted successfully",
+                              });
+                            }}
+                          />
+                        </>
+                      )}
                     </div>
                     <ProjectScoringForm
                       projectId={projectId as string}
                       criteria={criteria}
                       existingScore={existingScore}
+                      trackId={projectData.track_ids[0]}
                       onScoreSubmitted={() => {
                         toast({
                           title: "Success",
