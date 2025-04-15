@@ -43,14 +43,16 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           return;
         }
 
+        const userId = session.user.id;
+
         // Check if user is an organizer for this event
         const { data: roleData } = await supabase
           .from("user_event_roles")
           .select("role")
-          .eq("user_id", session.user.id)
+          .eq("user_id", userId)
           .eq("event_id", eventId)
           .eq("role", EventRole.Organizer)
-          .single();
+          .maybeSingle();
 
         if (!roleData) {
           toast.error("You don't have permission to edit this event");

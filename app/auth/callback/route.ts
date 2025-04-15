@@ -18,6 +18,8 @@ export async function GET(request: Request) {
   const supabase = createSupabaseClient();
   
   // First, get the current session
+
+  // We may need to use getUser instead of getSession for routes 
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) {
     console.error("ROOT: Error getting session:", sessionError);
@@ -50,7 +52,7 @@ export async function GET(request: Request) {
     const { error: profileError } = await supabase
       .from('user_profiles')
       .insert({
-        user_id: user.id,
+        uid: user.id,
         display_name: user.user_metadata?.full_name || user.email.split('@')[0],
         email: user.email,
         created_at: new Date().toISOString()
@@ -78,7 +80,7 @@ export async function GET(request: Request) {
   const { data: existingProfile, error: profileCheckError } = await supabase
     .from('user_profiles')
     .select('uid')
-    .eq('user_id', user.id)
+    .eq('uid', user.id)
     .single();
 
   if (profileCheckError && profileCheckError.code !== 'PGRST116') {
@@ -88,7 +90,7 @@ export async function GET(request: Request) {
 
   if (!existingProfile) {
     const profileData = {
-      user_id: user.id,
+      uid: user.id,
       display_name: user.user_metadata?.full_name || user.email.split('@')[0],
       email: user.email,
       created_at: new Date().toISOString()

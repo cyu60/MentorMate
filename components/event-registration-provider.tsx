@@ -43,13 +43,15 @@ export function EventRegistrationProvider({
         } = await supabase.auth.getSession();
         if (!session) return;
 
+        const userId = session.user.id;
+
         // Check user_event_roles table for role
         const { data: roleData } = await supabase
           .from("user_event_roles")
           .select("role")
-          .eq("user_id", session.user.id)
+          .eq("user_id", userId)
           .eq("event_id", eventId)
-          .single();
+          .maybeSingle();
 
         if (roleData) {
           setIsRegistered(true);

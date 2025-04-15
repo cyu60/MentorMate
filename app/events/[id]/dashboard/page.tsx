@@ -7,11 +7,22 @@ import { ParticipantDashboard } from "@/components/dashboard/participant-dashboa
 import { JudgeDashboard } from "@/components/dashboard/judge-dashboard";
 import { MentorDashboard } from "@/components/dashboard/mentor-dashboard";
 import { OrganizerDashboard } from "@/components/dashboard/organizer-dashboard";
+import { useState, useEffect } from "react";
 
 export default function DashboardPage() {
   const params = useParams();
   const eventId = params.id as string;
   const { userRole } = useEventRegistration();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time for the dashboard, give time for the data to load
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const renderDashboard = () => {
     switch (userRole) {
@@ -37,5 +48,15 @@ export default function DashboardPage() {
     }
   };
 
-  return <div className="space-y-8">{renderDashboard()}</div>;
+  return (
+    <div className="space-y-8">
+      {loading ? (
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold">Loading...</h2>
+        </div>
+      ) : (
+        renderDashboard()
+      )}
+    </div>
+  );
 }

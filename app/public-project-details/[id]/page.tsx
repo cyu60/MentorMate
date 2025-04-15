@@ -55,7 +55,7 @@ function ProjectPageContent(): JSX.Element {
         const { data: eventData, error: eventError } = await supabase
           .from("events")
           .select("scoring_config")
-          .eq("id", project.event_id)
+          .eq("event_id", project.event_id)
           .single();
 
         if (eventError) {

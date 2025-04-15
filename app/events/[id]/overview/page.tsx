@@ -46,16 +46,16 @@ export default async function EventOverviewPage({ params }: PageProps) {
   let hasJoined = false;
 
   if (session) {
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select()
-      .eq("uid", session.user.id)
-      .maybeSingle();
+    if (!session?.user?.email) return;
 
-    if (profile) {
-      const events = profile.events || [];
+    const { data: userEventRoles } = await supabase
+      .from("user_event_roles")
+      .select("event_id")
+      .in("uid", [session.user.id]);
+
+    if (userEventRoles) {
+      const events = userEventRoles.map((role) => role.event_id);
       hasJoined = events.includes(id);
-
     }
   }
 

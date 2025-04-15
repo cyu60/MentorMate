@@ -33,17 +33,40 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
       } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("event_id", eventId)
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
+      // const { data, error } = await supabase
+      //   .from("projects")
+      //   .select("*")
+      //   .eq("event_id", eventId)
+      //   .eq("user_id", session.user.id)
+      //   .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching projects:", error);
+      const { data: leadProjects, error: leadProjectsError } = await supabase
+        .from("projects")
+        .select()
+        .eq("lead_email", session.user.email)
+        .eq("event_id", eventId);
+
+      //problem: teammates are not being stored as emails. This fetch will not work.
+      const { data: teamProjects, error: teamProjectsError } = await supabase
+        .from("projects")
+        .select()
+        .contains("teammates", [session.user.email])
+        .eq("event_id", eventId);
+
+      const allProjects = [...(leadProjects || []), ...(teamProjects || [])]
+        .filter(
+          (project, index, self) =>
+            index === self.findIndex((p) => p.id === project.id)
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+      if (leadProjectsError || teamProjectsError) {
+        console.error("Error fetching projects:", leadProjectsError || teamProjectsError);
       } else {
-        setMyProjects(data || []);
+        setMyProjects(allProjects || []);
       }
       setIsLoading(false);
     };
@@ -68,7 +91,7 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
           <CardHeader>
             <CardTitle>My Projects</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto max-h-[500px]">
             {isLoading ? (
               <p>Loading...</p>
             ) : myProjects.length === 0 ? (
@@ -78,7 +101,7 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
                 {myProjects.map((project) => (
                   <li key={project.id} className="border-b pb-2">
                     <Link
-                      href={`/events/${eventId}/projects/${project.id}`}
+                      href={`/my-project-gallery/${project.id}/dashboard`}
                       className="hover:text-blue-500"
                     >
                       <h3 className="font-semibold">{project.project_name}</h3>

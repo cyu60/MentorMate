@@ -65,7 +65,7 @@ const ProjectBoard = ({
                   </div>
                   <div className="p-6 space-y-4 flex flex-col h-[200px]">
                     <div className="flex justify-between items-center">
-                      <CardTitle className="text-xl font-semibold">
+                      <CardTitle className="text-xl font-semibold truncate">
                         {project.project_name}
                       </CardTitle>
                       {projectBoardContext === ProjectBoardContext.MyProjects && (
@@ -79,39 +79,39 @@ const ProjectBoard = ({
                     <p className="text-sm text-gray-500">
                       Lead: {project.lead_name}
                     </p>
-                    <CardDescription className="text-gray-600 text-sm flex-grow">
-                      {project.project_description.length > 100
-                        ? project.project_description.slice(0, 100) + "..."
-                        : project.project_description}
+                    <CardDescription className="text-gray-600 text-sm flex-grow overflow-hidden">
+                        {project.project_description}
                     </CardDescription>
 
-                    {(() => {
-                      switch (projectBoardContext) {
-                        case ProjectBoardContext.MyProjects:
-                          return (
-                            <Link
-                              href={`/my-project-gallery/${project.id}/dashboard`}
-                              className="block mt-4"
-                            >
-                              <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
-                                View Project
-                              </Button>
-                            </Link>
-                          );
-                        case ProjectBoardContext.EventGallery:
-                          return (
-                            <Link
-                              href={`/public-project-details/${project.id}`}
-                              target="_blank"
-                              className="block mt-4"
-                            >
-                              <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                                View Details
-                              </Button>
-                            </Link>
-                          );
-                      }
-                    })()}
+                    <div className="mt-auto">
+                      {(() => {
+                        switch (projectBoardContext) {
+                          case ProjectBoardContext.MyProjects:
+                            return (
+                              <Link
+                                href={`/my-project-gallery/${project.id}/dashboard`}
+                                className="block"
+                              >
+                                <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow hover:shadow-xl transition-all duration-300">
+                                  View Project
+                                </Button>
+                              </Link>
+                            );
+                          case ProjectBoardContext.EventGallery:
+                            return (
+                              <Link
+                                href={`/public-project-details/${project.id}`}
+                                target="_blank"
+                                className="block"
+                              >
+                                <Button className="w-full button-gradient text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                                  View Details
+                                </Button>
+                              </Link>
+                            );
+                        }
+                      })()}
+                    </div>
                   </div>
                 </Card>
               ))}

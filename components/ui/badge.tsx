@@ -16,6 +16,16 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        participant: 
+          "border-transparent bg-blue-400 text-white hover:bg-blue-500",
+        mentor:
+          "border-transparent bg-green-500 text-white hover:bg-green-600",
+        judge:
+          "border-transparent bg-purple-500 text-white hover:bg-purple-600",
+        organizer:
+          "border-transparent bg-amber-500 text-white hover:bg-amber-600",
+        admin:
+          "border-transparent bg-red-500 text-white hover:bg-red-600",
       },
     },
     defaultVariants: {

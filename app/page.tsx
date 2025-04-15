@@ -13,6 +13,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import { Calendar, Folder, MessageSquare } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export default function HomePage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -25,7 +26,6 @@ export default function HomePage() {
   const [feedbackCount, setFeedbackCount] = useState(0);
 
   useEffect(() => {
-
     const syncUserProfile = async () => {
       try {
         const {
@@ -36,6 +36,7 @@ export default function HomePage() {
           const user = currentSession.user;
 
           const profileData = {
+            uid: user.id,
             email: user.email,
             display_name: user.user_metadata.full_name,
           };
@@ -71,16 +72,32 @@ export default function HomePage() {
       if (!session?.user?.email) return;
       setIsLoadingStats(true);
 
+      // Get uid from user_profiles using email from auth session
+      const { data: userProfile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("uid")
+        .eq("email", session.user.email)
+        .single();
+
+      if (profileError || !userProfile) {
+        toast({
+          title: "Error finding user profile",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const userId = userProfile.uid;
       const userEmail = session.user.email;
 
       // TOTAL EVENTS
-      const { data: userProfile } = await supabase
-        .from("user_profiles")
-        .select("events")
-        .eq("email", userEmail)
-        .single();
+      const { data: userEventRoles } = await supabase
+        .from("user_event_roles")
+        .select("event_id")
+        .eq("user_id", userId);
 
-      const totalEventsCount = userProfile?.events?.length ?? 0;
+      const totalEventsCount = userEventRoles?.length ?? 0;
 
       // SUBMITTED PROJECTS
       const { data: leadProjects } = await supabase
@@ -129,7 +146,7 @@ export default function HomePage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-100 pb-4">
+      <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-50 pb-4">
         <Navbar />
         <LandingHero />
         <ServiceWorkerRegistration />

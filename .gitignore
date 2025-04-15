@@ -19,6 +19,8 @@
 
 # production
 /build
+/public/sw.js
+/public/workbox-*.js
 
 # misc
 .DS_Store
@@ -39,3 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .qodo
+
+#personal
+todo.md
