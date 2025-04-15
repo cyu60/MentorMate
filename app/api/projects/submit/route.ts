@@ -5,13 +5,9 @@ export async function POST(request: Request) {
   const supabase = await createSupabaseClient();
 
   try {
-
     const { data: user, error: userError } = await supabase.auth.getUser();
     if (!user?.user || userError) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -25,12 +21,13 @@ export async function POST(request: Request) {
       coverImageUrl,
       additionalMaterialsUrl,
       eventId,
+      trackIds,
     } = body;
 
     // First, check if the event exists and get its submission time window
     const { data: eventData, error: eventError } = await supabase
       .from("events")
-      .select("submission_time_start, submission_time_cutoff")
+      .select("submission_time_start, submission_time_cutoff, scoring_config")
       .eq("event_id", eventId)
       .single();
 
@@ -66,6 +63,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate track_ids exist in event scoring config
+    if (trackIds?.length > 0 && eventData.scoring_config) {
+      const validTracks = Object.keys(eventData.scoring_config.tracks || {});
+      const invalidTracks = trackIds.filter((id) => !validTracks.includes(id));
+      if (invalidTracks.length > 0) {
+        return NextResponse.json(
+          { error: `Invalid track IDs: ${invalidTracks.join(", ")}` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Insert the project
     const { data, error } = await supabase
       .from("projects")
@@ -79,6 +88,7 @@ export async function POST(request: Request) {
         cover_image_url: coverImageUrl,
         additional_materials_url: additionalMaterialsUrl,
         event_id: eventId,
+        track_ids: trackIds || [],
       })
       .select();
 

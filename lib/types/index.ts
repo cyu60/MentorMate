@@ -66,6 +66,7 @@ export interface Project {
   lead_email: string;
   teammates?: string[];
   event_id: string;
+  track_ids: string[];
   created_at: string;
   project_url?: string;
   additional_materials_url?: string;
@@ -75,7 +76,7 @@ export interface Project {
 
 export enum ProjectBoardContext {
   MyProjects = "MyProjects",
-  EventGallery = "EventGallery"
+  EventGallery = "EventGallery",
 }
 
 // Feedback Types
@@ -99,8 +100,13 @@ export interface ScoringCriterion {
   max?: number;
 }
 
-export interface EventScoringConfig {
+export interface TrackScoringConfig {
+  name: string;
   criteria: ScoringCriterion[];
+}
+
+export interface EventScoringConfig {
+  tracks: Record<string, TrackScoringConfig>;
   defaultMin?: number;
   defaultMax?: number;
   defaultWeight?: number;
@@ -119,5 +125,4 @@ export interface ProjectScore {
 export interface ScoreFormData {
   scores: Record<string, number>;
   comments?: string;
-} 
-
+}

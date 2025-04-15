@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 
 interface ProjectScoringFormProps {
   projectId: string;
+  trackId: string;
   criteria: ScoringCriterion[];
   existingScore?: ScoreFormData;
   onScoreSubmitted: () => void;
@@ -18,6 +19,7 @@ interface ProjectScoringFormProps {
 
 export function ProjectScoringForm({
   projectId,
+  trackId,
   criteria,
   existingScore,
   onScoreSubmitted,
@@ -32,7 +34,7 @@ export function ProjectScoringForm({
     const initialScores: Record<string, number> = {};
     criteria.forEach((criterion) => {
       initialScores[criterion.id] = Math.floor(
-        (criterion.max ?? defaultMax) / 2
+        ((criterion.max ?? defaultMax) + (criterion.min ?? defaultMin)) / 2
       );
     });
 
@@ -70,30 +72,42 @@ export function ProjectScoringForm({
         return;
       }
 
-      const { data: projectData } = await supabase
+      // First verify the project exists and has this track
+      const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .select()
+        .select("track_ids")
         .eq("id", projectId)
         .single();
 
-      if (!projectData) {
+      if (projectError || !projectData) {
         toast({
           title: "Error",
-          description: "Project data not found",
+          description: "Project not found",
           variant: "destructive",
         });
         return;
       }
 
+      if (!projectData.track_ids.includes(trackId)) {
+        toast({
+          title: "Error",
+          description: "Project is not assigned to this track",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Submit the score
       const { error } = await supabase.from("project_scores").upsert(
         {
           project_id: projectId,
           judge_id: session.user.id,
+          track_id: trackId,
           scores: formData.scores,
           comments: formData.comments,
         },
         {
-          onConflict: "project_id,judge_id",
+          onConflict: "project_id,judge_id,track_id",
         }
       );
 
@@ -119,56 +133,48 @@ export function ProjectScoringForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
-        {criteria.map((criterion) => (
-          <div key={criterion.id} className="space-y-2">
-            <label className="block text-sm font-medium">
+      {criteria.map((criterion) => (
+        <div key={criterion.id} className="space-y-2">
+          <div className="flex justify-between items-baseline">
+            <label className="text-sm font-medium">
               {criterion.name}
-              <span className="block text-xs text-gray-500">
-                {criterion.description}
-              </span>
               {criterion.weight && (
-                <span className="block text-xs text-blue-600">
-                  Weight: {criterion.weight}x
+                <span className="text-gray-500 ml-2">
+                  (Weight: {criterion.weight * 100}%)
                 </span>
               )}
             </label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="range"
-                min={criterion.min ?? defaultMin}
-                max={criterion.max ?? defaultMax}
-                value={formData.scores[criterion.id]}
-                onChange={(e) =>
-                  handleScoreChange(criterion.id, parseInt(e.target.value))
-                }
-                className="w-full"
-              />
-              <span className="text-sm font-medium w-8">
-                {formData.scores[criterion.id]}
-              </span>
-            </div>
+            <span className="text-sm text-gray-500">
+              Score: {formData.scores[criterion.id]}
+            </span>
           </div>
-        ))}
-      </div>
+          <p className="text-sm text-gray-600">{criterion.description}</p>
+          <input
+            type="range"
+            min={criterion.min ?? defaultMin}
+            max={criterion.max ?? defaultMax}
+            value={formData.scores[criterion.id]}
+            onChange={(e) =>
+              handleScoreChange(criterion.id, parseInt(e.target.value))
+            }
+            className="w-full"
+          />
+        </div>
+      ))}
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Comments</label>
+        <label className="text-sm font-medium">Comments</label>
         <Textarea
-          value={formData.comments || ""}
+          value={formData.comments}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, comments: e.target.value }))
           }
-          placeholder="Add any comments or feedback about the project..."
-          className="h-32"
+          placeholder="Add any comments about your scoring decisions..."
+          className="min-h-[100px]"
         />
       </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-blue-700 hover:bg-blue-800"
-      >
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Submit Score"}
       </Button>
     </form>
