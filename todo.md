@@ -6,9 +6,9 @@
 
 - make passcode protection for judging and organizer roles
 - mentor stuff -- what are our features? What is the differentiation?
-- need to use database functions for transactions
-- submission time -- needs to close off
+- need to use database functions for transactions if we're allowing organizers to change things
 
 
 Done:
 - verify passcode on judge's side
+- submission time -- need to open/close submissions 

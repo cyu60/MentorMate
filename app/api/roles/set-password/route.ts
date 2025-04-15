@@ -10,14 +10,13 @@ export async function POST(request: Request) {
 
   // Verify user has permission to set password (must be admin or organizer)
   const { data: user } = await supabase.auth.getUser();
-  console.log('user', user);
   try {
     const { eventId, role, password } = await request.json();
     
     // Input validation
     if (!eventId || !role || !password) {
       return NextResponse.json(
-        { success: false, message: 'Missing required fields' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
@@ -25,14 +24,14 @@ export async function POST(request: Request) {
     // Validate role is protected
     if (role !== EventRole.Judge && role !== EventRole.Organizer) {
       return NextResponse.json(
-        { success: false, message: 'Invalid role' },
+        { error: 'Invalid role' },
         { status: 400 }
       );
     }
 
     if (!user?.user) {
       return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -46,7 +45,7 @@ export async function POST(request: Request) {
 
     if (!userRole || (userRole.role !== EventRole.Admin && userRole.role !== EventRole.Organizer)) {
       return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 403 }
       );
     }
@@ -69,7 +68,7 @@ export async function POST(request: Request) {
 
     if (error) {
       return NextResponse.json(
-        { success: false, message: 'Failed to set password' },
+        { error: 'Failed to set password' },
         { status: 500 }
       );
     }
@@ -81,7 +80,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error setting role password:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     // Input validation
     if (!eventId || !role || !userId) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     if (isProtectedRole) {
       if (!password) {
         return NextResponse.json(
-          { success: false, message: "Password required for this role" },
+          { error: "Password required for this role" },
           { status: 400 }
         );
       }
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       
       if (fetchError || !rolePassword) {
         return NextResponse.json(
-          { success: false, message: "No password set for this role" },
+          { error: "No password set for this role" },
           { status: 404 }
         );
       }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
       if (!isValid) {
         return NextResponse.json(
-          { success: false, message: "Invalid password" },
+          { error: "Invalid password" },
           { status: 401 }
         );
       }
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       // For non-protected roles (Participant or Mentor), verify the role is valid
       if (role !== EventRole.Participant && role !== EventRole.Mentor) {
         return NextResponse.json(
-          { success: false, message: "Invalid role" },
+          { error: "Invalid role" },
           { status: 400 }
         );
       }
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
 
     if (roleError) {
       return NextResponse.json(
-        { success: false, message: "Failed to assign role" },
+        { error: "Failed to assign role" },
         { status: 500 }
       );
     }
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error in role verification:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

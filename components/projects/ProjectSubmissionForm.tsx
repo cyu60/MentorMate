@@ -202,25 +202,31 @@ export function ProjectSubmissionFormComponent({
         additionalMaterialsUrl = publicUrl;
       }
 
-      const { data, error } = await supabase
-        .from("projects")
-        .insert({
-          project_name: values.projectName,
-          lead_name: values.leadName,
-          lead_email: values.leadEmail,
-          project_description: values.projectDescription,
+      // Submit project through API
+      const response = await fetch("/api/projects/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectName: values.projectName,
+          leadName: values.leadName,
+          leadEmail: values.leadEmail,
+          projectDescription: values.projectDescription,
           teammates: values.teammates,
-          project_url: values.projectUrl || null,
-          cover_image_url: coverImageUrl,
-          additional_materials_url: additionalMaterialsUrl,
-          event_id: eventId,
-        })
-        .select();
+          projectUrl: values.projectUrl,
+          coverImageUrl,
+          additionalMaterialsUrl,
+          eventId,
+        }),
+      });
 
-      if (error) {
-        console.error("Project creation error:", error);
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit project");
       }
+
+      const { data } = await response.json();
 
       // Send confirmation email
       const emailResponse = await fetch("/api/email", {
@@ -248,14 +254,16 @@ export function ProjectSubmissionFormComponent({
       console.error("Error submitting project:", error);
       toast({
         title: "Error",
-        description:
-          "There was an error submitting your project. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error submitting your project. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
+    
   }
+  
+
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-8 bg-white rounded-xl shadow-xl">
