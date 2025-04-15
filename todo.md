@@ -19,7 +19,7 @@ This document outlines the key features and requirements for the MentorMate plat
 - [ ] Track-based submissions
     - [x] Add trackID field to project schema
     - [x] Support multiple tracks (array)
-    - [ ] Add UI elements for track selection (dropdown/checkbox)
+    - [x] Add UI elements for track selection (dropdown/checkbox)
     - [ ] Display selected track in dashboard
     - [X] Prevent submissions outside deadline windows
 - [ ] Submission validation
@@ -44,13 +44,13 @@ This document outlines the key features and requirements for the MentorMate plat
 - [ ] Implement scoring defaults for missing track configs
 
 ### Judge Review System
-- [ ] Implement judge identification for reviews
-    - [ ] Add judge metadata to each review
-    - [ ] Track review timestamps and modifications
-    - [ ] Allow judges to edit their own reviews
-- [ ] Frontend Implementation
-    - [ ] Build judging editing interface
-    - [ ] Support track-specific scoring forms
+- [x] Implement judge identification for reviews
+    - [x] Add judge metadata to each review
+    - [x] Track review timestamps and modifications
+    - [x] Allow judges to edit their own reviews
+- [x] Frontend Implementation
+    - [x] Build judging editing interface
+    - [x] Support track-specific scoring forms
     - [ ] Enable score and reflection aggregation
 
 ### Project Assignment System
@@ -96,6 +96,8 @@ This document outlines the key features and requirements for the MentorMate plat
 ## Completed Features
 - [x] Verify passcode on judge's side
 - [x] Basic submission time management
+- [x] Track-based scoring interface
+- [x] Judge review system with track selection
 
 ## Notes
 - Regular testing is required for each completed feature
