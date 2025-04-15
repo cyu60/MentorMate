@@ -17,8 +17,8 @@ This document outlines the key features and requirements for the MentorMate plat
     - [x] Track submission timestamps
     - [x] Implement submission deadlines per track
 - [ ] Track-based submissions
-    - [ ] Add trackID field to project schema
-    - [ ] Support multiple tracks (array)
+    - [x] Add trackID field to project schema
+    - [x] Support multiple tracks (array)
     - [ ] Add UI elements for track selection (dropdown/checkbox)
     - [ ] Display selected track in dashboard
     - [X] Prevent submissions outside deadline windows
@@ -47,12 +47,9 @@ This document outlines the key features and requirements for the MentorMate plat
 - [ ] Implement judge identification for reviews
     - [ ] Add judge metadata to each review
     - [ ] Track review timestamps and modifications
-    - [ ] Enable judge-specific review history
     - [ ] Allow judges to edit their own reviews
-    - [ ] Prevent duplicate reviews from same judge
 - [ ] Frontend Implementation
-    - [ ] Build judging interface
-    - [ ] Connect frontend to backend APIs
+    - [ ] Build judging editing interface
     - [ ] Support track-specific scoring forms
     - [ ] Enable score and reflection aggregation
 
@@ -60,7 +57,6 @@ This document outlines the key features and requirements for the MentorMate plat
 - [ ] Implement project assignment functionality
     - [ ] Create logic to assign projects to judges
     - [ ] Display assigned projects to judges
-    - [ ] Show projects per track to judges and organizers
     - [ ] Add winner/placed column to project model
     - [ ] Create admin API route for tagging winners
 
