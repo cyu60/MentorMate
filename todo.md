@@ -9,7 +9,7 @@ This document outlines the key features and requirements for the MentorMate plat
 
 - Create a proper event_tracks table in the database
     - Each track should have a unique, immutable ID (foreign key supported)
-    - Include metadata: name, description, associated event
+    - Include metadata: description, associated event, label, description
 - Define prize info per track
 - Define scoring criteria per track (can be stored as JSON)
 - Support track-based judging (scores assigned per track)
