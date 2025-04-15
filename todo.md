@@ -3,6 +3,38 @@
 ## Overview
 This document outlines the key features and requirements for the MentorMate platform. Check off items as they are completed.
 
+## **✅ Critical Feature Checklist for Minerva Hacks**
+
+### **🔧 1. Track System Implementation**
+
+- Create a proper event_tracks table in the database
+    - Each track should have a unique, immutable ID (foreign key supported)
+    - Include metadata: name, description, associated event
+- Define prize info per track
+- Define scoring criteria per track (can be stored as JSON)
+- Support track-based judging (scores assigned per track)
+- Support assigning winners per track
+
+---
+
+### **📊 2. Organizer Dashboard Enhancements**
+
+- Display **full list of participants**
+- Display **all project submissions**
+- Show **live judge scores per project**
+- Enable view of **which projects are leading per track**
+- Calculate the scores to assign the winner
+- Provide **export capability** for submissions and scores
+
+---
+
+### **🧪 3. Stress Testing & Bug Fixes**
+
+- Run full platform **stress test with 50 dummy participants**
+- Identify and fix **project registration/editing bugs**
+- Test judge assignment flow and scoring reliability
+- Validate feedback/commenting flow from mentors
+
 ## Authentication & Security
 - [x] Implement browserclient and serverclients to authenticate API endpoints
 - [x] Make passcode protection for judging and organizer roles
