@@ -76,13 +76,13 @@ export default async function EventOverviewPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4">
       {/* Status Bar */}
       <EventStatusBar eventId={id} />
 
       {/* Join Button */}
       {!hasJoined && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mb-8">
           <JoinEventButton eventId={id} eventName={typedEvent.event_name} />
         </div>
       )}
