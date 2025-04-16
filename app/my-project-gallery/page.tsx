@@ -8,7 +8,7 @@ import { ReturnUrlHandler } from "@/components/auth/ReturnUrlHandler";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
-import { ProjectBoardContext, Project } from "@/lib/types";
+import { ProjectBoardContext, Project, EventTrack } from "@/lib/types";
 
 export default function MyProjectsPage() {
   const router = useRouter();
@@ -39,22 +39,83 @@ export default function MyProjectsPage() {
 
       const { data: leadProjects } = await supabase
         .from("projects")
-        .select()
+        .select(
+          `
+          *,
+          project_tracks (
+            event_tracks (
+              track_id,
+              event_id,
+              name,
+              description,
+              label,
+              prize_amount,
+              prize_description,
+              scoring_criteria,
+              created_at,
+              updated_at
+            )
+          )
+        `
+        )
         .eq("lead_email", session.user.email);
 
       //problem: teammates are not being stored as emails. This fetch will not work.
       const { data: teamProjects } = await supabase
         .from("projects")
-        .select()
+        .select(
+          `
+          *,
+          project_tracks (
+            event_tracks (
+              track_id,
+              event_id,
+              name,
+              description,
+              label,
+              prize_amount,
+              prize_description,
+              scoring_criteria,
+              created_at,
+              updated_at
+            )
+          )
+        `
+        )
         .contains("teammates", [session.user.email]);
 
-      const allProjects = [
-        ...(leadProjects || []),
-        ...(teamProjects || []),
-      ].filter(
-        (project, index, self) =>
-          index === self.findIndex((p) => p.id === project.id)
-      );
+      const allProjects = [...(leadProjects || []), ...(teamProjects || [])]
+        .filter(
+          (project, index, self) =>
+            index === self.findIndex((p) => p.id === project.id)
+        )
+        .map((data) => ({
+          id: data.id,
+          project_name: data.project_name,
+          lead_name: data.lead_name,
+          lead_email: data.lead_email,
+          project_description: data.project_description,
+          teammates: data.teammates,
+          project_url: data.project_url,
+          additional_materials_url: data.additional_materials_url,
+          cover_image_url: data.cover_image_url,
+          event_id: data.event_id,
+          tracks:
+            data.project_tracks
+              ?.map(
+                (pt: { event_tracks?: Array<EventTrack> }) =>
+                  pt.event_tracks?.[0]
+              )
+              .filter(Boolean) || [],
+          track_ids:
+            data.project_tracks
+              ?.map(
+                (pt: { event_tracks?: Array<EventTrack> }) =>
+                  pt.event_tracks?.[0]?.track_id
+              )
+              .filter(Boolean) || [],
+          created_at: data.created_at,
+        }));
 
       setProjects(
         allProjects.sort(
@@ -89,7 +150,10 @@ export default function MyProjectsPage() {
           projectBoardContext={ProjectBoardContext.MyProjects}
         />
       </div>
-      <div className="absolute bottom-0 w-full"> <Footer /> </div>
+      <div className="absolute bottom-0 w-full">
+        {" "}
+        <Footer />{" "}
+      </div>
     </div>
   );
 }
