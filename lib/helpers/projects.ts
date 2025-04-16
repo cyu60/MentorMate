@@ -69,9 +69,14 @@ export async function fetchProjectById(
       additional_materials_url: data.additional_materials_url,
       cover_image_url: data.cover_image_url,
       event_id: data.event_id,
-      tracks: data.project_tracks?.map((pt) => pt.event_tracks[0]) || [],
+      tracks:
+        data.project_tracks
+          ?.map((pt) => pt.event_tracks?.[0])
+          .filter(Boolean) || [],
       track_ids:
-        data.project_tracks?.map((pt) => pt.event_tracks[0].track_id) || [],
+        data.project_tracks
+          ?.map((pt) => pt.event_tracks?.[0]?.track_id)
+          .filter(Boolean) || [],
       created_at: data.created_at,
     };
 
@@ -216,9 +221,14 @@ export async function fetchProjectsByEventId(
       additional_materials_url: item.additional_materials_url,
       cover_image_url: item.cover_image_url,
       event_id: item.event_id,
-      tracks: item.project_tracks?.map((pt) => pt.event_tracks[0]) || [],
+      tracks:
+        item.project_tracks
+          ?.map((pt) => pt.event_tracks?.[0])
+          .filter(Boolean) || [],
       track_ids:
-        item.project_tracks?.map((pt) => pt.event_tracks[0].track_id) || [],
+        item.project_tracks
+          ?.map((pt) => pt.event_tracks?.[0]?.track_id)
+          .filter(Boolean) || [],
       created_at: item.created_at,
     }));
   } catch (error) {
