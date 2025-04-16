@@ -74,7 +74,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       {/* Status Bar */}
       <EventStatusBar eventId={id} />
 
@@ -96,7 +96,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
       </Card>
 
       {/* Rules */}
-      <Card className="shadow-lg rounded-lg">
+      <Card className="shadow-lg rounded-lg mb-8">
         <CardHeader className="pb-4">
           <CardTitle className="text-2xl font-semibold text-gray-800">
             Rules
@@ -122,7 +122,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
       {/* Schedule */}
       {typedEvent.event_schedule && typedEvent.event_schedule.length > 0 && (
-        <Card className="shadow-lg rounded-lg">
+        <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
               Schedule
@@ -163,7 +163,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
       {/* Tracks */}
       {tracks && tracks.length > 0 && (
-        <Card className="shadow-lg rounded-lg">
+        <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
               Prizes & Tracks
@@ -193,7 +193,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
       {/* Resources */}
       {typedEvent.event_resources && typedEvent.event_resources.length > 0 && (
-        <Card className="shadow-lg rounded-lg">
+        <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
               Important Links
