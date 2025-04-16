@@ -1,35 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScoreFormData, ScoringCriterion } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
+import { PostgrestError } from "@supabase/supabase-js";
 
 interface ProjectScoringFormProps {
   projectId: string;
   trackId: string;
   criteria: ScoringCriterion[];
-  existingScore?: ScoreFormData;
   onScoreSubmitted: () => void;
   defaultMin?: number;
   defaultMax?: number;
+}
+
+interface ProjectData {
+  projects: {
+    id: string;
+    event_id: string;
+  };
 }
 
 export function ProjectScoringForm({
   projectId,
   trackId,
   criteria,
-  existingScore,
   onScoreSubmitted,
   defaultMin = 1,
   defaultMax = 10,
 }: ProjectScoringFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ScoreFormData>(() => {
-    if (existingScore) return existingScore;
-
     // Initialize scores with default values
     const initialScores: Record<string, number> = {};
     criteria.forEach((criterion) => {
@@ -43,6 +48,73 @@ export function ProjectScoringForm({
       comments: "",
     };
   });
+
+  useEffect(() => {
+    // Reset form data when track changes
+    const initialScores: Record<string, number> = {};
+    criteria.forEach((criterion) => {
+      initialScores[criterion.id] = Math.floor(
+        ((criterion.max ?? defaultMax) + (criterion.min ?? defaultMin)) / 2
+      );
+    });
+    setFormData({
+      scores: initialScores,
+      comments: "",
+    });
+
+    // Only fetch existing score if trackId is provided
+    if (!trackId) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchExistingScore = async () => {
+      setIsLoading(true);
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data: scoreData, error: scoreError } = await supabase
+          .from("project_scores")
+          .select("scores, comments")
+          .eq("project_id", projectId)
+          .eq("track_id", trackId)
+          .eq("judge_id", session.user.id)
+          .single();
+
+        if (scoreError) {
+          if (scoreError.code !== "PGRST116") {
+            // Not Found error code
+            console.error("Error fetching existing score:", scoreError);
+            toast({
+              title: "Error",
+              description: "Failed to fetch existing score",
+              variant: "destructive",
+            });
+          }
+          return;
+        }
+
+        if (scoreData) {
+          setFormData({
+            scores: scoreData.scores,
+            comments: scoreData.comments || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching score:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExistingScore();
+  }, [projectId, trackId, criteria, defaultMax, defaultMin]);
 
   const handleScoreChange = (criterionId: string, value: number) => {
     setFormData((prev) => ({
@@ -73,25 +145,27 @@ export function ProjectScoringForm({
       }
 
       // First verify the project exists and has this track
-      const { data: projectData, error: projectError } = await supabase
-        .from("projects")
-        .select("track_ids")
-        .eq("id", projectId)
-        .single();
+      const { data: projectData, error: projectError } = (await supabase
+        .from("project_tracks")
+        .select(
+          `
+          projects!inner (
+            id,
+            event_id
+          )
+        `
+        )
+        .eq("project_id", projectId)
+        .eq("track_id", trackId)
+        .single()) as {
+        data: ProjectData | null;
+        error: PostgrestError | null;
+      };
 
-      if (projectError || !projectData) {
+      if (projectError || !projectData?.projects?.event_id) {
         toast({
           title: "Error",
-          description: "Project not found",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!projectData.track_ids.includes(trackId)) {
-        toast({
-          title: "Error",
-          description: "Project is not assigned to this track",
+          description: "Project not found or not assigned to this track",
           variant: "destructive",
         });
         return;
@@ -103,6 +177,7 @@ export function ProjectScoringForm({
           project_id: projectId,
           judge_id: session.user.id,
           track_id: trackId,
+          event_id: projectData.projects.event_id,
           scores: formData.scores,
           comments: formData.comments,
           updated_at: new Date(),
@@ -131,6 +206,10 @@ export function ProjectScoringForm({
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return <div>Loading existing scores...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -175,7 +254,7 @@ export function ProjectScoringForm({
         />
       </div>
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting || !trackId}>
         {isSubmitting ? "Submitting..." : "Submit Score"}
       </Button>
     </form>

@@ -22,19 +22,8 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 import { UUID } from "crypto";
-import { ScoringCriterion } from "@/lib/types";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
-interface Track {
-  name: string;
-  description?: string;
-  criteria?: ScoringCriterion[];
-}
-
-interface ScoringConfig {
-  tracks: Record<string, Track>;
-}
 
 const formSchema = z.object({
   projectName: z.string().min(2, {
@@ -157,25 +146,21 @@ export function ProjectSubmissionFormComponent({
   useEffect(() => {
     const fetchEventTracks = async () => {
       try {
-        const { data: eventData, error } = await supabase
-          .from("events")
-          .select("scoring_config")
-          .eq("event_id", eventId)
-          .single();
+        const { data: trackData, error } = await supabase
+          .from("event_tracks")
+          .select("track_id, name")
+          .eq("event_id", eventId);
 
         if (error) {
           console.error("Error fetching event tracks:", error);
           return;
         }
 
-        const scoringConfig = eventData?.scoring_config as ScoringConfig;
-        if (scoringConfig?.tracks) {
-          const tracks = Object.entries(scoringConfig.tracks).map(
-            ([id, track]) => ({
-              id,
-              name: track.name || id,
-            })
-          );
+        if (trackData) {
+          const tracks = trackData.map((track) => ({
+            id: track.track_id,
+            name: track.name,
+          }));
           setAvailableTracks(tracks);
         }
       } catch (err) {
@@ -280,7 +265,16 @@ export function ProjectSubmissionFormComponent({
         throw new Error(errorData.error || "Failed to submit project");
       }
 
-      const { data } = await response.json();
+      const { data, warning } = await response.json();
+
+      // Show warning if track assignments failed
+      if (warning) {
+        toast({
+          title: "Warning",
+          description: warning,
+          variant: "destructive",
+        });
+      }
 
       // Send confirmation email
       const emailResponse = await fetch("/api/email", {
@@ -303,7 +297,7 @@ export function ProjectSubmissionFormComponent({
       });
       form.reset();
       onProjectSubmitted?.();
-      router.push(`/my-project-gallery/${data[0].id}/dashboard`);
+      router.push(`/my-project-gallery/${data.id}/dashboard`);
     } catch (error) {
       console.error("Error submitting project:", error);
       toast({
