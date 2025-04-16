@@ -9,10 +9,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
-import { Edit, Calendar, List, Trophy, Book, Lock } from "lucide-react";
-import { EventDetails, EventRole } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Edit,
+  Calendar,
+  List,
+  Trophy,
+  Book,
+  Lock,
+  Settings,
+  TrashIcon,
+} from "lucide-react";
+import { EventDetails, EventRole, EventScoringConfig } from "@/lib/types";
 import { RolePasswordSettings } from "./role-password-settings";
+import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
 
 interface UpdateEventData {
   event_name?: string;
@@ -24,6 +34,7 @@ interface UpdateEventData {
   event_prizes?: EventDetails["event_prizes"];
   event_resources?: EventDetails["event_resources"];
   rules?: EventDetails["rules"];
+  scoring_config?: EventScoringConfig;
 }
 
 export function OrganizerDashboard({ eventId }: { eventId: string }) {
@@ -32,6 +43,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchEvent() {
@@ -56,7 +68,11 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           .maybeSingle();
 
         if (!roleData) {
-          toast.error("You don't have permission to edit this event");
+          toast({
+            title: "Error",
+            description: "You don't have permission to edit this event",
+            variant: "destructive",
+          });
           router.push("/organizer/dashboard");
           return;
         }
@@ -71,7 +87,11 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
         setEvent(eventData);
       } catch (error) {
         console.error("Error fetching event:", error);
-        toast.error("Failed to load event details");
+        toast({
+          title: "Error",
+          description: "Failed to load event details",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -98,10 +118,17 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
       // Refresh the page to update the overview
       router.refresh();
 
-      toast.success("Changes saved successfully");
+      toast({
+        title: "Success",
+        description: "Changes saved successfully",
+      });
     } catch (error) {
       console.error("Error updating event:", error);
-      toast.error("Failed to save changes");
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
@@ -157,7 +184,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-6 gap-4 mb-6">
+        <TabsList className="grid grid-cols-7 gap-4 mb-6">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Basic Info
@@ -181,6 +208,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           <TabsTrigger value="passwords" className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
             Passwords
+          </TabsTrigger>
+          <TabsTrigger value="scoring" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Scoring
           </TabsTrigger>
         </TabsList>
 
@@ -274,20 +305,38 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                     key={dayIndex}
                     className="space-y-4 border-b pb-4 last:border-0"
                   >
-                    <div className="space-y-2">
-                      <Label>Day Title</Label>
-                      <Input
-                        value={day.time}
-                        onChange={(e) => {
-                          const newSchedule = [...event.event_schedule];
-                          newSchedule[dayIndex].time = e.target.value;
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-2 flex-1">
+                        <Label>Day Title</Label>
+                        <Input
+                          value={day.time}
+                          onChange={(e) => {
+                            const newSchedule = [...event.event_schedule];
+                            newSchedule[dayIndex].time = e.target.value;
+                            setEvent({ ...event, event_schedule: newSchedule });
+                          }}
+                        />
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="ml-2"
+                        onClick={() => {
+                          const newSchedule = event.event_schedule.filter(
+                            (_, i) => i !== dayIndex
+                          );
                           setEvent({ ...event, event_schedule: newSchedule });
                         }}
-                      />
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
                     </div>
 
                     {day.events.map((scheduleEvent, eventIndex) => (
-                      <div key={eventIndex} className="grid grid-cols-2 gap-4">
+                      <div
+                        key={eventIndex}
+                        className="grid grid-cols-[1fr_1fr_auto] gap-4"
+                      >
                         <div className="space-y-2">
                           <Label>Event Name</Label>
                           <Input
@@ -318,6 +367,20 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                             }}
                           />
                         </div>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="self-end"
+                          onClick={() => {
+                            const newSchedule = [...event.event_schedule];
+                            newSchedule[dayIndex].events = newSchedule[
+                              dayIndex
+                            ].events.filter((_, i) => i !== eventIndex);
+                            setEvent({ ...event, event_schedule: newSchedule });
+                          }}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
                       </div>
                     ))}
 
@@ -376,40 +439,57 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                     key={index}
                     className="space-y-4 border-b pb-4 last:border-0"
                   >
-                    <div className="space-y-2">
-                      <Label>Prize</Label>
-                      <Input
-                        value={prize.prize}
-                        onChange={(e) => {
-                          const newPrizes = [...event.event_prizes];
-                          newPrizes[index].prize = e.target.value;
-                          setEvent({ ...event, event_prizes: newPrizes });
-                        }}
-                      />
-                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <div className="space-y-2">
+                          <Label>Prize</Label>
+                          <Input
+                            value={prize.prize}
+                            onChange={(e) => {
+                              const newPrizes = [...event.event_prizes];
+                              newPrizes[index].prize = e.target.value;
+                              setEvent({ ...event, event_prizes: newPrizes });
+                            }}
+                          />
+                        </div>
 
-                    <div className="space-y-2">
-                      <Label>Track</Label>
-                      <Input
-                        value={prize.track}
-                        onChange={(e) => {
-                          const newPrizes = [...event.event_prizes];
-                          newPrizes[index].track = e.target.value;
-                          setEvent({ ...event, event_prizes: newPrizes });
-                        }}
-                      />
-                    </div>
+                        <div className="space-y-2 mt-4">
+                          <Label>Track</Label>
+                          <Input
+                            value={prize.track}
+                            onChange={(e) => {
+                              const newPrizes = [...event.event_prizes];
+                              newPrizes[index].track = e.target.value;
+                              setEvent({ ...event, event_prizes: newPrizes });
+                            }}
+                          />
+                        </div>
 
-                    <div className="space-y-2">
-                      <Label>Description</Label>
-                      <Textarea
-                        value={prize.description}
-                        onChange={(e) => {
-                          const newPrizes = [...event.event_prizes];
-                          newPrizes[index].description = e.target.value;
+                        <div className="space-y-2 mt-4">
+                          <Label>Description</Label>
+                          <Textarea
+                            value={prize.description}
+                            onChange={(e) => {
+                              const newPrizes = [...event.event_prizes];
+                              newPrizes[index].description = e.target.value;
+                              setEvent({ ...event, event_prizes: newPrizes });
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="ml-2 self-start"
+                        onClick={() => {
+                          const newPrizes = event.event_prizes.filter(
+                            (_, i) => i !== index
+                          );
                           setEvent({ ...event, event_prizes: newPrizes });
                         }}
-                      />
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -451,7 +531,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                 {event.event_resources.map((resource, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-2 gap-4 border-b pb-4 last:border-0"
+                    className="grid grid-cols-[1fr_1fr_auto] gap-4 border-b pb-4 last:border-0"
                   >
                     <div className="space-y-2">
                       <Label>Resource Name</Label>
@@ -477,6 +557,20 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                         }}
                       />
                     </div>
+
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="self-end"
+                      onClick={() => {
+                        const newResources = event.event_resources.filter(
+                          (_, i) => i !== index
+                        );
+                        setEvent({ ...event, event_resources: newResources });
+                      }}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
 
@@ -519,30 +613,63 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                     key={ruleIndex}
                     className="space-y-4 border-b pb-4 last:border-0"
                   >
-                    <div className="space-y-2">
-                      <Label>Section Title</Label>
-                      <Input
-                        value={rule.title}
-                        onChange={(e) => {
-                          const newRules = [...event.rules];
-                          newRules[ruleIndex].title = e.target.value;
-                          setEvent({ ...event, rules: newRules });
-                        }}
-                      />
-                    </div>
-
-                    {rule.items.map((item, itemIndex) => (
-                      <div key={itemIndex} className="space-y-2">
-                        <Label>Rule {itemIndex + 1}</Label>
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-2 flex-1">
+                        <Label>Section Title</Label>
                         <Input
-                          value={item}
+                          value={rule.title}
                           onChange={(e) => {
                             const newRules = [...event.rules];
-                            newRules[ruleIndex].items[itemIndex] =
-                              e.target.value;
+                            newRules[ruleIndex].title = e.target.value;
                             setEvent({ ...event, rules: newRules });
                           }}
                         />
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="ml-2"
+                        onClick={() => {
+                          const newRules = event.rules.filter(
+                            (_, i) => i !== ruleIndex
+                          );
+                          setEvent({ ...event, rules: newRules });
+                        }}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {rule.items.map((item, itemIndex) => (
+                      <div
+                        key={itemIndex}
+                        className="space-y-2 flex items-end gap-2"
+                      >
+                        <div className="flex-1">
+                          <Label>Rule {itemIndex + 1}</Label>
+                          <Input
+                            value={item}
+                            onChange={(e) => {
+                              const newRules = [...event.rules];
+                              newRules[ruleIndex].items[itemIndex] =
+                                e.target.value;
+                              setEvent({ ...event, rules: newRules });
+                            }}
+                          />
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => {
+                            const newRules = [...event.rules];
+                            newRules[ruleIndex].items = newRules[
+                              ruleIndex
+                            ].items.filter((_, i) => i !== itemIndex);
+                            setEvent({ ...event, rules: newRules });
+                          }}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
                       </div>
                     ))}
 
@@ -585,6 +712,50 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
 
         <TabsContent value="passwords">
           <RolePasswordSettings eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="scoring">
+          <Card>
+            <CardHeader>
+              <CardTitle>Scoring Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScoringConfigForm
+                initialConfig={event?.scoring_config}
+                isSubmitting={saving}
+                onSave={async (config) => {
+                  try {
+                    setSaving(true);
+                    const { error } = await supabase
+                      .from("events")
+                      .update({ scoring_config: config })
+                      .eq("event_id", eventId);
+
+                    if (error) throw error;
+
+                    // Update local state
+                    setEvent((prev) =>
+                      prev ? { ...prev, scoring_config: config } : null
+                    );
+
+                    toast({
+                      title: "Success",
+                      description: "Scoring configuration saved successfully",
+                    });
+                  } catch (error) {
+                    console.error("Error saving scoring config:", error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to save scoring configuration",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
