@@ -48,6 +48,19 @@ export interface Rule {
   items: string[];
 }
 
+export interface EventTrack {
+  track_id: string;
+  event_id: string;
+  name: string;
+  description: string;
+  label?: string;
+  prize_amount: string;
+  prize_description: string;
+  scoring_criteria: TrackScoringConfig;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface EventDetails extends EventItem {
   event_description: string;
   event_schedule: ScheduleDay[];
@@ -55,6 +68,7 @@ export interface EventDetails extends EventItem {
   event_resources: Resource[];
   created_at: string;
   rules: Rule[];
+  tracks?: EventTrack[];
 }
 
 // Project Types
@@ -67,6 +81,7 @@ export interface Project {
   teammates?: string[];
   event_id: string;
   track_ids: string[];
+  tracks?: EventTrack[];
   created_at: string;
   project_url?: string;
   additional_materials_url?: string;
@@ -116,6 +131,8 @@ export interface ProjectScore {
   id: string;
   project_id: string;
   judge_id: string;
+  track_id: string;
+  event_id: string;
   scores: Record<string, number>;
   comments?: string;
   created_at: string;
@@ -125,4 +142,11 @@ export interface ProjectScore {
 export interface ScoreFormData {
   scores: Record<string, number>;
   comments?: string;
+}
+
+// Add new type for project-track relationship
+export interface ProjectTrack {
+  project_id: string;
+  track_id: string;
+  created_at: string;
 }

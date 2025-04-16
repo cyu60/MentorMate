@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { Project, EventRole, ScoringCriterion } from "@/lib/types";
+import { defaultCriteria } from "@/lib/constants";
+import { useEventRegistration } from "@/components/event-registration-provider";
+import { EventRegistrationProvider } from "@/components/event-registration-provider";
+import { fetchProjectById } from "@/lib/helpers/projects";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/footer";
@@ -10,18 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
 import { Download, ExternalLink, ChevronDown, Users } from "lucide-react";
-import { fetchProjectById } from "@/lib/helpers/projects";
-import {
-  Project,
-  EventRole,
-  ScoringCriterion,
-  ScoreFormData,
-} from "@/lib/types";
-import { useEventRegistration } from "@/components/event-registration-provider";
-import { EventRegistrationProvider } from "@/components/event-registration-provider";
 import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
-import { supabase } from "@/lib/supabase";
-import { defaultCriteria } from "@/lib/constants";
 
 function ProjectPageContent(): JSX.Element {
   const { id: projectId } = useParams();
@@ -29,9 +25,6 @@ function ProjectPageContent(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [feedbackOpen, setFeedbackOpen] = useState(true);
   const [criteria, setCriteria] = useState<ScoringCriterion[]>(defaultCriteria);
-  const [existingScore, setExistingScore] = useState<ScoreFormData | undefined>(
-    undefined
-  );
   const { userRole } = useEventRegistration();
   const [scoringOpen, setScoringOpen] = useState(true);
   const [selectedTrackId, setSelectedTrackId] = useState<string>("");
@@ -63,26 +56,6 @@ function ProjectPageContent(): JSX.Element {
           console.error("Error fetching event scoring config:", eventError);
         } else if (eventData?.scoring_config?.criteria) {
           setCriteria(eventData.scoring_config.criteria);
-        }
-
-        // If user is a judge, fetch their existing score for this project
-        if (userRole === EventRole.Judge || userRole === EventRole.Admin) {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-
-          if (session) {
-            const { data: scoreData } = await supabase
-              .from("project_scores")
-              .select("*")
-              .eq("project_id", projectId)
-              .eq("judge_id", session.user.id)
-              .single();
-
-            if (scoreData) {
-              setExistingScore(scoreData);
-            }
-          }
         }
       } catch (error) {
         console.error("Error loading project:", error);
@@ -303,9 +276,9 @@ function ProjectPageContent(): JSX.Element {
                         className="w-full p-2 border rounded-md mb-4"
                       >
                         <option value="">Select a track</option>
-                        {projectData?.track_ids?.map((trackId) => (
-                          <option key={trackId} value={trackId}>
-                            {trackId}
+                        {projectData?.tracks?.map((track) => (
+                          <option key={track.track_id} value={track.track_id}>
+                            {track.name}
                           </option>
                         ))}
                       </select>
@@ -343,7 +316,6 @@ function ProjectPageContent(): JSX.Element {
                             projectId={projectId as string}
                             trackId={selectedTrackId}
                             criteria={criteria}
-                            existingScore={existingScore}
                             onScoreSubmitted={() => {
                               toast({
                                 title: "Success",
@@ -354,18 +326,6 @@ function ProjectPageContent(): JSX.Element {
                         </>
                       )}
                     </div>
-                    <ProjectScoringForm
-                      projectId={projectId as string}
-                      criteria={criteria}
-                      existingScore={existingScore}
-                      trackId={projectData.track_ids[0]}
-                      onScoreSubmitted={() => {
-                        toast({
-                          title: "Success",
-                          description: "Score submitted successfully",
-                        });
-                      }}
-                    />
                   </div>
                 )}
               </div>

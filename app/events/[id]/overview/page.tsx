@@ -1,17 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { JoinEventButton } from "@/components/events/join-event-button";
 import { EventStatusBar } from "@/components/events/event-status-bar";
-import ReactMarkdown from "react-markdown";
 import {
   EventDetails,
   Rule,
   ScheduleDay,
   ScheduleEvent,
-  Prize,
   Resource,
+  EventTrack,
 } from "@/lib/types";
+import { createSupabaseClient } from "@/app/utils/supabase/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -39,6 +38,20 @@ const defaultRules: Rule[] = [
 
 export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
+  const supabase = await createSupabaseClient();
+
+  // Fetch event details and tracks
+  const [eventResult, tracksResult] = await Promise.all([
+    supabase.from("events").select("*").eq("event_id", id).single(),
+    supabase.from("event_tracks").select("*").eq("event_id", id),
+  ]);
+
+  if (eventResult.error) {
+    notFound();
+  }
+
+  const typedEvent = eventResult.data as EventDetails;
+  const tracks = (tracksResult.data || []) as EventTrack[];
 
   // Check if user has joined
   const {
@@ -60,35 +73,8 @@ export default async function EventOverviewPage({ params }: PageProps) {
     }
   }
 
-  const { data: event, error } = await supabase
-    .from("events")
-    .select(
-      `
-      event_id,
-      event_name,
-      event_date,
-      location,
-      event_blurb,
-      event_description,
-      event_schedule,
-      event_prizes,
-      event_resources,
-      created_at,
-      rules,
-      cover_image_url
-    `
-    )
-    .eq("event_id", id)
-    .single();
-
-  if (error || !event) {
-    notFound();
-  }
-
-  const typedEvent = event as EventDetails;
-
   return (
-    <div className="space-y-4">
+    <div className="container mx-auto px-4 py-8">
       {/* Status Bar */}
       <EventStatusBar eventId={id} />
 
@@ -99,23 +85,15 @@ export default async function EventOverviewPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* Event Description */}
-      {typedEvent.event_description && (
-        <Card className="shadow-lg rounded-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-semibold text-gray-800">
-              About the Event
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-blue max-w-none">
-              <ReactMarkdown>{typedEvent.event_description}</ReactMarkdown>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      
+      {/* Event Details */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>{typedEvent.event_name}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{typedEvent.event_description}</p>
+        </CardContent>
+      </Card>
 
       {/* Rules */}
       <Card className="shadow-lg rounded-lg">
@@ -183,8 +161,8 @@ export default async function EventOverviewPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Prizes */}
-      {typedEvent.event_prizes && typedEvent.event_prizes.length > 0 && (
+      {/* Tracks */}
+      {tracks && tracks.length > 0 && (
         <Card className="shadow-lg rounded-lg">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
@@ -193,18 +171,18 @@ export default async function EventOverviewPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {typedEvent.event_prizes.map((prize: Prize, index: number) => (
-                <Card key={index} className="shadow border rounded-lg">
+              {tracks.map((track: EventTrack) => (
+                <Card key={track.track_id} className="shadow border rounded-lg">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-bold text-blue-900">
-                      {prize.track}
+                      {track.name}
                     </CardTitle>
                     <div className="text-2xl font-extrabold text-green-600">
-                      {prize.prize}
+                      {track.prize_amount}
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">{prize.description}</p>
+                    <p className="text-gray-600">{track.prize_description}</p>
                   </CardContent>
                 </Card>
               ))}

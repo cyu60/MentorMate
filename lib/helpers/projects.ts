@@ -29,8 +29,21 @@ export async function fetchProjectById(
         additional_materials_url,
         cover_image_url,
         event_id,
-        track_ids,
-        created_at
+        created_at,
+        project_tracks (
+          event_tracks (
+            track_id,
+            event_id,
+            name,
+            description,
+            label,
+            prize_amount,
+            prize_description,
+            scoring_criteria,
+            created_at,
+            updated_at
+          )
+        )
       `
       )
       .eq("id", projectId)
@@ -56,7 +69,9 @@ export async function fetchProjectById(
       additional_materials_url: data.additional_materials_url,
       cover_image_url: data.cover_image_url,
       event_id: data.event_id,
-      track_ids: data.track_ids || [],
+      tracks: data.project_tracks?.map((pt) => pt.event_tracks[0]) || [],
+      track_ids:
+        data.project_tracks?.map((pt) => pt.event_tracks[0].track_id) || [],
       created_at: data.created_at,
     };
 
@@ -114,8 +129,21 @@ export async function fetchProjectsByEventId(
         additional_materials_url,
         cover_image_url,
         event_id,
-        track_ids,
-        created_at
+        created_at,
+        project_tracks (
+          event_tracks (
+            track_id,
+            event_id,
+            name,
+            description,
+            label,
+            prize_amount,
+            prize_description,
+            scoring_criteria,
+            created_at,
+            updated_at
+          )
+        )
       `
       )
       .eq("event_id", eventId)
@@ -142,8 +170,21 @@ export async function fetchProjectsByEventId(
         additional_materials_url,
         cover_image_url,
         event_id,
-        track_ids,
-        created_at
+        created_at,
+        project_tracks (
+          event_tracks (
+            track_id,
+            event_id,
+            name,
+            description,
+            label,
+            prize_amount,
+            prize_description,
+            scoring_criteria,
+            created_at,
+            updated_at
+          )
+        )
       `
       )
       .eq("event_id", eventId)
@@ -175,7 +216,9 @@ export async function fetchProjectsByEventId(
       additional_materials_url: item.additional_materials_url,
       cover_image_url: item.cover_image_url,
       event_id: item.event_id,
-      track_ids: item.track_ids || [],
+      tracks: item.project_tracks?.map((pt) => pt.event_tracks[0]) || [],
+      track_ids:
+        item.project_tracks?.map((pt) => pt.event_tracks[0].track_id) || [],
       created_at: item.created_at,
     }));
   } catch (error) {
