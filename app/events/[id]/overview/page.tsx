@@ -1,7 +1,9 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { JoinEventButton } from "@/components/events/join-event-button";
 import { EventStatusBar } from "@/components/events/event-status-bar";
+import ReactMarkdown from "react-markdown";
 import {
   EventDetails,
   Rule,
@@ -60,7 +62,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
   let hasJoined = false;
 
   if (session) {
-    if (!session?.user?.email) return;
+    if (!session.user?.email) return;
 
     const { data: userEventRoles } = await supabase
       .from("user_event_roles")
@@ -91,7 +93,9 @@ export default async function EventOverviewPage({ params }: PageProps) {
           <CardTitle>{typedEvent.event_name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{typedEvent.event_description}</p>
+          <ReactMarkdown>
+            {typedEvent.event_description}
+          </ReactMarkdown>
         </CardContent>
       </Card>
 
@@ -104,14 +108,14 @@ export default async function EventOverviewPage({ params }: PageProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(typedEvent.rules || defaultRules).map((rule, index) => (
-              <div key={index}>
+            {(typedEvent.rules || defaultRules).map((rule, idx) => (
+              <div key={idx}>
                 <h3 className="font-bold text-lg mb-2 text-blue-800">
                   {rule.title}
                 </h3>
                 <ul className="list-disc pl-5 space-y-1 text-gray-600">
-                  {rule.items.map((item, itemIndex) => (
-                    <li key={itemIndex}>{item}</li>
+                  {rule.items.map((item, i) => (
+                    <li key={i}>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -121,7 +125,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
       </Card>
 
       {/* Schedule */}
-      {typedEvent.event_schedule && typedEvent.event_schedule.length > 0 && (
+      {typedEvent.event_schedule?.length > 0 && (
         <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
@@ -130,39 +134,37 @@ export default async function EventOverviewPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {typedEvent.event_schedule.map(
-                (day: ScheduleDay, index: number) => (
-                  <div key={index}>
-                    <h3 className="font-bold text-xl mb-3 text-blue-800">
-                      {day.time}
-                    </h3>
-                    <div className="space-y-2">
-                      {day.events.map(
-                        (scheduleEvent: ScheduleEvent, eventIndex: number) => (
-                          <div
-                            key={eventIndex}
-                            className="flex justify-between items-center border-b pb-2 last:border-0"
-                          >
-                            <span className="font-medium text-gray-800">
-                              {scheduleEvent.name}
-                            </span>
-                            <span className="text-gray-500">
-                              {scheduleEvent.time}
-                            </span>
-                          </div>
-                        )
-                      )}
-                    </div>
+              {typedEvent.event_schedule.map((day: ScheduleDay, idx) => (
+                <div key={idx}>
+                  <h3 className="font-bold text-xl mb-3 text-blue-800">
+                    {day.time}
+                  </h3>
+                  <div className="space-y-2">
+                    {day.events.map(
+                      (event: ScheduleEvent, eIdx: number) => (
+                        <div
+                          key={eIdx}
+                          className="flex justify-between items-center border-b pb-2 last:border-0"
+                        >
+                          <span className="font-medium text-gray-800">
+                            {event.name}
+                          </span>
+                          <span className="text-gray-500">
+                            {event.time}
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Tracks */}
-      {tracks && tracks.length > 0 && (
+      {tracks.length > 0 && (
         <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
@@ -171,7 +173,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {tracks.map((track: EventTrack) => (
+              {tracks.map((track) => (
                 <Card key={track.track_id} className="shadow border rounded-lg">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl font-bold text-blue-900">
@@ -192,7 +194,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
       )}
 
       {/* Resources */}
-      {typedEvent.event_resources && typedEvent.event_resources.length > 0 && (
+      {typedEvent.event_resources?.length > 0 && (
         <Card className="shadow-lg rounded-lg mb-8">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-800">
@@ -201,21 +203,19 @@ export default async function EventOverviewPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {typedEvent.event_resources.map(
-                (resource: Resource, index: number) => (
-                  <a
-                    key={index}
-                    href={resource.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-200 transition-colors rounded-lg shadow-sm"
-                  >
-                    <span className="text-sm font-medium text-gray-800">
-                      {resource.name}
-                    </span>
-                  </a>
-                )
-              )}
+              {typedEvent.event_resources.map((res: Resource, idx) => (
+                <a
+                  key={idx}
+                  href={res.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-200 transition-colors rounded-lg shadow-sm"
+                >
+                  <span className="text-sm font-medium text-gray-800">
+                    {res.name}
+                  </span>
+                </a>
+              ))}
             </div>
           </CardContent>
         </Card>
