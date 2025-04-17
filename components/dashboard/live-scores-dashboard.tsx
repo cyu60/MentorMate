@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { EventScoringConfig } from "@/lib/types";
+import { EventScoringConfig, ScoringCriterion } from "@/lib/types";
 import {
   Table,
   TableBody,
@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 
-interface ProjectScore {
+interface DashboardProjectScore {
   project_id: string;
   track_id: string;
+  event_id: string;
   scores: Record<string, number>;
   projects: {
     project_name: string;
     lead_name: string;
+    event_id: string;
   };
 }
 
@@ -36,81 +38,65 @@ interface TrackScores {
   [trackId: string]: TrackScore[];
 }
 
-interface Winner {
-  projectId: string;
-  trackId: string;
-  totalScore: number;
-  rank: number;
-}
-
 interface LiveScoresDashboardProps {
   eventId: string;
   scoringConfig: EventScoringConfig;
-  onWinnerSelected: (winners: Winner[]) => void;
 }
 
 export function LiveScoresDashboard({
   eventId,
   scoringConfig,
-  onWinnerSelected,
 }: LiveScoresDashboardProps) {
-  const [scores, setScores] = useState<ProjectScore[]>([]);
+  const [scores, setScores] = useState<DashboardProjectScore[]>([]);
   const [trackScores, setTrackScores] = useState<TrackScores>({});
   const [loading, setLoading] = useState(true);
 
-  // Calculate average scores and rankings for each track
-  const calculateTrackScores = (scoreData: ProjectScore[]) => {
-    const trackScoresMap: TrackScores = {};
-
-    // Group scores by track and project
-    scoreData.forEach((score) => {
-      if (!trackScoresMap[score.track_id]) {
-        trackScoresMap[score.track_id] = [];
-      }
-
-      // Find existing project in track or create new entry
-      let projectScore = trackScoresMap[score.track_id].find(
-        (p) => p.projectId === score.project_id
-      );
-
-      if (!projectScore) {
-        projectScore = {
-          projectId: score.project_id,
-          projectName: score.projects.project_name,
-          leadName: score.projects.lead_name,
-          averageScore: 0,
-          totalScore: 0,
-          numberOfJudges: 0,
-        };
-        trackScoresMap[score.track_id].push(projectScore);
-      }
-
-      // Calculate total score for this submission
-      const totalScore = Object.values(score.scores).reduce((a, b) => a + b, 0);
-      projectScore.totalScore += totalScore;
-      projectScore.numberOfJudges += 1;
-      projectScore.averageScore = projectScore.totalScore / projectScore.numberOfJudges;
-    });
-
-    // Sort projects by average score within each track
-    Object.keys(trackScoresMap).forEach((trackId) => {
-      trackScoresMap[trackId].sort((a, b) => b.averageScore - a.averageScore);
-    });
-
-    setTrackScores(trackScoresMap);
-
-    // Prepare winners data
-    const winners = Object.entries(trackScoresMap).flatMap(([trackId, projects]) =>
-      projects.slice(0, 3).map((project, index) => ({
-        projectId: project.projectId,
-        trackId,
-        totalScore: project.averageScore,
-        rank: index + 1,
-      }))
-    );
-
-    onWinnerSelected(winners);
-  };
+  const calculateTrackScores = useCallback((scoreData: DashboardProjectScore[]) => {
+      const trackScoresMap: TrackScores = {};
+  
+      // Group scores by track and project
+      scoreData.forEach((score) => {
+        if (!trackScoresMap[score.track_id]) {
+          trackScoresMap[score.track_id] = [];
+        }
+  
+        // Find existing project in track or create new entry
+        let projectScore = trackScoresMap[score.track_id].find(
+          (p) => p.projectId === score.project_id
+        );
+  
+        if (!projectScore) {
+          projectScore = {
+            projectId: score.project_id,
+            projectName: score.projects.project_name,
+            leadName: score.projects.lead_name,
+            averageScore: 0,
+            totalScore: 0,
+            numberOfJudges: 0,
+          };
+          trackScoresMap[score.track_id].push(projectScore);
+        }
+  
+        // Calculate weighted total score for this submission
+        const trackConfig = scoringConfig.tracks[score.track_id];
+        if (trackConfig) {
+          const totalScore = Object.entries(score.scores).reduce((acc, [criterionId, scoreValue]) => {
+            const criterion = trackConfig.criteria.find((c: ScoringCriterion) => c.id === criterionId);
+            return acc + (scoreValue * (criterion?.weight || 1));
+          }, 0);
+          projectScore.totalScore += totalScore;
+          projectScore.numberOfJudges += 1;
+          projectScore.averageScore = projectScore.totalScore / projectScore.numberOfJudges;
+        }
+      });
+  
+      // Sort projects by average score within each track
+      Object.keys(trackScoresMap).forEach((trackId) => {
+        trackScoresMap[trackId].sort((a, b) => b.averageScore - a.averageScore);
+      });
+  
+      setTrackScores(trackScoresMap);
+  }, [scoringConfig]);
 
   useEffect(() => {
     async function fetchScores() {
@@ -122,22 +108,34 @@ export function LiveScoresDashboard({
             project_id,
             track_id,
             scores,
-            projects!project_scores_project_id_fkey (
+            projects!project_scores_project_id_fkey!inner (
               project_name,
-              lead_name
+              lead_name,
+              event_id
             )
           `
           )
-          .eq("event_id", eventId);
+          .eq("projects.event_id", eventId);
 
         if (error) throw error;
-        const typedData = (data || []).map(item => ({
-          ...item,
-          projects: {
-            project_name: item.projects?.[0]?.project_name || '',
-            lead_name: item.projects?.[0]?.lead_name || ''
-          }
-        })) as ProjectScore[];
+        const typedData = (data || []).map(item => {
+          const projectsArray = item.projects as any[];
+          const projectData = projectsArray?.[0] || {
+            project_name: '',
+            lead_name: '',
+            event_id: eventId
+          };
+          
+          return {
+            ...item,
+            event_id: projectData.event_id || eventId,
+            projects: {
+              project_name: projectData.project_name || '',
+              lead_name: projectData.lead_name || '',
+              event_id: projectData.event_id || eventId
+            }
+          };
+        }) as DashboardProjectScore[];
         
         setScores(typedData);
         calculateTrackScores(typedData);
@@ -152,20 +150,21 @@ export function LiveScoresDashboard({
 
     // Subscribe to real-time score updates
     const subscription = supabase
-      .channel("project_scores_channel")
+      .channel(`project_scores_${eventId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "project_scores",
-          filter: `event_id=eq.${eventId}`,
+          filter: `projects.event_id=eq.${eventId}`,
         },
         async (payload) => {
           // Fetch the updated score with project details
           if (payload.eventType === "DELETE") {
+            const oldScore = payload.old as { project_id: string };
             setScores((current) =>
-              current.filter((s) => s.project_id !== (payload.old as ProjectScore).project_id)
+              current.filter((s) => s.project_id !== oldScore.project_id)
             );
           } else {
             const { data, error } = await supabase
@@ -175,30 +174,44 @@ export function LiveScoresDashboard({
                 project_id,
                 track_id,
                 scores,
-                projects!project_scores_project_id_fkey (
+                projects!project_scores_project_id_fkey!inner (
                   project_name,
-                  lead_name
+                  lead_name,
+                  event_id
                 )
               `
               )
-              .eq("project_id", (payload.new as ProjectScore).project_id)
+              .eq("project_id", (payload.new as { project_id: string }).project_id)
+              .eq("projects.event_id", eventId)
               .single();
 
             if (!error && data) {
+              const projectsArray = data.projects as any[];
+              const projectData = projectsArray?.[0] || {
+                project_name: '',
+                lead_name: '',
+                event_id: eventId
+              };
+              
               const typedData = {
                 ...data,
+                event_id: projectData.event_id || eventId,
                 projects: {
-                  project_name: data.projects?.[0]?.project_name || '',
-                  lead_name: data.projects?.[0]?.lead_name || ''
+                  project_name: projectData.project_name || '',
+                  lead_name: projectData.lead_name || '',
+                  event_id: projectData.event_id || eventId
                 }
-              } as ProjectScore;
+              } as DashboardProjectScore;
               
-              setScores((current) => {
-                const newScores = current.filter(
-                  (s) => s.project_id !== typedData.project_id
-                );
-                return [...newScores, typedData];
-              });
+              // Verify the score is for the correct event
+              if (typedData.projects.event_id === eventId) {
+                setScores((current) => {
+                  const newScores = current.filter(
+                    (s) => s.project_id !== typedData.project_id
+                  );
+                  return [...newScores, typedData];
+                });
+              }
             }
           }
         }
@@ -213,7 +226,7 @@ export function LiveScoresDashboard({
   // Recalculate track scores whenever scores change
   useEffect(() => {
     calculateTrackScores(scores);
-  }, [scores]);
+  }, [scores, scoringConfig, calculateTrackScores]);
 
   if (loading) {
     return <div>Loading scores...</div>;
