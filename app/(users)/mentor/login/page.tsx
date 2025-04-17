@@ -38,7 +38,7 @@ export default function MentorLoginPage() {
     };
 
     checkSession();
-  }, [router]);
+  }, [router, supabase.auth]);
 
   // Handle email/password sign in
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

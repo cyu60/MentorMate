@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { EventRole } from "@/lib/types";
-import { Database } from "@/lib/database.types";
 import {
   Table,
   TableBody,
@@ -56,7 +55,7 @@ export function ParticipantsList({ eventId }: ParticipantsListProps) {
         const transformedData: Participant[] = (data as UserEventRoleWithProfile[] || []).map(role => ({
           user_id: role.user_id,
           role: role.role as EventRole,
-          display_name: role.profiles?.display_name || role.user_id
+          display_name: role.profiles?.[0]?.display_name || role.user_id
         }));
 
         setParticipants(transformedData);

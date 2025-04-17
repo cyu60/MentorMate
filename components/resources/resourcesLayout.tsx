@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { defaultResources, Resource } from "./data";
 
 export default function ResourcesLayout() {
@@ -12,9 +13,11 @@ export default function ResourcesLayout() {
                         key={resource.id}
                         className="group relative flex flex-col justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition hover:shadow-md"
                     >
-                        <img
+                        <Image
                             src={resource.thumbnail}
                             alt={resource.title}
+                            width={200}
+                            height={150}
                             className="mb-4 object-contain"
                         />
                         <h3 className="text-lg font-semibold text-gray-800 group-hover:text-gray-900">

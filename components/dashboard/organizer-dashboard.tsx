@@ -209,7 +209,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
     }
 
     fetchEvent();
-  }, [eventId, router]);
+  }, [eventId, router, toast]);
 
   const updateEvent = async (data: UpdateEventData) => {
     if (!event) return;
@@ -935,9 +935,6 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                 <LiveScoresDashboard
                   eventId={eventId}
                   scoringConfig={event.scoring_config || { tracks: {}, defaultMin: 1, defaultMax: 10, defaultWeight: 1 }}
-                  onWinnerSelected={(winners) => {
-                    updateEvent({ winners });
-                  }}
                 />
               </div>
             </CardContent>
