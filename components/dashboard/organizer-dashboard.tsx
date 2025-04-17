@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Papa from 'papaparse';
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,16 @@ import {
 import { EventDetails, EventRole, EventScoringConfig } from "@/lib/types";
 import { RolePasswordSettings } from "./role-password-settings";
 import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
+import { ParticipantsList } from "./participants-list";
+import { ProjectSubmissionsList } from "./project-submissions-list";
+import { LiveScoresDashboard } from "./live-scores-dashboard";
+
+interface Winner {
+  projectId: string;
+  trackId: string;
+  totalScore: number;
+  rank: number;
+}
 
 interface UpdateEventData {
   event_name?: string;
@@ -35,6 +46,106 @@ interface UpdateEventData {
   event_resources?: EventDetails["event_resources"];
   rules?: EventDetails["rules"];
   scoring_config?: EventScoringConfig;
+  winners?: Winner[];
+}
+
+const exportParticipants = async (eventId: string) => {
+  const { data } = await supabase
+    .from('user_event_roles')
+    .select(`
+      user_id,
+      role,
+      users (
+        email,
+        full_name
+      )
+    `)
+    .eq('event_id', eventId);
+
+  if (data) {
+    const csv = Papa.unparse(data?.map(row => ({
+      Name: row.users?.[0]?.full_name || '',
+      Email: row.users?.[0]?.email || '',
+      Role: row.role || ''
+    })));
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `participants-${eventId}.csv`;
+    a.click();
+  }
+};
+
+const exportSubmissions = async (eventId: string) => {
+  const { data } = await supabase
+    .from('projects')
+    .select(`
+      project_name,
+      lead_name,
+      lead_email,
+      project_description,
+      project_url,
+      teammates
+    `)
+    .eq('event_id', eventId);
+
+  if (data) {
+    const csv = Papa.unparse(data?.map(project => ({
+      'Project Name': project.project_name,
+      'Lead Name': project.lead_name,
+      'Lead Email': project.lead_email,
+      'Description': project.project_description,
+      'Project URL': project.project_url,
+      'Team Members': project.teammates.join(', ')
+    })));
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `submissions-${eventId}.csv`;
+    a.click();
+  }
+};
+
+const exportScores = async (eventId: string) => {
+  const { data } = await supabase
+    .from('project_scores')
+    .select(`
+      project_id,
+      track_id,
+      scores,
+      comments,
+      projects (
+        project_name
+      )
+    `)
+    .eq('event_id', eventId);
+
+  if (data) {
+    const csv = Papa.unparse(data?.map(score => ({
+      'Project Name': score.projects?.[0]?.project_name || '',
+      'Track': score.track_id || '',
+      'Total Score': Object.values(score.scores || {}).reduce((a: number, b: unknown) => a + (typeof b === 'number' ? b : 0), 0),
+      'Comments': score.comments
+    })));
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scores-${eventId}.csv`;
+    a.click();
+  }
+};
+
+interface Winner {
+  projectId: string;
+  trackId: string;
+  totalScore: number;
+  rank: number;
 }
 
 export function OrganizerDashboard({ eventId }: { eventId: string }) {
@@ -184,7 +295,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-7 gap-4 mb-6">
+        <TabsList className="grid grid-cols-10 gap-4 mb-6">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Basic Info
@@ -212,6 +323,18 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           <TabsTrigger value="scoring" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Scoring
+          </TabsTrigger>
+          <TabsTrigger value="participants" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            Participants
+          </TabsTrigger>
+          <TabsTrigger value="submissions" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            Submissions
+          </TabsTrigger>
+          <TabsTrigger value="scores" className="flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            Live Scores
           </TabsTrigger>
         </TabsList>
 
@@ -754,6 +877,69 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                   }
                 }}
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="participants">
+          <Card>
+            <CardHeader>
+              <CardTitle>Event Participants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Event Participants</h3>
+                  <Button onClick={() => exportParticipants(eventId)}>
+                    Export Participants
+                  </Button>
+                </div>
+                <ParticipantsList eventId={eventId} />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="submissions">
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Submissions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Project Submissions</h3>
+                  <Button onClick={() => exportSubmissions(eventId)}>
+                    Export Submissions
+                  </Button>
+                </div>
+                <ProjectSubmissionsList eventId={eventId} />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="scores">
+          <Card>
+            <CardHeader>
+              <CardTitle>Live Scoring Dashboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Live Scoring Dashboard</h3>
+                  <Button onClick={() => exportScores(eventId)}>
+                    Export Scores
+                  </Button>
+                </div>
+                <LiveScoresDashboard
+                  eventId={eventId}
+                  scoringConfig={event.scoring_config || { tracks: {}, defaultMin: 1, defaultMax: 10, defaultWeight: 1 }}
+                  onWinnerSelected={(winners) => {
+                    updateEvent({ winners });
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
