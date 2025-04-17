@@ -46,18 +46,18 @@ This document outlines the key features and requirements for the MentorMate plat
 - [ ] Support password authentication for organizers
 
 ## Submission System
-
-- [X] Submission time management
-  - [X] Open/close submission periods
-  - [X] Track submission timestamps
-  - [X] Implement submission deadlines per track
+- [x] Submission time management
+    - [x] Open/close submission periods
+    - [x] Track submission timestamps
+    - [x] Implement submission deadlines per track
+    - [ ] Submissions deadline needs to hold for editing a project after submission
 - [ ] Track-based submissions
   - [X] Add trackID field to project schema
   - [X] Support multiple tracks (array)
   - [X] Add UI elements for track selection (dropdown/checkbox)
   - [ ] Display selected track in dashboard
   - [X] Prevent submissions outside deadline windows
-- [ ] Submission validation
+  - [ ] Submission validation
   - [ ] Fix validation bugs for missing fields
   - [ ] Stress test server calls
   - [ ] Ensure submissions appear in dashboard view
@@ -137,6 +137,9 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Implement data backup system
   - [ ] Set up production monitoring
   - [ ] Create disaster recovery plan
+- [ ] Storage 
+    - [ ] Better storage organization for projects
+    - [ ] Delete project materials on event deletion
 
 ## Completed Features
 
