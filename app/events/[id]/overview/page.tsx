@@ -57,17 +57,17 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
   // Check if user has joined
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
   let hasJoined = false;
 
-  if (session) {
-    if (!session.user?.email) return;
+  if (user) {
+    if (!user.email) return;
 
     const { data: userEventRoles } = await supabase
       .from("user_event_roles")
       .select("event_id")
-      .in("uid", [session.user.id]);
+      .in("uid", [user.id]);
 
     if (userEventRoles) {
       const events = userEventRoles.map((role) => role.event_id);
@@ -93,9 +93,9 @@ export default async function EventOverviewPage({ params }: PageProps) {
           <CardTitle>{typedEvent.event_name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ReactMarkdown>
-            {typedEvent.event_description}
-          </ReactMarkdown>
+          <div className="prose prose-blue max-w-none">
+            <ReactMarkdown>{typedEvent.event_description}</ReactMarkdown>
+          </div>
         </CardContent>
       </Card>
 
