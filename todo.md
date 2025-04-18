@@ -42,7 +42,7 @@ This document outlines the key features and requirements for the MentorMate plat
 - [X] Make passcode protection for judging and organizer roles
 - [X] Verify passcode on judge's side ✅
 - [X] Implement database functions for transactions for organizer changes
-- [ ] Add API route protections and authentication
+- [X] Add API route protections and authentication
 - [ ] Support password authentication for organizers
 
 ## Submission System
@@ -104,13 +104,13 @@ This document outlines the key features and requirements for the MentorMate plat
 
 ### Score Management
 
-- [ ] Implement aggregated scoring views
-  - [ ] Display scores by track
+- [X] Implement aggregated scoring views
+  - [X] Display scores by track
   - [ ] Show individual judge scores
-  - [ ] Calculate final rankings
+  - [X] Calculate final rankings
   - [ ] Show judge-specific scoring patterns
-  - [ ] Display scoring distribution per criterion
-- [ ] Fix dashboard rendering for missing track configs
+  - [X] Display scoring distribution per criterion
+- [X] Fix dashboard rendering for missing track configs
 
 ### Winner Management
 
@@ -133,6 +133,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Modify SQL for default trackID in old entries
   - [X] Set nullable/default values in SQL tables
   - [X] Add JSONB field for event_prizes
+  - [ ] Clean up columns that are no longer being used and remove them from the frontend
 - [X] Production Support
   - [X] Implement data backup system
   - [ ] Set up production monitoring

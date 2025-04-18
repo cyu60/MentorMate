@@ -8,9 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TrashIcon, PlusIcon } from "lucide-react";
 import { EventScoringConfig, ScoringCriterion } from "@/lib/types";
 import { defaultCriteria } from "@/lib/constants";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 interface ScoringConfigFormProps {
-  initialConfig?: EventScoringConfig;
+  initialConfig?: EventScoringConfig | null;
   onSave: (config: EventScoringConfig) => void;
   isSubmitting?: boolean;
 }
@@ -29,8 +31,10 @@ export function ScoringConfigForm({
     }
   );
 
+  const { toast } = useToast();
+
   const addTrack = () => {
-    const trackId = `track_${Object.keys(config.tracks).length + 1}`;
+    const trackId = crypto.randomUUID();
     setConfig((prev) => ({
       ...prev,
       tracks: {
@@ -43,12 +47,28 @@ export function ScoringConfigForm({
     }));
   };
 
-  const removeTrack = (trackId: string) => {
-    setConfig((prev) => {
-      const newTracks = { ...prev.tracks };
-      delete newTracks[trackId];
-      return { ...prev, tracks: newTracks };
-    });
+  const removeTrack = async (trackId: string) => {
+    const { error } = await supabase
+      .from("event_tracks")
+      .delete()
+      .eq("track_id", trackId);
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete track",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Track deleted successfully",
+      });
+      setConfig((prev) => {
+        const newTracks = { ...prev.tracks };
+        delete newTracks[trackId];
+        return { ...prev, tracks: newTracks };
+      });
+    }
   };
 
   const updateTrackName = (trackId: string, name: string) => {
@@ -274,7 +294,7 @@ export function ScoringConfigForm({
                                 })
                               }
                               min={0}
-                              step={0.1}
+                              step={0.01}
                             />
                           </div>
                         </div>
