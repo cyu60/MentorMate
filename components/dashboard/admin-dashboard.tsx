@@ -105,7 +105,7 @@ export function AdminDashboard({ event }: AdminDashboardProps) {
     fetchProjects();
     fetchMentors();
     fetchFeedbackWithProjects();
-  }, [fetchProjects, fetchFeedbackWithProjects]);
+  }, [fetchProjects, fetchMentors, fetchFeedbackWithProjects]);
 
   return (
     <Tabs defaultValue="projects" className="space-y-4">

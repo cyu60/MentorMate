@@ -70,7 +70,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
             project_description,
             created_at,
             event_id,
-            project_tracks!inner (
+            project_tracks!project_tracks_project_id_fkey!inner (
               track_id
             )
           `
@@ -131,7 +131,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
               track_id,
               scores,
               comments,
-              projects!inner (
+              projects!project_scores_project_id_fkey!inner (
                 event_id
               )
             `

@@ -42,10 +42,21 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
   const supabase = await createSupabaseClient();
 
-  // Fetch event details and tracks
+  // Update the Promise.all to use a join
   const [eventResult, tracksResult] = await Promise.all([
     supabase.from("events").select("*").eq("event_id", id).single(),
-    supabase.from("event_tracks").select("*").eq("event_id", id),
+    supabase
+      .from("event_tracks")
+      .select(
+        `
+        *,
+        prizes (
+          prize_amount,
+          prize_description
+        )
+      `
+      )
+      .eq("event_id", id),
   ]);
 
   if (eventResult.error) {
@@ -140,21 +151,17 @@ export default async function EventOverviewPage({ params }: PageProps) {
                     {day.time}
                   </h3>
                   <div className="space-y-2">
-                    {day.events.map(
-                      (event: ScheduleEvent, eIdx: number) => (
-                        <div
-                          key={eIdx}
-                          className="flex justify-between items-center border-b pb-2 last:border-0"
-                        >
-                          <span className="font-medium text-gray-800">
-                            {event.name}
-                          </span>
-                          <span className="text-gray-500">
-                            {event.time}
-                          </span>
-                        </div>
-                      )
-                    )}
+                    {day.events.map((event: ScheduleEvent, eIdx: number) => (
+                      <div
+                        key={eIdx}
+                        className="flex justify-between items-center border-b pb-2 last:border-0"
+                      >
+                        <span className="font-medium text-gray-800">
+                          {event.name}
+                        </span>
+                        <span className="text-gray-500">{event.time}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -179,12 +186,29 @@ export default async function EventOverviewPage({ params }: PageProps) {
                     <CardTitle className="text-xl font-bold text-blue-900">
                       {track.name}
                     </CardTitle>
-                    <div className="text-2xl font-extrabold text-green-600">
-                      {track.prize_amount}
-                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">{track.prize_description}</p>
+                    {track.prizes && track.prizes.length > 0 ? (
+                      <div className="space-y-4">
+                        {track.prizes.map((prize, index) => (
+                          <div key={index} className="border-b pb-3 last:border-b-0 last:pb-0">
+                            <div className="text-2xl font-extrabold text-green-600 mb-2">
+                              {prize.prize_amount}
+                            </div>
+                            <p className="text-gray-600">
+                              {prize.prize_description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-2xl font-extrabold text-green-600 mb-2">
+                          TBD
+                        </div>
+                        <p className="text-gray-600">TBD</p>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               ))}

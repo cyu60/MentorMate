@@ -33,9 +33,9 @@ export interface ScheduleDay {
 }
 
 export interface Prize {
-  track: string;
-  prize: string;
-  description: string;
+  id: string;
+  prize_amount: string;
+  prize_description: string;
 }
 
 export interface Resource {
@@ -54,8 +54,7 @@ export interface EventTrack {
   name: string;
   description: string;
   label?: string;
-  prize_amount: string;
-  prize_description: string;
+  prizes?: Prize[];
   scoring_criteria: TrackScoringConfig;
   created_at: string;
   updated_at: string;
@@ -68,7 +67,7 @@ export interface EventDetails extends EventItem {
   event_resources: Resource[];
   created_at: string;
   rules: Rule[];
-  tracks?: EventTrack[];
+  event_tracks?: EventTrack[];
 }
 
 // Project Types

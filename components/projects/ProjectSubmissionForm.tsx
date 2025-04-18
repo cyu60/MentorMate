@@ -140,7 +140,7 @@ export function ProjectSubmissionFormComponent({
       }
     };
     fetchUserDisplayNames();
-  }, []);
+  }, [eventId]);
 
   // Fetch available tracks from event config
   useEffect(() => {
