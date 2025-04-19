@@ -102,6 +102,11 @@ This document outlines the key features and requirements for the MentorMate plat
 
 ## Organizer Dashboard
 
+### Event Details
+
+- [ ] Allow organizers to change submission times
+- [ ] Display video links as embedded
+
 ### Score Management
 
 - [X] Implement aggregated scoring views

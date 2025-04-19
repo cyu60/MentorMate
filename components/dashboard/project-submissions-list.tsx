@@ -161,7 +161,7 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
             </TableCell>
             <TableCell>
               <Link 
-                href={`/events/${eventId}/projects/public/${project.id}`}
+                href={`/public-project-details/${project.id}`}
                 passHref
               >
                 <Button variant="outline" size="sm">
