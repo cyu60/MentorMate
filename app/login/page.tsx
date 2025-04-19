@@ -212,7 +212,7 @@ function LoginContent() {
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
+                  className="ml-2 mr-4 block text-sm text-gray-900"
                 >
                   Remember me
                 </label>
