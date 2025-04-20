@@ -60,7 +60,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [ ] Submission validation
   - [ ] Fix validation bugs for missing fields
   - [ ] Stress test server calls
-  - [ ] Ensure submissions appear in dashboard view
+  - [ ] Ensure submissions appear in dashboard view 
 
 ## Track-Based Judging System
 

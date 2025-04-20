@@ -3,7 +3,6 @@ import { Footer } from "@/components/layout/footer";
 import { EventsPageClient } from "@/components/eventsPageClient";
 import { createSupabaseClient } from "../utils/supabase/server";
 import { EventRole, EventVisibility } from "@/lib/types";
-import { ADMIN_USER_IDS } from "@/lib/constants";
 // Disable static generation for this page
 export const dynamic = "force-dynamic";
 
@@ -35,7 +34,10 @@ export default async function EventsPage() {
       if (rolesError) throw rolesError;
   
       // Check if user is an admin in any event
-      const isAdmin = ADMIN_USER_IDS.includes(userId);
+      const { data } = await supabase
+        .rpc('is_admin_user', { user_id: userId });
+
+      const isAdmin = data || false;
       
       // Get event IDs where user is an organizer
       const organizerEventIds = userRoles
