@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { EventRole } from "@/lib/types";
+import { EventRole, EventVisibility } from "@/lib/types";
 import * as bcrypt from "bcrypt";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
 
-
 export async function POST(request: Request) {
-
   const supabase = await createSupabaseClient();
 
   try {
@@ -20,10 +18,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if role is protected (Judge or Organizer)
-    const isProtectedRole =
-      role === EventRole.Judge || role === EventRole.Organizer;
+    const { data: event, error: eventError } = await supabase
+      .from("events")
+      .select("*")
+      .eq("event_id", eventId)
+      .maybeSingle();
 
+    if (eventError) {
+      return NextResponse.json(
+        { error: "Failed to fetch event" },
+        { status: 500 }
+      );
+    }
+
+    // Check if role is protected
+
+    let isProtectedRole = false;
+    if (event?.visibility === EventVisibility.Private) {
+      isProtectedRole = true;
+    } else {
+      isProtectedRole =
+        role === EventRole.Judge || role === EventRole.Organizer;
+    }
     // If protected role, verify password
     if (isProtectedRole) {
       if (!password) {
@@ -40,7 +56,7 @@ export async function POST(request: Request) {
         .eq("event_id", eventId)
         .eq("role", role)
         .single();
-      
+
       if (fetchError || !rolePassword) {
         return NextResponse.json(
           { error: "No password set for this role" },
@@ -63,10 +79,7 @@ export async function POST(request: Request) {
     } else {
       // For non-protected roles (Participant or Mentor), verify the role is valid
       if (role !== EventRole.Participant && role !== EventRole.Mentor) {
-        return NextResponse.json(
-          { error: "Invalid role" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Invalid role" }, { status: 400 });
       }
     }
 
@@ -76,19 +89,17 @@ export async function POST(request: Request) {
     // So we can proceed with role assignment
 
     // Assign role to user
-    const { error: roleError } = await supabase
-      .from("user_event_roles")
-      .upsert(
-        {
-          user_id: userId,
-          event_id: eventId,
-          role: role,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id,event_id",
-        }
-      );
+    const { error: roleError } = await supabase.from("user_event_roles").upsert(
+      {
+        user_id: userId,
+        event_id: eventId,
+        role: role,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "user_id,event_id",
+      }
+    );
 
     if (roleError) {
       return NextResponse.json(

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { EventRole } from "@/lib/types";
+import { EventRole, EventItem, EventVisibility } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 
 export interface JoinEventButtonProps {
@@ -37,6 +37,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const [password, setPassword] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [event, setEvent] = useState<EventItem | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,6 +59,23 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
 
         if (roleData) {
           setHasJoined(true);
+        } else {
+          const { data: eventData, error: eventError } = await supabase
+            .from("events")
+            .select("*")
+            .eq("event_id", eventId)
+            .maybeSingle();
+
+          if (eventError) {
+            console.error("Error fetching event:", eventError);
+            throw eventError;
+          }
+          setEvent(eventData);
+          
+          // Set initial password visibility based on the default role
+          if (eventData?.visibility === EventVisibility.Private) {
+            setShowPasswordInput(true);
+          } 
         }
       } catch (error) {
         console.error("Error checking event status:", error);
@@ -68,10 +86,14 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   }, [eventId]);
 
   const handleRoleSelect = (value: EventRole) => {
+    console.log("event", event);
     setSelectedRole(value);
-    // Show password input only for protected roles
-    setShowPasswordInput(value === EventRole.Judge || value === EventRole.Organizer);
-    setPassword("");
+    // Show password input for protected roles
+    if (event?.visibility === EventVisibility.Private) {
+      setShowPasswordInput(true);
+    } else {
+      setShowPasswordInput(value === EventRole.Judge || value === EventRole.Organizer );
+    }
   };
 
   const handleJoinEvent = async () => {
@@ -88,16 +110,16 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
       }
 
       // Use the verify endpoint for all roles
-      const response = await fetch('/api/roles/verify', {
-        method: 'POST',
+      const response = await fetch("/api/roles/verify", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           eventId,
           role: selectedRole,
           password: showPasswordInput ? password : undefined,
-          userId: session.user.id
+          userId: session.user.id,
         }),
       });
 
@@ -107,7 +129,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         toast({
           title: "Error",
           description: data.error || "Failed to join event",
-          variant: "destructive"
+          variant: "destructive",
         });
         return;
       }
@@ -121,7 +143,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
       toast({
         title: "Error",
         description: "Failed to join event",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -146,10 +168,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Select your role:</label>
-            <Select
-              value={selectedRole}
-              onValueChange={handleRoleSelect}
-            >
+            <Select value={selectedRole} onValueChange={handleRoleSelect}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

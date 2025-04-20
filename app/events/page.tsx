@@ -20,7 +20,6 @@ export default async function EventsPage() {
       } = await supabase.auth.getUser();
       
       if (!user) {
-        // If not authenticated, only return public and private events
         console.error("User not authenticated");
         return [];
       }
@@ -37,7 +36,6 @@ export default async function EventsPage() {
   
       // Check if user is an admin in any event
       const isAdmin = ADMIN_USER_IDS.includes(userId);
-      console.log("isAdmin", isAdmin);
       
       // Get event IDs where user is an organizer
       const organizerEventIds = userRoles

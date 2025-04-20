@@ -14,7 +14,7 @@ This document outlines the key features and requirements for the MentorMate plat
 - [X] Define prize info per track <- add this to the list of existing prizes in the current events table
 - [X] Define scoring criteria per track (can be stored as JSON) <- get this from the current events table it is currently stored in scoring_config
 - [X] Support track-based judging (scores assigned per track)
-- [X] Support assigning winners per track
+- [ ] Support assigning winners per track
 
 ---
 
