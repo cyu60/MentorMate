@@ -3,7 +3,7 @@
 > ### Exploring the synergy of generative AI and personalized formative feedback.
 
 <!-- thumbnail -->
-<img src="/landing.png" alt="landing">
+<img src="/public/img/landing.png" alt="landing">
 
 <!-- A Next.js application designed to streamline the process of collecting and managing mentor feedback for projects and hackathons. -->
 
