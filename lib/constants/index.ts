@@ -51,7 +51,7 @@ export const defaultCriteria: ScoringCriterion[] = [
 export const ADMIN_USER_IDS: AdminUserId[] = [
   // Add your admin user IDs here
   "5fd21fad-2ea4-4caa-aab1-596ab7f6a4d7", // spencer
-  "e4182548-e05d-4201-bc61-fe5d76a7a7ce", // quest 2 learn
+  "ec64dc8e-fc2b-45a8-9fd8-4a32e2d63f2c", // quest 2 learn
   "c0bb8ce8-a8cf-4db0-82d3-262535825d12", // Hello mentor mates
   "e4182548-e05d-4201-bc61-fe5d76a7a7ce", // Matthew dev
   "a91610aa-5324-4978-b75d-2994ba3e15fd" // Chinat dev

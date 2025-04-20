@@ -7,6 +7,14 @@ export enum EventRole {
   Admin = "admin",
 }
 
+export enum EventVisibility {
+  Test = "test",
+  Demo = "demo", 
+  Private = "private",
+  Public = "public",
+  Draft = "draft",
+}
+
 export interface UserProfile {
   uid: string;
   display_name: string;
@@ -17,6 +25,7 @@ export type EventItem = {
   event_name: string;
   event_date: string;
   location: string;
+  visibility?: EventVisibility;
   cover_image_url?: string;
   scoring_config?: EventScoringConfig;
 };
