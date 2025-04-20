@@ -30,7 +30,6 @@ export default function AdminPage() {
 
         const hasAdminAccess = ADMIN_USER_IDS.includes(session.user.id);
 
-        console.log("hasAdminAccess", session.user.id, hasAdminAccess);
         setIsAdmin(hasAdminAccess);
         setIsLoading(false);
       } catch (error) {
