@@ -9,12 +9,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, CheckCircle2 } from "lucide-react";
+import VoiceInput from "@/components/utils/VoiceInput";
 
 // Initialize Supabase client once at module level
 const supabase = createClient();
@@ -427,15 +427,21 @@ export default function GoalSection({
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4 space-y-6">
-            <Input
-              placeholder="Enter your goal..."
-              value={newGoal}
-              onChange={(e) => setNewGoal(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSubmitGoal();
-              }}
-              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-400"
-            />
+            <div className="flex items-center gap-2">
+              <textarea
+                placeholder="Enter your goal..."
+                value={newGoal}
+                onChange={(e) => setNewGoal(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitGoal();
+                  }
+                }}
+                className="flex-1 p-3 border rounded-md focus:ring-2 focus:ring-indigo-400 min-h-[42px]"
+              />
+              <VoiceInput setText={setNewGoal} />
+            </div>
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-2">
                 Recommendations:

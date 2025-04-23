@@ -10,7 +10,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, Plus, X, Loader2 } from "lucide-react";
-
+import VoiceInput from "../utils/VoiceInput";
 const supabase = createClient();
 
 interface JournalEntry {
@@ -351,6 +351,7 @@ export default function JournalSection({ eventId: propEventId }: JournalSectionP
                 <Switch id="private" checked={isPrivate} onCheckedChange={setIsPrivate} />
                 <Label htmlFor="private">Private</Label>
               </div>
+              <VoiceInput setText={editingId ? setEditContent : setEntry} />
             </div>
             {/* Tag Input */}
             <div className="flex gap-3 mb-2">
