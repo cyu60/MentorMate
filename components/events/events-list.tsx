@@ -85,7 +85,7 @@ export function EventsList({ events }: EventsListProps) {
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2 max-w-7xl mx-auto">
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 max-w-7xl mx-auto p-4">
       {events.map((event) => {
         const userRole = getUserRoleForEvent(event.event_id);
 
@@ -94,9 +94,9 @@ export function EventsList({ events }: EventsListProps) {
             href={`/events/${event.event_id}/overview`}
             key={event.event_id}
           >
-            <Card className="hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+            <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 overflow-hidden">
               <div
-                className="h-[200px] w-full bg-[#000080]"
+                className="w-full h-[150px] sm:h-[200px] bg-[#000080]"
                 style={
                   event.cover_image_url
                     ? {
@@ -107,30 +107,32 @@ export function EventsList({ events }: EventsListProps) {
                     : undefined
                 }
               />
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl font-semibold">
-                      {event.event_name}
-                    </CardTitle>
-                    <div className="flex gap-2 mt-2">
-                      <Badge variant="secondary" className="text-sm truncate max-w-[125px]">
-                        {event.event_date}
-                      </Badge>
-                      <Badge variant="outline" className="text-sm truncate line-clamp-1">
-                        {event.location}
-                      </Badge>
-                    </div>
-                  </div>
-                  {userRole && (
-                    <Badge
-                      variant={getRoleBadgeVariant(userRole)}
-                      className="capitalize"
-                    >
-                      {userRole}
-                    </Badge>
-                  )}
+              <div className="p-4 space-y-2">
+                <CardTitle className="text-base sm:text-xl font-semibold">
+                  {event.event_name}
+                </CardTitle>
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs sm:text-sm truncate max-w-[125px]"
+                  >
+                    {event.event_date}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-xs sm:text-sm truncate line-clamp-1"
+                  >
+                    {event.location}
+                  </Badge>
                 </div>
+                {userRole && (
+                  <Badge
+                    variant={getRoleBadgeVariant(userRole)}
+                    className="capitalize text-xs sm:text-sm mt-1"
+                  >
+                    {userRole}
+                  </Badge>
+                )}
               </div>
             </Card>
           </Link>
