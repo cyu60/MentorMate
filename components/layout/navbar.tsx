@@ -80,6 +80,12 @@ export function Navbar() {
           {/* Menu items */}
           <div className="hidden sm:flex items-center space-x-3">
             <Link
+              href="/events"
+              className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300 px-3"
+            >
+              Events
+            </Link>
+            <Link
               href="/about"
               className="text-lg font-semibold hover:text-blue-300 transition-colors duration-300 px-3"
             >

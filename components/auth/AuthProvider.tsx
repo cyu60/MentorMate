@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return [
       ...BASE_PUBLIC_PATHS,
       /^\/public-project-details($|\/.*$)/, // Matches /public-project and all its sub-routes
+      /^\/events($|\/.*$)/, // Matches /events and all its sub-routes
     ];
   }, []);
 
