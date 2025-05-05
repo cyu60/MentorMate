@@ -146,6 +146,9 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="sm:hidden bg-white border-t text-center py-4">
+            <Link href="/events" className="block py-2 font-semibold">
+              Events
+            </Link>
             <Link href="/about" className="block py-2 font-semibold">
               About Us
             </Link>

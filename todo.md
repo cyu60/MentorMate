@@ -139,6 +139,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Set nullable/default values in SQL tables
   - [X] Add JSONB field for event_prizes
   - [ ] Clean up columns that are no longer being used and remove them from the frontend
+  - [ ] Fix auth callbacks and redirect urls -- need to change vercel env variables
 - [X] Production Support
   - [X] Implement data backup system
   - [ ] Set up production monitoring
