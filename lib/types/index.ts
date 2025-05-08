@@ -71,6 +71,7 @@ export interface EventTrack {
 
 export interface EventDetails extends EventItem {
   event_description: string;
+  event_blurb?: string;
   event_schedule: ScheduleDay[];
   event_prizes: Prize[];
   event_resources: Resource[];

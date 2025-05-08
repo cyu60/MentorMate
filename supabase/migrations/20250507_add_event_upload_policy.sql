@@ -1,0 +1,1 @@
+CREATE POLICY "upload organizer 1201s55_0" ON storage.objects FOR INSERT TO public WITH CHECK (((bucket_id = 'event-materials'::text) AND (auth.role() = 'authenticated'::text) AND (EXISTS ( SELECT 1 FROM user_event_roles WHERE ((user_event_roles.user_id = auth.uid()) AND (user_event_roles.role = ANY (ARRAY['organizer'::event_role, 'admin'::event_role])))))));

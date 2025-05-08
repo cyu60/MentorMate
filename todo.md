@@ -91,6 +91,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Build judging editing interface
   - [X] Support track-specific scoring forms
   - [ ] Enable score and reflection aggregation
+  - [ ] More flexible judging criteria for demo days and pitch days
 
 ### Project Assignment System
 
@@ -143,7 +144,7 @@ This document outlines the key features and requirements for the MentorMate plat
 - [X] Production Support
   - [X] Implement data backup system
   - [ ] Set up production monitoring
-  - [ ] Create disaster recovery plan
+  - [ ] Create disaster recovery plan (Supabase has automatic daily backups)
 - [ ] Storage 
     - [ ] Better storage organization for projects
     - [ ] Delete project materials on event deletion

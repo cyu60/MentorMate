@@ -18,7 +18,6 @@ import { Toaster } from "@/components/ui/toaster";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
 import { Download, ExternalLink, ChevronDown, Users } from "lucide-react";
 import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
-import DemoFeedbackForm from "@/components/feedback/DemoFeedbackForm";
 
 function ProjectPageContent(): JSX.Element {
   const { id: projectId } = useParams();
@@ -368,19 +367,6 @@ function ProjectPageContent(): JSX.Element {
                       }
                       eventId={projectData.event_id}
                       noBorder={true}
-                    />
-                    <DemoFeedbackForm
-                      projectId={projectData.id}
-                      projectName={projectData.project_name}
-                      projectDescription={projectData.project_description}
-                      projectLeadEmail={projectData.lead_email}
-                      projectLeadName={projectData.lead_name}
-                      project_url={projectData.project_url}
-                      additional_materials_url={
-                        projectData.additional_materials_url
-                      }
-                      eventId={projectData.event_id}
-                      showMetadata={true}
                     />
                   </div>
                 </div>
