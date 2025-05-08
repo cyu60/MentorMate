@@ -26,7 +26,6 @@ import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
 import { ParticipantsList } from "./participants-list";
 import { ProjectSubmissionsList } from "./project-submissions-list";
 import { LiveScoresDashboard } from "./live-scores-dashboard";
-import Image from "next/image";
 
 interface Winner {
   projectId: string;
@@ -713,7 +712,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
 
                     {(previewUrl || event.cover_image_url) && (
                       <div className="mt-2">
-                        <Image 
+                        <img 
                           width={400}
                           height={200}
                           src={previewUrl || event.cover_image_url || ""} 

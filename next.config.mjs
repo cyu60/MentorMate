@@ -4,7 +4,9 @@ import withPWA from "next-pwa";
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['clinicalmindai.stanford.edu', "zqlopmbodkxlaunmkveo.supabase.co"],
+    domains: [
+      "clinicalmindai.stanford.edu",
+    ],
   },
 };
 
