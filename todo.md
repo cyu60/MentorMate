@@ -91,6 +91,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Build judging editing interface
   - [X] Support track-specific scoring forms
   - [ ] Enable score and reflection aggregation
+  - [ ] More flexible judging criteria for demo days and pitch days
 
 ### Project Assignment System
 
@@ -139,10 +140,11 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Set nullable/default values in SQL tables
   - [X] Add JSONB field for event_prizes
   - [ ] Clean up columns that are no longer being used and remove them from the frontend
+  - [ ] Fix auth callbacks and redirect urls -- need to change vercel env variables
 - [X] Production Support
   - [X] Implement data backup system
   - [ ] Set up production monitoring
-  - [ ] Create disaster recovery plan
+  - [ ] Create disaster recovery plan (Supabase has automatic daily backups)
 - [ ] Storage 
     - [ ] Better storage organization for projects
     - [ ] Delete project materials on event deletion

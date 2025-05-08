@@ -123,7 +123,7 @@ export default function HomePage() {
       const { data: userFeedback } = await supabase
         .from("feedback")
         .select("*")
-        .eq("recipient_email", userEmail);
+        .in("project_id", combinedProjects.map((project) => project.id));
 
       const totalFeedbackCount = userFeedback?.length || 0;
 

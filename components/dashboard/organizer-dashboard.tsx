@@ -39,6 +39,7 @@ interface UpdateEventData {
   event_date?: string;
   location?: string;
   event_description?: string;
+  event_blurb?: string;
   cover_image_url?: string;
   event_schedule?: EventDetails["event_schedule"];
   event_prizes?: EventDetails["event_prizes"];
@@ -170,6 +171,9 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const [activeTab, setActiveTab] = useState("details");
   const router = useRouter();
   const { toast } = useToast();
+  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
+  const [useImageUrl, setUseImageUrl] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvent() {
@@ -307,15 +311,64 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
     }
   };
 
-  const handleBasicInfoUpdate = () => {
+  const handleBasicInfoUpdate = async () => {
     if (!event) return;
-    updateEvent({
-      event_name: event.event_name,
-      event_date: event.event_date,
-      location: event.location,
-      event_description: event.event_description,
-      cover_image_url: event.cover_image_url,
-    });
+
+    try {
+      setSaving(true);
+      let coverImageUrl = event.cover_image_url;
+
+      // Handle file upload if there's a new file selected
+      if (selectedCoverImage) {
+        const fileExt = selectedCoverImage.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `event-covers/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("event-materials")
+          .upload(filePath, selectedCoverImage);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from("event-materials")
+          .getPublicUrl(filePath);
+          
+        coverImageUrl = publicUrl;
+      }
+
+      // Update event with new cover image URL if it changed
+      updateEvent({
+        event_name: event.event_name,
+        event_date: event.event_date,
+        location: event.location,
+        event_description: event.event_description,
+        event_blurb: event.event_blurb,
+        cover_image_url: coverImageUrl,
+      });
+      
+      // Update local state
+      setEvent({ ...event, cover_image_url: coverImageUrl });
+      setSelectedCoverImage(null);
+      setPreviewUrl(null);
+
+      // Refresh the page to update the overview
+      router.refresh();
+
+      toast({
+        title: "Success",
+        description: "Changes saved successfully",
+      });
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleScheduleUpdate = () => {
@@ -575,16 +628,99 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="cover_image_url">Cover Image URL</Label>
-                    <Input
-                      id="cover_image_url"
-                      type="url"
-                      value={event.cover_image_url || ""}
+                    <Label htmlFor="event_blurb">Event Blurb</Label>
+                    <Textarea
+                      id="event_blurb"
+                      value={event.event_blurb || ""}
                       onChange={(e) =>
-                        setEvent({ ...event, cover_image_url: e.target.value })
+                        setEvent({ ...event, event_blurb: e.target.value })
                       }
-                      placeholder="https://example.com/image.jpg"
+                      rows={2}
+                      placeholder="A short, catchy description of your event"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cover_image">Cover Image</Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Button
+                        type="button"
+                        variant={!useImageUrl ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseImageUrl(false)}
+                      >
+                        Upload File
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={useImageUrl ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseImageUrl(true)}
+                      >
+                        Use URL
+                      </Button>
+                    </div>
+
+                    {!useImageUrl ? (
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          id="cover_image"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setSelectedCoverImage(file);
+                              // Create preview URL
+                              const preview = URL.createObjectURL(file);
+                              setPreviewUrl(preview);
+                            }
+                          }}
+                          className="flex-1 text-base file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        {(selectedCoverImage || event.cover_image_url) && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedCoverImage(null);
+                              setPreviewUrl(null);
+                              setEvent({ ...event, cover_image_url: "" });
+                              const fileInput = document.getElementById("cover_image") as HTMLInputElement;
+                              if (fileInput) {
+                                fileInput.value = "";
+                              }
+                            }}
+                            className="px-2 py-1"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <Input
+                        type="url"
+                        value={event.cover_image_url || ""}
+                        onChange={(e) => {
+                          setEvent({ ...event, cover_image_url: e.target.value });
+                          setPreviewUrl(e.target.value);
+                        }}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    )}
+
+                    {(previewUrl || event.cover_image_url) && (
+                      <div className="mt-2">
+                        <img 
+                          width={400}
+                          height={200}
+                          src={previewUrl || event.cover_image_url || ""} 
+                          alt="Cover preview" 
+                          className="rounded-md object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
