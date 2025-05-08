@@ -143,6 +143,6 @@ export async function GET(request: Request) {
 
   // Default redirect for non-mentor users
   const returnUrl = searchParams.get('returnUrl');
-  const participantRedirectUrl = `${baseUrl}/events${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
+  const participantRedirectUrl = `${baseUrl}${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`;
   return NextResponse.redirect(participantRedirectUrl);
 }
