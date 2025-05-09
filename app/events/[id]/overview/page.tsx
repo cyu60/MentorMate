@@ -191,7 +191,10 @@ export default async function EventOverviewPage({ params }: PageProps) {
                     {track.prizes && track.prizes.length > 0 ? (
                       <div className="space-y-4">
                         {track.prizes.map((prize, index) => (
-                          <div key={index} className="border-b pb-3 last:border-b-0 last:pb-0">
+                          <div
+                            key={index}
+                            className="border-b pb-3 last:border-b-0 last:pb-0"
+                          >
                             <div className="text-2xl font-extrabold text-green-600 mb-2">
                               {prize.prize_amount}
                             </div>
