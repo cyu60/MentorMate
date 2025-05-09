@@ -31,61 +31,99 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if role is protected
-
-    let isProtectedRole = false;
-    if (event?.visibility === EventVisibility.Private) {
-      isProtectedRole = true;
-    } else {
-      isProtectedRole =
-        role === EventRole.Judge || role === EventRole.Organizer;
-    }
-    // If protected role, verify password
-    if (isProtectedRole) {
+    // First check if the event is private, which means all roles need a password
+    if (
+      event?.visibility === EventVisibility.Private &&
+      role !== EventRole.Judge &&
+      role !== EventRole.Organizer
+    ) {
       if (!password) {
         return NextResponse.json(
-          { error: "Password required for this role" },
+          { error: "Password required for this event" },
           { status: 400 }
         );
       }
 
-      // Get the stored password hash
-      const { data: rolePassword, error: fetchError } = await supabase
+      // Verify event password
+      const { data: eventPassword, error: eventPassError } = await supabase
         .from("role_passwords")
         .select("password_hash")
         .eq("event_id", eventId)
-        .eq("role", role)
+        .eq("role", "event")
         .single();
 
-      if (fetchError || !rolePassword) {
+      if (eventPassError || !eventPassword) {
         return NextResponse.json(
-          { error: "No password set for this role" },
+          { error: "No password set for this event" },
           { status: 404 }
         );
       }
 
       // Verify password
-      const isValid = await bcrypt.compare(
+      const isValidEventPass = await bcrypt.compare(
         password,
-        rolePassword.password_hash
+        eventPassword.password_hash
       );
 
-      if (!isValid) {
+      if (!isValidEventPass) {
         return NextResponse.json(
-          { error: "Invalid password" },
+          { error: "Invalid event password" },
           { status: 401 }
         );
       }
-    } else {
-      // For non-protected roles (Participant or Mentor), verify the role is valid
-      if (role !== EventRole.Participant && role !== EventRole.Mentor) {
-        return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    }
+    // For non-private events, check if the role itself requires a password
+    else {
+      const isProtectedRole =
+        role === EventRole.Judge || role === EventRole.Organizer;
+
+      if (isProtectedRole) {
+        if (!password) {
+          return NextResponse.json(
+            { error: "Password required for this role" },
+            { status: 400 }
+          );
+        }
+
+        // Get the stored password hash
+        const { data: rolePassword, error: fetchError } = await supabase
+          .from("role_passwords")
+          .select("password_hash")
+          .eq("event_id", eventId)
+          .eq("role", role)
+          .single();
+
+        if (fetchError || !rolePassword) {
+          return NextResponse.json(
+            { error: "No password set for this role" },
+            { status: 404 }
+          );
+        }
+
+        // Verify password
+        const isValid = await bcrypt.compare(
+          password,
+          rolePassword.password_hash
+        );
+
+        if (!isValid) {
+          return NextResponse.json(
+            { error: "Invalid password" },
+            { status: 401 }
+          );
+        }
+      } else {
+        // For non-protected roles (Participant or Mentor), verify the role is valid
+        if (role !== EventRole.Participant && role !== EventRole.Mentor) {
+          return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+        }
       }
     }
 
     // At this point, either:
-    // 1. It's a protected role and the password was verified
-    // 2. It's a non-protected role
+    // 1. It's a private event and the event password was verified
+    // 2. It's a protected role and the role password was verified
+    // 3. It's a non-protected role
     // So we can proceed with role assignment
 
     // Assign role to user

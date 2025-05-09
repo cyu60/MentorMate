@@ -1,4 +1,5 @@
 import { AuthNavbar } from "@/components/layout/authNavbar";
+import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { EventsPageClient } from "@/components/eventsPageClient";
 import { createSupabaseClient } from "../utils/supabase/server";
@@ -7,16 +8,13 @@ import { EventRole, EventVisibility } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
-  async function fetchEvents() {
-    const supabase = await createSupabaseClient();
+  const supabase = await createSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAuthenticated = !!user;
 
+  async function fetchAuthenticatedUserEvents() {
     try {
-      // Check if user is authenticated
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
+      if (!isAuthenticated) {
         console.error("User not authenticated");
         return [];
       }
@@ -93,13 +91,35 @@ export default async function EventsPage() {
     }
   }
 
-  const events = await fetchEvents();
+  async function fetchPublicEvents() {
+    try {
+      // Only fetch public and private events
+      const { data: events, error } = await supabase
+        .from("events")
+        .select("*")
+        .in("visibility", [EventVisibility.Public, EventVisibility.Private])
+        .order("event_date", { ascending: false });
 
+      if (error) throw error;
+
+      // For non-authenticated users, userRole is always null
+      return events.map(event => ({ ...event, userRole: null }));
+    } catch (error) {
+      console.error("Error fetching public events:", error);
+      return [];
+    }
+  }
+
+  // Fetch events based on authentication status
+  const events = isAuthenticated 
+    ? await fetchAuthenticatedUserEvents() 
+    : await fetchPublicEvents();
+  
   const eventsList = events || [];
 
   return (
     <div className="min-h-[90vh] flex flex-col bg-gray-50">
-      <AuthNavbar />
+      {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       <div className="flex-grow">
         <div className="max-w-7xl mx-auto py-8 px-6 lg:px-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">

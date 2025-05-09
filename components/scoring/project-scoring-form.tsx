@@ -7,6 +7,7 @@ import { ScoreFormData, ScoringCriterion } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { PostgrestError } from "@supabase/supabase-js";
+import VoiceInput from "@/components/utils/VoiceInput";
 
 interface ProjectScoringFormProps {
   projectId: string;
@@ -242,7 +243,7 @@ export function ProjectScoringForm({
         </div>
       ))}
 
-      <div className="space-y-2">
+      <div className="space-y-2 px-2">
         <label className="text-sm font-medium">Comments</label>
         <Textarea
           value={formData.comments}
@@ -251,6 +252,15 @@ export function ProjectScoringForm({
           }
           placeholder="Add any comments about your scoring decisions..."
           className="min-h-[100px]"
+        />
+
+        {/* Voice Input; editing the function to be compatible with setText typing; settext accepts a string or a function that returns a string */}
+        <VoiceInput
+          setText={(text: string | ((prevText: string) => string)) => {
+            const newText =
+              typeof text === "function" ? text(formData.comments || "") : text;
+            setFormData((prev) => ({ ...prev, comments: newText }));
+          }}
         />
       </div>
 

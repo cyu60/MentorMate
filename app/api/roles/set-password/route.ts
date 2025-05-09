@@ -21,8 +21,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate role is protected
-    if (role !== EventRole.Judge && role !== EventRole.Organizer) {
+    // Validate role is allowed to have a password
+    const validRoles = [EventRole.Judge, EventRole.Organizer, 'event'];
+    if (!validRoles.includes(role)) {
       return NextResponse.json(
         { error: 'Invalid role' },
         { status: 400 }

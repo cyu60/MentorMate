@@ -186,7 +186,9 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
           {showPasswordInput && (
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Enter {selectedRole} Password:
+                {event?.visibility === EventVisibility.Private
+                  ? "Enter Event Password:"
+                  : `Enter ${selectedRole} Password:`}
               </label>
               <Input
                 type="password"
