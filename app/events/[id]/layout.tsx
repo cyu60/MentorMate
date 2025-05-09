@@ -47,7 +47,7 @@ export default async function Layout({
       {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       <EventRegistrationWrapper eventId={id}>
         <main className="flex-1 overflow-auto">
-          <div className="max-w-5xl mx-auto px-4 py-4 space-y-4 w-full">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full">
             <EventHeader
               eventName={event.event_name}
               coverImageUrl={event.cover_image_url}
@@ -56,7 +56,7 @@ export default async function Layout({
               description={event.event_blurb || event.event_description}
               eventId={id}
             />
-            {children}
+              {children}
           </div>
         </main>
       </EventRegistrationWrapper>
