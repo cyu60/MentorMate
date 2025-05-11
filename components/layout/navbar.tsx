@@ -96,6 +96,9 @@ export function Navbar() {
             <Link href="mailto:chinat@stanford.edu" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
               Contact
             </Link>
+            <Link href="/events" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
+              Events
+            </Link>
             
             {session ? (
               <div className="pt-2 border-t border-gray-100">

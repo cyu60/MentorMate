@@ -17,7 +17,7 @@ interface UserEventRoleWithProfile {
   role: string;
   profiles: {
     display_name: string;
-  }[];
+  };
 }
 
 interface Participant {
@@ -47,7 +47,8 @@ export function ParticipantsList({ eventId }: ParticipantsListProps) {
               display_name
             )
           `)
-          .eq('event_id', eventId);
+          .eq('event_id', eventId)
+          .overrideTypes<UserEventRoleWithProfile[]>();
 
         if (error) throw error;
 
@@ -55,7 +56,7 @@ export function ParticipantsList({ eventId }: ParticipantsListProps) {
         const transformedData: Participant[] = (data as UserEventRoleWithProfile[] || []).map(role => ({
           user_id: role.user_id,
           role: role.role as EventRole,
-          display_name: role.profiles?.[0]?.display_name || role.user_id
+          display_name: role.profiles?.display_name || role.user_id
         }));
 
         setParticipants(transformedData);
