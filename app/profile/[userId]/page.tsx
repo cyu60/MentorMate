@@ -5,16 +5,22 @@ import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Project, EventRole, EventItem } from "@/lib/types";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Project,
+  EventRole,
+  EventItem,
+  ProjectBoardContext,
+} from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
+import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 interface EventWithRole extends EventItem {
   user_event_roles: {
@@ -32,7 +38,9 @@ export default function ProfilePage() {
     email: string | null;
   } | null>(null);
   const [events, setEvents] = useState<EventWithRole[]>([]);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const { toast } = useToast();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -179,156 +187,194 @@ export default function ProfilePage() {
     fetchData();
   }, [userId]);
 
+  const handleUpdateDisplayName = async () => {
+    if (!newDisplayName.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({ display_name: newDisplayName })
+        .eq("uid", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Display name updated",
+        description: "Your display name has been updated successfully",
+      });
+      setUserProfile((prev) =>
+        prev ? { ...prev, display_name: newDisplayName } : null
+      );
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Error updating display name",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      console.error("Error updating display name:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {session ? <AuthNavbar /> : <Navbar />}
+      <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {userProfile?.display_name || "User Profile"}
-          </h1>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  value={newDisplayName}
+                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  className="text-3xl font-bold text-gray-900"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleUpdateDisplayName();
+                    } else if (e.key === "Escape") {
+                      setIsEditing(false);
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={handleUpdateDisplayName}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {userProfile?.display_name || "User Profile"}
+                </h1>
+                {session?.user?.id === userId && (
+                  <button
+                    onClick={() => {
+                      setIsEditing(true);
+                      setNewDisplayName(userProfile?.display_name || "");
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <Pencil className="w-5 h-5 text-gray-600" />
+                  </button>
+                )}
+              </>
+            )}
+          </div>
           <p className="mt-2 text-gray-600">{userProfile?.email}</p>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-gray-900">Projects</h2>
+        <Tabs defaultValue="projects" className="w-full">
+          <TabsList className="grid w-1/2 mx-auto grid-cols-2 border-none bg-transparent">
+            <TabsTrigger
+              value="projects"
+              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
+            >
+              Projects
+            </TabsTrigger>
+            <TabsTrigger
+              value="events"
+              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
+            >
+              Events
+            </TabsTrigger>
+          </TabsList>
 
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading projects...</p>
-            </div>
-          ) : projects.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">No projects found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <Card
-                  key={project.id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  {project.cover_image_url && (
-                    <div className="relative h-48 w-full">
-                      <img
-                        src={project.cover_image_url}
-                        alt={project.project_name}
-                        className="object-cover w-full h-full rounded-t-lg"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-xl hover:text-blue-600">
-                      <Link
-                        href={
-                          userId === session?.user?.id
-                            ? `/my-project-gallery/${project.id}/dashboard`
-                            : `/public-project-details/${project.id}`
-                        }
-                        key={project.id}
-                      >
-                        {project.project_name}
-                      </Link>
-                    </CardTitle>
-                    <CardDescription>
-                      {project.project_description?.slice(0, 100)}
-                      {project.project_description?.length > 100 ? "..." : ""}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-600">
-                          Lead: {project.lead_name}
-                        </p>
-                        {project.teammates && project.teammates.length > 0 && (
-                          <p className="text-sm text-gray-600">
-                            Team: {project.teammates.join(", ")}
-                          </p>
-                        )}
+          <TabsContent value="projects" className="mt-12">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading projects...</p>
+              </div>
+            ) : projects.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No projects found.</p>
+              </div>
+            ) : (
+              <ProjectBoard
+                isLoading={isLoading}
+                projectList={projects}
+                session={session ?? undefined}
+                projectBoardContext={
+                  userId === session?.user?.id
+                    ? ProjectBoardContext.MyProjects
+                    : ProjectBoardContext.EventGallery
+                }
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="events" className="mt-12">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading events...</p>
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No events found.</p>
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {events.map((event) => (
+                  <Card
+                    key={event.event_id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    {event.cover_image_url && (
+                      <div className="relative h-48 w-full">
+                        <img
+                          src={event.cover_image_url}
+                          alt={event.event_name}
+                          className="object-cover w-full h-full rounded-t-lg"
+                        />
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {project.tracks?.map((track) => (
-                          <Badge key={track.track_id} variant="secondary">
-                            {track.name}
-                          </Badge>
-                        ))}
-                      </div>
-                      {project.project_url && (
-                        <Link
-                          href={project.project_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          View Project Repository →
+                    )}
+                    <CardHeader>
+                      <CardTitle className="text-xl hover:text-blue-600">
+                        <Link href={`/events/${event.event_id}/overview`}>
+                          {event.event_name}
                         </Link>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-12 space-y-6">
-          <h2 className="text-2xl font-semibold text-gray-900">Events</h2>
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading events...</p>
-            </div>
-          ) : events.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">No events found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <Card
-                  key={event.event_id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  {event.cover_image_url && (
-                    <div className="relative h-48 w-full">
-                      <img
-                        src={event.cover_image_url}
-                        alt={event.event_name}
-                        className="object-cover w-full h-full rounded-t-lg"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-xl hover:text-blue-600">
-                      <Link href={`/events/${event.event_id}/overview`}>
-                        {event.event_name}
-                      </Link>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-600">
-                          Date: {event.event_date}
-                        </p>
-                        {event.location && (
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
                           <p className="text-sm text-gray-600">
-                            Location: {event.location}
+                            Date: {event.event_date}
                           </p>
-                        )}
+                          {event.location && (
+                            <p className="text-sm text-gray-600">
+                              Location: {event.location}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={event.user_event_roles?.[0]?.role}>
+                          {event.user_event_roles?.[0]?.role}
+                        </Badge>
                       </div>
-                      <Badge variant={event.user_event_roles?.[0]?.role}>
-                        {event.user_event_roles?.[0]?.role}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </motion.div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
