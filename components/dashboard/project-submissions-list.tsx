@@ -29,7 +29,7 @@ interface ProjectData {
     event_tracks: {
       track_id: string;
       name: string;
-    }[];
+    };
   }[];
 }
 
@@ -62,7 +62,11 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
               )
             )
           `)
-          .eq('event_id', eventId);
+          .eq('event_id', eventId)
+          .overrideTypes<ProjectData[]>();
+
+          console.log(data);
+
 
         if (error) throw error;
         setProjects(data as ProjectData[] || []);
@@ -74,7 +78,6 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
     }
 
     fetchProjects();
-
     // Subscribe to real-time updates
     const subscription = supabase
       .channel('projects_channel')
@@ -115,7 +118,7 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
             if (!error && data) {
               setProjects(current => {
                 const newProjects = current.filter(p => p.id !== data.id);
-                return [...newProjects, data as ProjectData];
+                return [...newProjects, data as unknown as ProjectData];
               });
             }
           }
@@ -152,7 +155,7 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
             <TableCell>{(project.teammates?.length || 0) + 1}</TableCell>
             <TableCell>
               {project.project_tracks
-                ?.map((pt) => pt.event_tracks?.[0]?.name)
+                ?.map((pt) => pt.event_tracks?.name)
                 .filter(Boolean)
                 .join(", ") || "No tracks"}
             </TableCell>

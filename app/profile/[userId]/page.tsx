@@ -14,7 +14,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
+import { Pencil, Globe } from "lucide-react";
+import { FaLinkedin, FaGithub, FaTwitter, FaGlobe, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +29,13 @@ interface EventWithRole extends EventItem {
   }[];
 }
 
+interface SocialLinks {
+  linkedin?: string;
+  github?: string;
+  twitter?: string;
+  portfolio?: string;
+}
+
 export default function ProfilePage() {
   const { userId } = useParams();
   const [session, setSession] = useState<Session | null>(null);
@@ -36,10 +44,13 @@ export default function ProfilePage() {
   const [userProfile, setUserProfile] = useState<{
     display_name: string | null;
     email: string | null;
+    links: SocialLinks | null;
   } | null>(null);
   const [events, setEvents] = useState<EventWithRole[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
+  const [isEditingLinks, setIsEditingLinks] = useState(false);
+  const [newSocialLinks, setNewSocialLinks] = useState<SocialLinks>({});
   const { toast } = useToast();
   useEffect(() => {
     const fetchData = async () => {
@@ -55,12 +66,13 @@ export default function ProfilePage() {
         // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from("user_profiles")
-          .select("display_name, email")
+          .select("display_name, email, links")
           .eq("uid", userId)
           .single();
 
         if (profileError) throw profileError;
         setUserProfile(profile);
+        setNewSocialLinks(profile.links || {});
 
         // Fetch projects where user is lead or teammate
         const { data: leadProjects, error: leadError } = await supabase
@@ -216,13 +228,40 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUpdateSocialLinks = async () => {
+    try {
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({ links: newSocialLinks })
+        .eq("uid", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Social links updated",
+        description: "Your social links have been updated successfully",
+      });
+      setUserProfile((prev) =>
+        prev ? { ...prev, links: newSocialLinks } : null
+      );
+      setIsEditingLinks(false);
+    } catch (error) {
+      toast({
+        title: "Error updating social links",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      console.error("Error updating social links:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {session ? <AuthNavbar /> : <Navbar />}
       <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <div className="flex items-center gap-2">
+          <div className="group relative inline-block">
             {isEditing ? (
               <div className="flex items-center gap-2">
                 <Input
@@ -257,17 +296,17 @@ export default function ProfilePage() {
                 <h1 className="text-3xl font-bold text-gray-900">
                   {userProfile?.display_name || "User Profile"}
                 </h1>
-                {session?.user?.id === userId && (
+                {/* {session?.user?.id === userId && (
                   <button
                     onClick={() => {
                       setIsEditing(true);
                       setNewDisplayName(userProfile?.display_name || "");
                     }}
-                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                    className="absolute -right-8 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded-full transition-all"
                   >
                     <Pencil className="w-5 h-5 text-gray-600" />
                   </button>
-                )}
+                )} */}
               </>
             )}
           </div>
@@ -275,7 +314,7 @@ export default function ProfilePage() {
         </div>
 
         <Tabs defaultValue="projects" className="w-full">
-          <TabsList className="grid w-1/2 mx-auto grid-cols-2 border-none bg-transparent">
+          <TabsList className="grid w-1/3 mx-auto grid-cols-3 border-none bg-transparent">
             <TabsTrigger
               value="projects"
               className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
@@ -287,6 +326,12 @@ export default function ProfilePage() {
               className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
             >
               Events
+            </TabsTrigger>
+            <TabsTrigger
+              value="personal"
+              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
+            >
+              Personal
             </TabsTrigger>
           </TabsList>
 
@@ -373,6 +418,158 @@ export default function ProfilePage() {
                 ))}
               </motion.div>
             )}
+          </TabsContent>
+
+          <TabsContent value="personal" className="mt-12">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Find Me!</span>
+                  {session?.user?.id === userId && (
+                    <button
+                      onClick={() => {
+                        setIsEditingLinks(true);
+                        setNewSocialLinks(userProfile?.links || {});
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-all"
+                    >
+                      <Pencil className="w-5 h-5 text-gray-600" />
+                    </button>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditingLinks ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <FaLinkedin className="w-5 h-5 text-gray-600" />
+                      <Input
+                        type="url"
+                        placeholder="LinkedIn Profile URL"
+                        value={newSocialLinks.linkedin || ""}
+                        onChange={(e) =>
+                          setNewSocialLinks((prev) => ({
+                            ...prev,
+                            linkedin: e.target.value || undefined,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaGithub className="w-5 h-5 text-gray-600" />
+                      <Input
+                        type="url"
+                        placeholder="GitHub Profile URL"
+                        value={newSocialLinks.github || ""}
+                        onChange={(e) =>
+                          setNewSocialLinks((prev) => ({
+                            ...prev,
+                            github: e.target.value || undefined,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaXTwitter className="w-5 h-5 text-gray-600" />
+                      <Input
+                        type="url"
+                        placeholder="Twitter Profile URL"
+                        value={newSocialLinks.twitter || ""}
+                        onChange={(e) =>
+                          setNewSocialLinks((prev) => ({
+                            ...prev,
+                            twitter: e.target.value || undefined,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-gray-600" />
+                      <Input
+                        type="url"
+                        placeholder="Portfolio Website URL"
+                        value={newSocialLinks.portfolio || ""}
+                        onChange={(e) =>
+                          setNewSocialLinks((prev) => ({
+                            ...prev,
+                            portfolio: e.target.value || undefined,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => setIsEditingLinks(false)}
+                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleUpdateSocialLinks}
+                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {userProfile?.links?.linkedin && (
+                      <a
+                        href={userProfile.links.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                      >
+                        <FaLinkedin className="w-5 h-5" />
+                        <span>LinkedIn Profile</span>
+                      </a>
+                    )}
+                    {userProfile?.links?.github && (
+                      <a
+                        href={userProfile.links.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-gray-900 hover:text-gray-700"
+                      >
+                        <FaGithub className="w-5 h-5" />
+                        <span>GitHub Profile</span>
+                      </a>
+                    )}
+                    {userProfile?.links?.twitter && (
+                      <a
+                        href={userProfile.links.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-600"
+                      >
+                        <FaXTwitter className="w-5 h-5" />
+                        <span>Twitter Profile</span>
+                      </a>
+                    )}
+                    {userProfile?.links?.portfolio && (
+                      <a
+                        href={userProfile.links.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+                      >
+                        <Globe className="w-5 h-5" />
+                        <span>Portfolio Website</span>
+                      </a>
+                    )}
+                    {!userProfile?.links?.linkedin &&
+                      !userProfile?.links?.github &&
+                      !userProfile?.links?.twitter &&
+                      !userProfile?.links?.portfolio && (
+                        <p className="text-gray-500 italic">
+                          No social links added yet
+                        </p>
+                      )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

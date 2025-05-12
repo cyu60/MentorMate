@@ -20,7 +20,14 @@ import {
   Settings,
   TrashIcon,
 } from "lucide-react";
-import { EventDetails, EventRole, EventScoringConfig, EventTrack, ScoringCriterion, TrackScoringConfig } from "@/lib/types";
+import {
+  EventDetails,
+  EventRole,
+  EventScoringConfig,
+  EventTrack,
+  ScoringCriterion,
+  TrackScoringConfig,
+} from "@/lib/types";
 import { RolePasswordSettings } from "./role-password-settings";
 import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
 import { ParticipantsList } from "./participants-list";
@@ -48,39 +55,6 @@ interface UpdateEventData {
   scoring_config?: EventScoringConfig;
   winners?: Winner[];
 }
-
-const exportParticipants = async (eventId: string) => {
-  const { data } = await supabase
-    .from("user_event_roles")
-    .select(
-      `
-      user_id,
-      role,
-      users (
-        email,
-        full_name
-      )
-    `
-    )
-    .eq("event_id", eventId);
-
-  if (data) {
-    const csv = Papa.unparse(
-      data?.map((row) => ({
-        Name: row.users?.[0]?.full_name || "",
-        Email: row.users?.[0]?.email || "",
-        Role: row.role || "",
-      }))
-    );
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `participants-${eventId}.csv`;
-    a.click();
-  }
-};
 
 const exportSubmissions = async (eventId: string) => {
   const { data } = await supabase
@@ -167,11 +141,15 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [scoringConfig, setScoringConfig] = useState<EventScoringConfig | null>(null);
+  const [scoringConfig, setScoringConfig] = useState<EventScoringConfig | null>(
+    null
+  );
   const [activeTab, setActiveTab] = useState("details");
   const router = useRouter();
   const { toast } = useToast();
-  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
+  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(
+    null
+  );
   const [useImageUrl, setUseImageUrl] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -237,30 +215,32 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
         // still a bit messy; need to refactor eventually
         if (eventData && eventData.event_tracks) {
           const tracksConfig: Record<string, TrackScoringConfig> = {};
-          
+
           eventData.event_tracks.forEach((track: EventTrack) => {
             if (track.track_id && track.scoring_criteria) {
               tracksConfig[track.track_id] = {
                 name: track.name,
-                criteria: track.scoring_criteria.criteria.map((criterion: ScoringCriterion) => ({
-                  id: criterion.id,
-                  name: criterion.name,
-                  description: criterion.description,
-                  weight: criterion.weight || 1,
-                  min: criterion.min || 1,
-                  max: criterion.max || 10
-                }))
+                criteria: track.scoring_criteria.criteria.map(
+                  (criterion: ScoringCriterion) => ({
+                    id: criterion.id,
+                    name: criterion.name,
+                    description: criterion.description,
+                    weight: criterion.weight || 1,
+                    min: criterion.min || 1,
+                    max: criterion.max || 10,
+                  })
+                ),
               };
             }
           });
-          
+
           const scoreConfig = {
             tracks: tracksConfig,
             defaultMin: 1,
             defaultMax: 10,
-            defaultWeight: 1
+            defaultWeight: 1,
           };
-          setScoringConfig(scoreConfig); 
+          setScoringConfig(scoreConfig);
         }
       } catch (error) {
         console.error("Error fetching event:", error);
@@ -321,19 +301,21 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
       // Handle file upload if there's a new file selected
       if (selectedCoverImage) {
         const fileExt = selectedCoverImage.name.split(".").pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const fileName = `${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
         const filePath = `event-covers/${fileName}`;
-        
+
         const { error: uploadError } = await supabase.storage
           .from("event-materials")
           .upload(filePath, selectedCoverImage);
-          
+
         if (uploadError) throw uploadError;
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from("event-materials")
-          .getPublicUrl(filePath);
-          
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-materials").getPublicUrl(filePath);
+
         coverImageUrl = publicUrl;
       }
 
@@ -346,7 +328,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
         event_blurb: event.event_blurb,
         cover_image_url: coverImageUrl,
       });
-      
+
       // Update local state
       setEvent({ ...event, cover_image_url: coverImageUrl });
       setSelectedCoverImage(null);
@@ -377,55 +359,56 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   };
 
   const handlePrizesUpdate = async () => {
-    if (!event || !event.event_tracks || event.event_tracks.length === 0) return;
-    
+    if (!event || !event.event_tracks || event.event_tracks.length === 0)
+      return;
+
     try {
       setSaving(true);
-      
+
       // Process each track's prizes
       for (const track of event.event_tracks) {
         if (track.prizes && track.prizes.length > 0) {
           // Collect all prizes for this track for bulk upsert
-          const trackPrizes = track.prizes.map(prize => ({
+          const trackPrizes = track.prizes.map((prize) => ({
             id: prize.id, // Will be used as match criteria for upsert
             track_id: track.track_id,
             prize_amount: prize.prize_amount,
             prize_description: prize.prize_description,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           }));
-          
+
           // Perform upsert operation
-          const { error } = await supabase
-            .from("prizes")
-            .upsert(trackPrizes, { 
-              onConflict: 'id',
-            });
-            
+          const { error } = await supabase.from("prizes").upsert(trackPrizes, {
+            onConflict: "id",
+          });
+
           if (error) throw error;
         }
       }
-      
+
       // Refresh the tracks data
       const { data: refreshedTracks } = await supabase
         .from("event_tracks")
-        .select(`
+        .select(
+          `
           *,
           prizes (
             id,
             prize_amount,
             prize_description
           )
-        `)
+        `
+        )
         .eq("event_id", eventId);
-        
+
       if (refreshedTracks && event) {
-        const updatedEvent = { 
+        const updatedEvent = {
           ...event,
-          event_tracks: refreshedTracks as unknown as EventTrack[] 
+          event_tracks: refreshedTracks as unknown as EventTrack[],
         };
         setEvent(updatedEvent);
       }
-      
+
       toast({
         title: "Success",
         description: "Prizes updated successfully",
@@ -455,53 +438,57 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const handleScoreUpdate = async (config: EventScoringConfig) => {
     try {
       setSaving(true);
-      
+
       // Store the updated config in state
       setScoringConfig(config);
-      
+
       // Prepare all tracks for upsert
-      const tracksToUpsert = Object.entries(config.tracks).map(([trackId, trackConfig]) => ({
-        track_id: trackId,
-        event_id: eventId,
-        name: trackConfig.name,
-        description: trackConfig.name, // Default description is same as name
-        scoring_criteria: {
+      const tracksToUpsert = Object.entries(config.tracks).map(
+        ([trackId, trackConfig]) => ({
+          track_id: trackId,
+          event_id: eventId,
           name: trackConfig.name,
-          criteria: trackConfig.criteria
-        }
-      }));
-      
+          description: trackConfig.name, // Default description is same as name
+          scoring_criteria: {
+            name: trackConfig.name,
+            criteria: trackConfig.criteria,
+          },
+        })
+      );
+
       // Perform upsert on all tracks at once
       const { error } = await supabase
         .from("event_tracks")
         .upsert(tracksToUpsert, {
-          onConflict: 'track_id',
-          ignoreDuplicates: false
+          onConflict: "track_id",
+          ignoreDuplicates: false,
         });
-        
+
       if (error) throw error;
-      
+
       // Refresh the tracks data
       const { data: refreshedTracks } = await supabase
         .from("event_tracks")
-        .select(`
+        .select(
+          `
           *,
           prizes (
             id,
             prize_amount,
             prize_description
           )
-        `)
+        `
+        )
         .eq("event_id", eventId);
-        
+
       if (refreshedTracks && event) {
-        const updatedEvent = { 
+        const updatedEvent = {
           ...event,
-          event_tracks: refreshedTracks as unknown as EventTrack[] 
+          event_tracks: refreshedTracks as unknown as EventTrack[],
         };
         setEvent(updatedEvent);
       }
-      
+
       toast({
         title: "Success",
         description: "Scoring configuration saved successfully",
@@ -621,7 +608,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                       id="event_description"
                       value={event.event_description}
                       onChange={(e) =>
-                        setEvent({ ...event, event_description: e.target.value })
+                        setEvent({
+                          ...event,
+                          event_description: e.target.value,
+                        })
                       }
                       rows={4}
                     />
@@ -687,7 +677,9 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                               setSelectedCoverImage(null);
                               setPreviewUrl(null);
                               setEvent({ ...event, cover_image_url: "" });
-                              const fileInput = document.getElementById("cover_image") as HTMLInputElement;
+                              const fileInput = document.getElementById(
+                                "cover_image"
+                              ) as HTMLInputElement;
                               if (fileInput) {
                                 fileInput.value = "";
                               }
@@ -703,7 +695,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                         type="url"
                         value={event.cover_image_url || ""}
                         onChange={(e) => {
-                          setEvent({ ...event, cover_image_url: e.target.value });
+                          setEvent({
+                            ...event,
+                            cover_image_url: e.target.value,
+                          });
                           setPreviewUrl(e.target.value);
                         }}
                         placeholder="https://example.com/image.jpg"
@@ -712,11 +707,11 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
 
                     {(previewUrl || event.cover_image_url) && (
                       <div className="mt-2">
-                        <img 
+                        <img
                           width={400}
                           height={200}
-                          src={previewUrl || event.cover_image_url || ""} 
-                          alt="Cover preview" 
+                          src={previewUrl || event.cover_image_url || ""}
+                          alt="Cover preview"
                           className="rounded-md object-cover"
                         />
                       </div>
@@ -754,7 +749,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                             onChange={(e) => {
                               const newSchedule = [...event.event_schedule];
                               newSchedule[dayIndex].time = e.target.value;
-                              setEvent({ ...event, event_schedule: newSchedule });
+                              setEvent({
+                                ...event,
+                                event_schedule: newSchedule,
+                              });
                             }}
                           />
                         </div>
@@ -817,7 +815,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                               newSchedule[dayIndex].events = newSchedule[
                                 dayIndex
                               ].events.filter((_, i) => i !== eventIndex);
-                              setEvent({ ...event, event_schedule: newSchedule });
+                              setEvent({
+                                ...event,
+                                event_schedule: newSchedule,
+                              });
                             }}
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -886,7 +887,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                           onChange={(e) => {
                             const newResources = [...event.event_resources];
                             newResources[index].name = e.target.value;
-                            setEvent({ ...event, event_resources: newResources });
+                            setEvent({
+                              ...event,
+                              event_resources: newResources,
+                            });
                           }}
                         />
                       </div>
@@ -899,7 +903,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                           onChange={(e) => {
                             const newResources = [...event.event_resources];
                             newResources[index].link = e.target.value;
-                            setEvent({ ...event, event_resources: newResources });
+                            setEvent({
+                              ...event,
+                              event_resources: newResources,
+                            });
                           }}
                         />
                       </div>
@@ -959,98 +966,155 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                   event.event_tracks.map((track) => (
                     <div key={track.track_id} className="border p-4 rounded-lg">
                       <h3 className="text-lg font-bold mb-2">{track.name}</h3>
-                      <p className="text-sm text-gray-500 mb-4">{track.description}</p>
-                      
+                      <p className="text-sm text-gray-500 mb-4">
+                        {track.description}
+                      </p>
+
                       <div className="space-y-4">
-                        {track.prizes && track.prizes.map((prize, prizeIndex) => (
-                          <div key={prize.id || prizeIndex} className="grid grid-cols-[1fr_2fr_auto] gap-4 items-start">
-                            <div className="space-y-2">
-                              <Label>Prize Amount</Label>
-                              <Input
-                                value={prize.prize_amount}
-                                onChange={(e) => {
-                                  const newTracks = [...event.event_tracks!];
-                                  const trackIndex = newTracks.findIndex(t => t.track_id === track.track_id);
-                                  if (trackIndex > -1 && newTracks[trackIndex].prizes) {
-                                    newTracks[trackIndex].prizes![prizeIndex].prize_amount = e.target.value;
-                                    setEvent({ ...event, event_tracks: newTracks });
-                                  }
-                                }}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label>Description</Label>
-                              <Textarea
-                                value={prize.prize_description}
-                                onChange={(e) => {
-                                  const newTracks = [...event.event_tracks!];
-                                  const trackIndex = newTracks.findIndex(t => t.track_id === track.track_id);
-                                  if (trackIndex > -1 && newTracks[trackIndex].prizes) {
-                                    newTracks[trackIndex].prizes![prizeIndex].prize_description = e.target.value;
-                                    setEvent({ ...event, event_tracks: newTracks });
-                                  }
-                                }}
-                              />
-                            </div>
-                            
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="self-end mt-8"
-                              onClick={async () => {
-                                if (prize.id) {
-                                  try {
-                                    setSaving(true);
-                                    const { error } = await supabase
-                                      .from("prizes")
-                                      .delete()
-                                      .eq("id", prize.id);
-                                    
-                                    if (error) throw error;
-                                    
-                                    const newTracks = [...event.event_tracks!];
-                                    const trackIndex = newTracks.findIndex(t => t.track_id === track.track_id);
-                                    if (trackIndex > -1 && newTracks[trackIndex].prizes) {
-                                      newTracks[trackIndex].prizes = newTracks[trackIndex].prizes!.filter(p => p.id !== prize.id);
-                                      setEvent({ ...event, event_tracks: newTracks });
-                                    }
-                                    
-                                    toast({
-                                      title: "Prize deleted",
-                                      description: "Prize has been removed successfully",
-                                    });
-                                  } catch (error) {
-                                    console.error("Error deleting prize:", error);
-                                    toast({
-                                      title: "Error",
-                                      description: "Failed to delete prize",
-                                      variant: "destructive",
-                                    });
-                                  } finally {
-                                    setSaving(false);
-                                  }
-                                } else {
-                                  // Just remove from local state if no ID (not saved to DB yet)
-                                  const newTracks = [...event.event_tracks!];
-                                  const trackIndex = newTracks.findIndex(t => t.track_id === track.track_id);
-                                  if (trackIndex > -1 && newTracks[trackIndex].prizes) {
-                                    newTracks[trackIndex].prizes = newTracks[trackIndex].prizes!.filter((_, i) => i !== prizeIndex);
-                                    setEvent({ ...event, event_tracks: newTracks });
-                                  }
-                                }
-                              }}
+                        {track.prizes &&
+                          track.prizes.map((prize, prizeIndex) => (
+                            <div
+                              key={prize.id || prizeIndex}
+                              className="grid grid-cols-[1fr_2fr_auto] gap-4 items-start"
                             >
-                              <TrashIcon className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                        
+                              <div className="space-y-2">
+                                <Label>Prize Amount</Label>
+                                <Input
+                                  value={prize.prize_amount}
+                                  onChange={(e) => {
+                                    const newTracks = [...event.event_tracks!];
+                                    const trackIndex = newTracks.findIndex(
+                                      (t) => t.track_id === track.track_id
+                                    );
+                                    if (
+                                      trackIndex > -1 &&
+                                      newTracks[trackIndex].prizes
+                                    ) {
+                                      newTracks[trackIndex].prizes![
+                                        prizeIndex
+                                      ].prize_amount = e.target.value;
+                                      setEvent({
+                                        ...event,
+                                        event_tracks: newTracks,
+                                      });
+                                    }
+                                  }}
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Description</Label>
+                                <Textarea
+                                  value={prize.prize_description}
+                                  onChange={(e) => {
+                                    const newTracks = [...event.event_tracks!];
+                                    const trackIndex = newTracks.findIndex(
+                                      (t) => t.track_id === track.track_id
+                                    );
+                                    if (
+                                      trackIndex > -1 &&
+                                      newTracks[trackIndex].prizes
+                                    ) {
+                                      newTracks[trackIndex].prizes![
+                                        prizeIndex
+                                      ].prize_description = e.target.value;
+                                      setEvent({
+                                        ...event,
+                                        event_tracks: newTracks,
+                                      });
+                                    }
+                                  }}
+                                />
+                              </div>
+
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                className="self-end mt-8"
+                                onClick={async () => {
+                                  if (prize.id) {
+                                    try {
+                                      setSaving(true);
+                                      const { error } = await supabase
+                                        .from("prizes")
+                                        .delete()
+                                        .eq("id", prize.id);
+
+                                      if (error) throw error;
+
+                                      const newTracks = [
+                                        ...event.event_tracks!,
+                                      ];
+                                      const trackIndex = newTracks.findIndex(
+                                        (t) => t.track_id === track.track_id
+                                      );
+                                      if (
+                                        trackIndex > -1 &&
+                                        newTracks[trackIndex].prizes
+                                      ) {
+                                        newTracks[trackIndex].prizes =
+                                          newTracks[trackIndex].prizes!.filter(
+                                            (p) => p.id !== prize.id
+                                          );
+                                        setEvent({
+                                          ...event,
+                                          event_tracks: newTracks,
+                                        });
+                                      }
+
+                                      toast({
+                                        title: "Prize deleted",
+                                        description:
+                                          "Prize has been removed successfully",
+                                      });
+                                    } catch (error) {
+                                      console.error(
+                                        "Error deleting prize:",
+                                        error
+                                      );
+                                      toast({
+                                        title: "Error",
+                                        description: "Failed to delete prize",
+                                        variant: "destructive",
+                                      });
+                                    } finally {
+                                      setSaving(false);
+                                    }
+                                  } else {
+                                    // Just remove from local state if no ID (not saved to DB yet)
+                                    const newTracks = [...event.event_tracks!];
+                                    const trackIndex = newTracks.findIndex(
+                                      (t) => t.track_id === track.track_id
+                                    );
+                                    if (
+                                      trackIndex > -1 &&
+                                      newTracks[trackIndex].prizes
+                                    ) {
+                                      newTracks[trackIndex].prizes = newTracks[
+                                        trackIndex
+                                      ].prizes!.filter(
+                                        (_, i) => i !== prizeIndex
+                                      );
+                                      setEvent({
+                                        ...event,
+                                        event_tracks: newTracks,
+                                      });
+                                    }
+                                  }
+                                }}
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+
                         <Button
                           variant="outline"
                           onClick={() => {
                             const newTracks = [...event.event_tracks!];
-                            const trackIndex = newTracks.findIndex(t => t.track_id === track.track_id);
+                            const trackIndex = newTracks.findIndex(
+                              (t) => t.track_id === track.track_id
+                            );
                             if (trackIndex > -1) {
                               if (!newTracks[trackIndex].prizes) {
                                 newTracks[trackIndex].prizes = [];
@@ -1058,7 +1122,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                               newTracks[trackIndex].prizes!.push({
                                 id: crypto.randomUUID(),
                                 prize_amount: "",
-                                prize_description: ""
+                                prize_description: "",
                               });
                               setEvent({ ...event, event_tracks: newTracks });
                             }
@@ -1071,10 +1135,12 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">No tracks found. Please add tracks to manage prizes.</p>
+                    <p className="text-gray-600">
+                      No tracks found. Please add tracks to manage prizes.
+                    </p>
                   </div>
                 )}
-                
+
                 <Button
                   onClick={handlePrizesUpdate}
                   disabled={saving}
@@ -1222,12 +1288,6 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Event Participants</h3>
-                  <Button onClick={() => exportParticipants(eventId)}>
-                    Export Participants
-                  </Button>
-                </div>
                 <ParticipantsList eventId={eventId} />
               </div>
             </CardContent>
@@ -1270,7 +1330,14 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                 </div>
                 <LiveScoresDashboard
                   eventId={eventId}
-                  scoringConfig={event.scoring_config || { tracks: {}, defaultMin: 1, defaultMax: 10, defaultWeight: 1 }}
+                  scoringConfig={
+                    scoringConfig || {
+                      tracks: {},
+                      defaultMin: 1,
+                      defaultMax: 10,
+                      defaultWeight: 1,
+                    }
+                  }
                 />
               </div>
             </CardContent>
