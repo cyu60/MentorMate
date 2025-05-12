@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Pencil, Globe } from "lucide-react";
-import { FaLinkedin, FaGithub, FaTwitter, FaGlobe, FaXTwitter } from "react-icons/fa6";
+import { FaLinkedin, FaGithub, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

@@ -113,12 +113,13 @@ export function ProjectSubmissionsList({ eventId }: ProjectSubmissionsListProps)
                 )
               `)
               .eq('id', payload.new.id)
-              .single();
+              .single()
+              .overrideTypes<ProjectData>();
 
             if (!error && data) {
               setProjects(current => {
                 const newProjects = current.filter(p => p.id !== data.id);
-                return [...newProjects, data as unknown as ProjectData];
+                return [...newProjects, data as ProjectData];
               });
             }
           }
