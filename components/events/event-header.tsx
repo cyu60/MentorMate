@@ -54,7 +54,7 @@ export function EventHeader({
       <div className="absolute inset-0 bg-black/60" />
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-start pt-6 sm:pt-8 px-4 sm:px-8 pb-4 sm:pb-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 line-clamp-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
           {eventName}
         </h1>
         {(eventDate || location) && (
@@ -81,9 +81,7 @@ export function EventHeader({
           <div>
             <p
               ref={contentRef}
-              className={`text-white/80 text-sm sm:text-base max-w-3xl ${
-                !isExpanded ? "line-clamp-2" : ""
-              }`}
+              className={`text-white/80 text-sm sm:text-base max-w-3xl}
             >
               {description}
             </p>

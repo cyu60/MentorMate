@@ -109,7 +109,7 @@ export function EventsList({ events }: EventsListProps) {
                 }
               />
               <div className="p-3 sm:p-4 space-y-2">
-                <CardTitle className="text-lg sm:text-xl font-semibold line-clamp-2">
+                <CardTitle className="text-lg sm:text-xl font-semibold">
                   {event.event_name}
                 </CardTitle>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
