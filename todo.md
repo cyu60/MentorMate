@@ -141,6 +141,7 @@ This document outlines the key features and requirements for the MentorMate plat
   - [X] Add JSONB field for event_prizes
   - [ ] Clean up columns that are no longer being used and remove them from the frontend
   - [ ] Fix auth callbacks and redirect urls -- need to change vercel env variables
+  - [ ] Project leads and teammates should be linked to user_profiles and update on change
 - [X] Production Support
   - [X] Implement data backup system
   - [ ] Set up production monitoring

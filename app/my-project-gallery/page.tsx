@@ -150,9 +150,8 @@ export default function MyProjectsPage() {
           projectBoardContext={ProjectBoardContext.MyProjects}
         />
       </div>
-      <div className="absolute bottom-0 w-full">
-        {" "}
-        <Footer />{" "}
+      <div className="absolute w-full">
+        <Footer />
       </div>
     </div>
   );
