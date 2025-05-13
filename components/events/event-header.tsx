@@ -81,7 +81,7 @@ export function EventHeader({
           <div>
             <p
               ref={contentRef}
-              className={`text-white/80 text-sm sm:text-base max-w-3xl}
+              className={"text-white/80 text-sm sm:text-base max-w-3xl"}
             >
               {description}
             </p>
