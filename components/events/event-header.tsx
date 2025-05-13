@@ -36,7 +36,11 @@ export function EventHeader({
   }, [description]);
 
   return (
-    <div className={`relative w-full ${isExpanded ? 'h-auto' : 'h-[300px]'} rounded-lg overflow-hidden transition-all duration-300`}>
+    <div
+      className={`relative w-full ${
+        isExpanded ? "h-auto" : "h-[250px] sm:h-[300px]"
+      } rounded-lg overflow-hidden transition-all duration-300`}
+    >
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -49,16 +53,16 @@ export function EventHeader({
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/60" />
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-start pt-8 p-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+      <div className="relative z-10 h-full flex flex-col justify-start pt-6 sm:pt-8 px-4 sm:px-8 pb-4 sm:pb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 line-clamp-2">
           {eventName}
         </h1>
         {(eventDate || location) && (
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
             {eventDate && (
               <Badge
                 variant="secondary"
-                className="bg-white/10 text-white border-none"
+                className="bg-white/10 text-white border-none text-xs sm:text-sm"
               >
                 {eventDate}
               </Badge>
@@ -66,7 +70,7 @@ export function EventHeader({
             {location && (
               <Badge
                 variant="secondary"
-                className="bg-white/10 text-white border-none"
+                className="bg-white/10 text-white border-none text-xs sm:text-sm"
               >
                 {location}
               </Badge>
@@ -75,9 +79,11 @@ export function EventHeader({
         )}
         {description && (
           <div>
-            <p 
+            <p
               ref={contentRef}
-              className={`text-white/80 max-w-3xl ${!isExpanded ? 'line-clamp-2' : ''}`}
+              className={`text-white/80 text-sm sm:text-base max-w-3xl ${
+                !isExpanded ? "line-clamp-2" : ""
+              }`}
             >
               {description}
             </p>
@@ -85,23 +91,27 @@ export function EventHeader({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white/80 hover:text-white hover:bg-white/10"
+                className="text-white/80 hover:text-white hover:bg-white/10 text-xs sm:text-sm mt-1"
                 onClick={() => setIsExpanded(!isExpanded)}
               >
                 {isExpanded ? (
                   <>
-                    Show less <ChevronUp className="ml-1 h-4 w-4" />
+                    Show less{" "}
+                    <ChevronUp className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                   </>
                 ) : (
                   <>
-                    Show more <ChevronDown className="ml-1 h-4 w-4" />
+                    Show more{" "}
+                    <ChevronDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                   </>
                 )}
               </Button>
             )}
           </div>
         )}
-        <HackathonNav id={eventId} />
+        <div className="mt-auto">
+          <HackathonNav id={eventId} />
+        </div>
       </div>
     </div>
   );
