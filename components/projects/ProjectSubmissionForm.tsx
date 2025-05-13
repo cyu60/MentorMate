@@ -174,31 +174,94 @@ export function ProjectSubmissionFormComponent({
     form.setValue("teammates", tags);
   };
 
-  // const isStepComplete = (step: number): boolean => {
-  //   const values = form.getValues();
-  //   switch (step) {
-  //     case 1:
-  //       return (
-  //         values.projectName.trim().length >= 2 &&
-  //         values.projectDescription.trim().length >= 10
-  //       );
-  //     case 2:
-  //       // Check that both file inputs have at least one file uploaded
-  //       return (
-  //         (values.coverImage?.length ?? 0) > 0 &&
-  //         (values.additionalMaterials?.length ?? 0) > 0
-  //       );
-  //     case 3:
-  //       return (
-  //         values.leadName.trim().length >= 2 &&
-  //         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.leadEmail)
-  //       );
-  //     default:
-  //       return false;
-  //   }
-  // };
+  const validateStep = (step: number) => {
+    const values = form.getValues();
+
+    switch (step) {
+      case 1:
+        if (values.projectName.trim().length < 2) {
+          toast({
+            title: "Invalid Project Name",
+            description: "Project name must be at least 2 characters long.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (values.projectDescription.trim().length < 10) {
+          toast({
+            title: "Insufficient Project Description",
+            description:
+              "Please provide a more detailed project description (minimum 10 characters).",
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (values.trackIds.length === 0) {
+          toast({
+            title: "Missing Track Selection",
+            description:
+              "Please select at least one project track before proceeding.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 2:
+        if (values.leadName.trim().length < 2) {
+          toast({
+            title: "Invalid Name",
+            description: "Name must be at least 2 characters long.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (
+          !values.leadEmail ||
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.leadEmail)
+        ) {
+          toast({
+            title: "Invalid Email",
+            description: "Please enter a valid email address.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.trackIds.length === 0) {
+      toast({
+        title: "Missing Track Selection",
+        description:
+          "Please select at least one project track before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (values.projectName.trim().length < 2) {
+      toast({
+        title: "Invalid Project Name",
+        description: "Project name must be at least 2 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (values.projectDescription.trim().length < 10) {
+      toast({
+        title: "Insufficient Project Description",
+        description:
+          "Please provide a more detailed project description (minimum 10 characters).",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let additionalMaterialsUrl = null;
@@ -644,7 +707,11 @@ export function ProjectSubmissionFormComponent({
             {currentStep < totalSteps && (
               <Button
                 type="button"
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={() => {
+                  if (validateStep(currentStep)) {
+                    setCurrentStep(currentStep + 1);
+                  }
+                }}
                 className="px-6 py-2"
               >
                 Next
