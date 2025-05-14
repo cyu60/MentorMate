@@ -85,7 +85,7 @@ export function EventsList({ events }: EventsListProps) {
   };
 
   return (
-    <div className="grid gap-4 sm:gap-6 grid-cols-1 max-w-7xl mx-auto">
+    <div className="grid gap-3 sm:gap-6 grid-cols-1 max-w-7xl mx-auto px-4 sm:px-6">
       {events.map((event) => {
         const userRole = getUserRoleForEvent(event.event_id);
 
@@ -93,10 +93,11 @@ export function EventsList({ events }: EventsListProps) {
           <Link
             href={`/events/${event.event_id}/overview`}
             key={event.event_id}
+            className="block"
           >
             <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 overflow-hidden">
               <div
-                className="w-full h-[150px] sm:h-[200px] bg-[#000080]"
+                className="w-full h-[120px] sm:h-[200px] bg-[#000080]"
                 style={
                   event.cover_image_url
                     ? {
@@ -107,20 +108,20 @@ export function EventsList({ events }: EventsListProps) {
                     : undefined
                 }
               />
-              <div className="p-4 space-y-2">
-                <CardTitle className="text-base sm:text-xl font-semibold">
+              <div className="p-3 sm:p-4 space-y-2">
+                <CardTitle className="text-lg sm:text-xl font-semibold">
                   {event.event_name}
                 </CardTitle>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   <Badge
                     variant="secondary"
-                    className="text-xs sm:text-sm truncate max-w-[125px]"
+                    className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[150px]"
                   >
                     {event.event_date}
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="text-xs sm:text-sm truncate line-clamp-1"
+                    className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[200px]"
                   >
                     {event.location}
                   </Badge>
