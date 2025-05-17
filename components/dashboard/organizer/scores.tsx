@@ -49,7 +49,6 @@ interface ScoresTabProps {
 }
 
 export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
-  const [scores, setScores] = useState<DashboardProjectScore[]>([]);
   const [trackScores, setTrackScores] = useState<TrackScores>({});
   const [eventTracks, setEventTracks] = useState<EventTrack[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,7 +211,7 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
         }
 
         if (!data?.length) {
-          setScores([]);
+          setTrackScores({});
           return;
         }
 
@@ -241,12 +240,10 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
         }) as DashboardProjectScore[];
 
         if (typedData.length === 0) {
-          setScores([]);
           setTrackScores({});
           return;
         }
 
-        setScores(typedData);
         calculateTrackScores(typedData);
       } catch (error) {
         console.error("Error fetching scores:", error);

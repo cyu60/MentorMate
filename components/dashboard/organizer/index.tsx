@@ -11,7 +11,6 @@ import {
   Trophy,
   Book,
   Lock,
-  Settings,
   FileText,
   BarChart,
   FolderKanban,
@@ -104,7 +103,20 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
 
         // Map event tracks to scoring_config structure if needed
         if (eventData && eventData.event_tracks) {
-          const tracksConfig: Record<string, any> = {};
+          const tracksConfig: Record<
+            string,
+            {
+              name: string;
+              criteria: Array<{
+                id: string;
+                name: string;
+                description: string;
+                weight: number;
+                min: number;
+                max: number;
+              }>;
+            }
+          > = {};
 
           eventData.event_tracks.forEach((track: EventTrack) => {
             if (track.track_id && track.scoring_criteria) {

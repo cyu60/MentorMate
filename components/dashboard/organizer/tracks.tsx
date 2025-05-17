@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
 import { EventDetails, EventScoringConfig, EventTrack } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
 
 interface TracksTabProps {
   eventId: string;
@@ -16,7 +15,11 @@ interface TracksTabProps {
   >;
   saving: boolean;
   setSaving: React.Dispatch<React.SetStateAction<boolean>>;
-  toast: any;
+  toast: (props: {
+    title: string;
+    description: string;
+    variant?: "default" | "destructive";
+  }) => void;
 }
 
 export function TracksTab({

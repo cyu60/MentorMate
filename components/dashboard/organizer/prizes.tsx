@@ -14,7 +14,11 @@ interface PrizesTabProps {
   setEvent: React.Dispatch<React.SetStateAction<EventDetails | null>>;
   saving: boolean;
   setSaving: React.Dispatch<React.SetStateAction<boolean>>;
-  toast: any;
+  toast: (props: {
+    title: string;
+    description: string;
+    variant?: "default" | "destructive";
+  }) => void;
 }
 
 export function PrizesTab({
