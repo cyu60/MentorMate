@@ -243,7 +243,6 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
           setTrackScores({});
           return;
         }
-
         calculateTrackScores(typedData);
       } catch (error) {
         console.error("Error fetching scores:", error);
