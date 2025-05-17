@@ -1,26 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrashIcon, PlusIcon } from "lucide-react";
-import { EventScoringConfig, ScoringCriterion } from "@/lib/types";
+import {
+  TrashIcon,
+  PlusIcon,
+  AlertTriangle,
+  CheckSquare,
+  DollarSign,
+} from "lucide-react";
+import { EventScoringConfig, ScoringCriterion, JudgingMode } from "@/lib/types";
 import { defaultCriteria } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { JudgingModeSelector } from "../dashboard/organizer/tracks/judging-mode-selector";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 interface ScoringConfigFormProps {
   initialConfig?: EventScoringConfig | null;
   onSave: (config: EventScoringConfig) => void;
   isSubmitting?: boolean;
+  tracks?: any[]; // Add tracks prop to get judging_mode info
+  onJudgingModeUpdate?: (trackId: string, mode: JudgingMode) => void; // Add update handler
 }
 
 export function ScoringConfigForm({
   initialConfig,
   onSave,
   isSubmitting = false,
+  tracks = [],
+  onJudgingModeUpdate,
 }: ScoringConfigFormProps) {
   const [config, setConfig] = useState<EventScoringConfig>(
     initialConfig || {
@@ -146,6 +159,65 @@ export function ScoringConfigForm({
     onSave(config);
   };
 
+  // Update a track's criteria to match its judging mode
+  const updateTrackCriteriaForMode = (trackId: string) => {
+    const track = tracks.find((t) => t.track_id === trackId);
+    if (!track) return;
+
+    // If the track is in investment mode, ensure criteria are investment-focused
+    if (track.judging_mode === JudgingMode.Investment) {
+      // Create a deep copy of the track in config
+      setConfig((prev) => {
+        const updatedConfig = { ...prev };
+        if (updatedConfig.tracks[trackId]) {
+          // Only update if the criteria doesn't already have investment-type fields
+          const hasInvestmentCriteria = updatedConfig.tracks[
+            trackId
+          ].criteria.some(
+            (c) => c.id === "investor_decision" || c.type === "choice"
+          );
+
+          if (!hasInvestmentCriteria) {
+            updatedConfig.tracks[trackId] = {
+              ...updatedConfig.tracks[trackId],
+              criteria: [
+                {
+                  id: "investor_decision",
+                  name: "Investment Decision",
+                  description: "Would you invest in this company?",
+                  weight: 1,
+                  type: "choice",
+                  options: ["invest", "pass", "maybe"],
+                  min: 0,
+                  max: 1,
+                },
+                {
+                  id: "interest_level",
+                  name: "Interest Level",
+                  description: "How interested are you in this company?",
+                  weight: 1,
+                  type: "scale",
+                  min: 0,
+                  max: 5,
+                },
+              ],
+            };
+          }
+        }
+        return updatedConfig;
+      });
+    }
+  };
+
+  // Check all tracks when the component mounts or tracks change
+  useEffect(() => {
+    tracks.forEach((track) => {
+      if (track.track_id && config.tracks[track.track_id]) {
+        updateTrackCriteriaForMode(track.track_id);
+      }
+    });
+  }, [tracks]);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
@@ -207,6 +279,30 @@ export function ScoringConfigForm({
                     placeholder="Enter track name"
                   />
                 </div>
+
+                {/* Show track judging mode badge if available */}
+                {tracks.find((t) => t.track_id === trackId)?.judging_mode && (
+                  <Badge
+                    className={
+                      tracks.find((t) => t.track_id === trackId)
+                        ?.judging_mode === JudgingMode.Investment
+                        ? "bg-green-100 text-green-800 hover:bg-green-200"
+                        : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    }
+                  >
+                    {tracks.find((t) => t.track_id === trackId)
+                      ?.judging_mode === JudgingMode.Investment ? (
+                      <>
+                        <DollarSign className="h-3.5 w-3.5 mr-1" /> Investment
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="h-3.5 w-3.5 mr-1" /> Traditional
+                      </>
+                    )}
+                  </Badge>
+                )}
+
                 <Button
                   type="button"
                   variant="destructive"
@@ -216,6 +312,48 @@ export function ScoringConfigForm({
                   <TrashIcon className="h-4 w-4" />
                 </Button>
               </div>
+
+              {onJudgingModeUpdate && (
+                <div className="py-3 border-t my-4">
+                  <h3 className="text-sm font-medium mb-3">
+                    Judging Interface
+                  </h3>
+                  {tracks.find((t) => t.track_id === trackId) ? (
+                    <>
+                      <JudgingModeSelector
+                        trackId={trackId}
+                        currentMode={
+                          tracks.find((t) => t.track_id === trackId)
+                            ?.judging_mode || JudgingMode.Traditional
+                        }
+                        onUpdate={(mode) => onJudgingModeUpdate(trackId, mode)}
+                      />
+
+                      {/* Show informational alert for investment tracks */}
+                      {tracks.find((t) => t.track_id === trackId)
+                        ?.judging_mode === JudgingMode.Investment && (
+                        <Alert className="mt-4 bg-blue-50">
+                          <AlertTriangle className="h-4 w-4 text-blue-600" />
+                          <AlertTitle className="text-blue-700 text-sm">
+                            Investment Mode Active
+                          </AlertTitle>
+                          <AlertDescription className="text-blue-600 text-xs">
+                            This track uses the investment judging interface.
+                            The scoring criteria below will be mapped to the
+                            investment interface's features.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm text-muted-foreground">
+                        Save the track first to configure judging mode
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-4">
                 {track.criteria.map((criterion, index) => (
@@ -250,54 +388,79 @@ export function ScoringConfigForm({
                             placeholder="Enter criterion description"
                           />
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div>
-                            <label className="text-sm font-medium">
-                              Min Score
+
+                        {/* Choice-based criteria display - for investment decision type criteria */}
+                        {criterion.type === "choice" ? (
+                          <div className="space-y-2 border border-blue-100 rounded-md p-3 bg-blue-50">
+                            <label className="text-sm font-medium text-blue-700">
+                              Choice Type Criterion
                             </label>
-                            <Input
-                              type="number"
-                              value={criterion.min ?? config.defaultMin}
-                              onChange={(e) =>
-                                updateCriterion(trackId, index, {
-                                  min: parseInt(e.target.value),
-                                })
-                              }
-                              min={0}
-                            />
+                            <p className="text-xs text-blue-600 mb-2">
+                              This criterion uses predefined choices rather than
+                              a numeric scale.
+                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                              {criterion.options?.map((option, optionIndex) => (
+                                <div
+                                  key={optionIndex}
+                                  className="flex items-center gap-1 bg-white border border-blue-200 rounded px-2 py-1"
+                                >
+                                  <span className="text-xs">{option}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div>
-                            <label className="text-sm font-medium">
-                              Max Score
-                            </label>
-                            <Input
-                              type="number"
-                              value={criterion.max ?? config.defaultMax}
-                              onChange={(e) =>
-                                updateCriterion(trackId, index, {
-                                  max: parseInt(e.target.value),
-                                })
-                              }
-                              min={1}
-                            />
+                        ) : (
+                          /* Numeric criteria inputs - for traditional scoring */
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <label className="text-sm font-medium">
+                                Min Score
+                              </label>
+                              <Input
+                                type="number"
+                                value={criterion.min ?? config.defaultMin}
+                                onChange={(e) =>
+                                  updateCriterion(trackId, index, {
+                                    min: parseInt(e.target.value),
+                                  })
+                                }
+                                min={0}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">
+                                Max Score
+                              </label>
+                              <Input
+                                type="number"
+                                value={criterion.max ?? config.defaultMax}
+                                onChange={(e) =>
+                                  updateCriterion(trackId, index, {
+                                    max: parseInt(e.target.value),
+                                  })
+                                }
+                                min={1}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">
+                                Weight
+                              </label>
+                              <Input
+                                type="number"
+                                value={criterion.weight ?? config.defaultWeight}
+                                onChange={(e) =>
+                                  updateCriterion(trackId, index, {
+                                    weight: parseFloat(e.target.value),
+                                  })
+                                }
+                                min={0}
+                                step={0.01}
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="text-sm font-medium">
-                              Weight
-                            </label>
-                            <Input
-                              type="number"
-                              value={criterion.weight ?? config.defaultWeight}
-                              onChange={(e) =>
-                                updateCriterion(trackId, index, {
-                                  weight: parseFloat(e.target.value),
-                                })
-                              }
-                              min={0}
-                              step={0.01}
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
                       <Button
                         type="button"

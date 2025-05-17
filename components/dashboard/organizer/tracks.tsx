@@ -1,8 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
-import { EventDetails, EventScoringConfig, EventTrack } from "@/lib/types";
+import {
+  EventDetails,
+  EventScoringConfig,
+  EventTrack,
+  JudgingMode,
+} from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
 interface TracksTabProps {
@@ -32,6 +38,44 @@ export function TracksTab({
   setSaving,
   toast,
 }: TracksTabProps) {
+  const [tracks, setTracks] = useState<EventTrack[]>([]);
+
+  const handleJudgingModeUpdate = (trackId: string, mode: JudgingMode) => {
+    // Update the tracks in state
+    setTracks((prevTracks) =>
+      prevTracks.map((track) =>
+        track.track_id === trackId ? { ...track, judging_mode: mode } : track
+      )
+    );
+
+    // Trigger a reload of the tracks data to get the updated criteria
+    fetchTracks();
+  };
+
+  // Function to fetch tracks data
+  const fetchTracks = async () => {
+    const { data, error } = await supabase
+      .from("event_tracks")
+      .select("*")
+      .eq("event_id", eventId);
+
+    if (error) {
+      console.error("Error fetching tracks:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load track data",
+        variant: "destructive",
+      });
+    } else {
+      setTracks(data || []);
+    }
+  };
+
+  // Fetch existing tracks to get judging_mode values
+  useEffect(() => {
+    fetchTracks();
+  }, [eventId, toast]);
+
   const handleScoreUpdate = async (config: EventScoringConfig) => {
     try {
       setSaving(true);
@@ -39,18 +83,26 @@ export function TracksTab({
       // Store the updated config in state
       setScoringConfig(config);
 
-      // Prepare all tracks for upsert
+      // Preserve judging_mode when updating tracks
       const tracksToUpsert = Object.entries(config.tracks).map(
-        ([trackId, trackConfig]) => ({
-          track_id: trackId,
-          event_id: eventId,
-          name: trackConfig.name,
-          description: trackConfig.name, // Default description is same as name
-          scoring_criteria: {
+        ([trackId, trackConfig]) => {
+          // Find existing track to get judging_mode if available
+          const existingTrack = tracks.find((t) => t.track_id === trackId);
+
+          return {
+            track_id: trackId,
+            event_id: eventId,
             name: trackConfig.name,
-            criteria: trackConfig.criteria,
-          },
-        })
+            description: trackConfig.name, // Default description is same as name
+            scoring_criteria: {
+              name: trackConfig.name,
+              criteria: trackConfig.criteria,
+            },
+            // Preserve existing judging_mode or default to traditional
+            judging_mode:
+              existingTrack?.judging_mode || JudgingMode.Traditional,
+          };
+        }
       );
 
       // Perform upsert on all tracks at once
@@ -79,9 +131,12 @@ export function TracksTab({
         .eq("event_id", eventId);
 
       if (refreshedTracks && event) {
+        const updatedTracks = refreshedTracks as unknown as EventTrack[];
+        setTracks(updatedTracks);
+
         const updatedEvent = {
           ...event,
-          event_tracks: refreshedTracks as unknown as EventTrack[],
+          event_tracks: updatedTracks,
         };
         setEvent(updatedEvent);
       }
@@ -103,17 +158,28 @@ export function TracksTab({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Event Tracks</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScoringConfigForm
-          initialConfig={scoringConfig}
-          isSubmitting={saving}
-          onSave={handleScoreUpdate}
-        />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      {/* Track Configuration with integrated judging modes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Event Tracks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-6">
+            Configure your event tracks below. For each track, you can set up
+            scoring criteria and choose the judging interface (traditional
+            scoring or investment decision).
+          </p>
+
+          <ScoringConfigForm
+            initialConfig={scoringConfig}
+            isSubmitting={saving}
+            onSave={handleScoreUpdate}
+            tracks={tracks}
+            onJudgingModeUpdate={handleJudgingModeUpdate}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

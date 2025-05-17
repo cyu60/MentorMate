@@ -9,10 +9,18 @@ export enum EventRole {
 
 export enum EventVisibility {
   Test = "test",
-  Demo = "demo", 
+  Demo = "demo",
   Private = "private",
   Public = "public",
   Draft = "draft",
+}
+
+export enum JudgingMode {
+  Traditional = "traditional",
+  Investment = "investment",
+  // Future modes can be added here
+  // PeerReview = "peer_review",
+  // Qualitative = "qualitative",
 }
 
 export interface UserProfile {
@@ -65,6 +73,7 @@ export interface EventTrack {
   label?: string;
   prizes?: Prize[];
   scoring_criteria: TrackScoringConfig;
+  judging_mode?: JudgingMode;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +87,8 @@ export interface EventDetails extends EventItem {
   created_at: string;
   rules: Rule[];
   event_tracks?: EventTrack[];
+  role_labels?: Record<string, string>;
+  judging_mode?: "traditional" | "investment";
 }
 
 // Project Types
@@ -122,6 +133,8 @@ export interface ScoringCriterion {
   weight?: number;
   min?: number;
   max?: number;
+  type?: "numeric" | "choice" | "scale"; // Type of criterion
+  options?: string[]; // Options for choice-based criteria
 }
 
 export interface TrackScoringConfig {
