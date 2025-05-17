@@ -6,7 +6,7 @@ import { EventRole } from "@/lib/types";
 import { ParticipantDashboard } from "@/components/dashboard/participant-dashboard";
 import { JudgeDashboard } from "@/components/dashboard/judge-dashboard";
 import { MentorDashboard } from "@/components/dashboard/mentor-dashboard";
-import { OrganizerDashboard } from "@/components/dashboard/organizer-dashboard";
+import { OrganizerDashboard } from "@/components/dashboard/organizer";
 import { useState, useEffect } from "react";
 
 export default function DashboardPage() {
