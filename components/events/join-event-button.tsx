@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { EventRole, EventItem, EventVisibility } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
+import { getRoleLabel } from "@/lib/utils/roles";
 
 export interface JoinEventButtonProps {
   eventId: string;
@@ -38,6 +39,9 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [event, setEvent] = useState<EventItem | null>(null);
+  const [roleLabels, setRoleLabels] = useState<Record<string, string> | null>(
+    null
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -71,11 +75,12 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
             throw eventError;
           }
           setEvent(eventData);
-          
+          setRoleLabels(eventData?.role_labels || null);
+
           // Set initial password visibility based on the default role
           if (eventData?.visibility === EventVisibility.Private) {
             setShowPasswordInput(true);
-          } 
+          }
         }
       } catch (error) {
         console.error("Error checking event status:", error);
@@ -92,7 +97,9 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
     if (event?.visibility === EventVisibility.Private) {
       setShowPasswordInput(true);
     } else {
-      setShowPasswordInput(value === EventRole.Judge || value === EventRole.Organizer );
+      setShowPasswordInput(
+        value === EventRole.Judge || value === EventRole.Organizer
+      );
     }
   };
 
@@ -174,11 +181,17 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={EventRole.Participant}>
-                  Participant
+                  {getRoleLabel(EventRole.Participant, roleLabels)}
                 </SelectItem>
-                <SelectItem value={EventRole.Mentor}>Mentor</SelectItem>
-                <SelectItem value={EventRole.Judge}>Judge</SelectItem>
-                <SelectItem value={EventRole.Organizer}>Organizer</SelectItem>
+                <SelectItem value={EventRole.Mentor}>
+                  {getRoleLabel(EventRole.Mentor, roleLabels)}
+                </SelectItem>
+                <SelectItem value={EventRole.Judge}>
+                  {getRoleLabel(EventRole.Judge, roleLabels)}
+                </SelectItem>
+                <SelectItem value={EventRole.Organizer}>
+                  {getRoleLabel(EventRole.Organizer, roleLabels)}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -188,7 +201,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
               <label className="text-sm font-medium">
                 {event?.visibility === EventVisibility.Private
                   ? "Enter Event Password:"
-                  : `Enter ${selectedRole} Password:`}
+                  : `Enter ${getRoleLabel(selectedRole, roleLabels)} Password:`}
               </label>
               <Input
                 type="password"

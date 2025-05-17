@@ -1,5 +1,6 @@
 "use client";
 
+import { getRoleLabel } from "@/lib/utils/roles";
 import { CancelRegistration } from "@/components/events/cancel-registration";
 import { CheckCircle } from "lucide-react";
 import { useEventRegistration } from "@/components/event-registration-provider";
@@ -9,13 +10,11 @@ interface EventStatusBarProps {
 }
 
 export function EventStatusBar({ eventId }: EventStatusBarProps) {
-  const { isRegistered, userRole } = useEventRegistration();
+  const { isRegistered, userRole, roleLabels } = useEventRegistration();
 
   if (!isRegistered) return null;
 
-  const roleDisplay = userRole
-    ? `${userRole.charAt(0).toUpperCase()}${userRole.slice(1)}`
-    : "Member";
+  const roleDisplay = userRole ? getRoleLabel(userRole, roleLabels) : "Member";
 
   return (
     <div className="w-full rounded-md shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4">

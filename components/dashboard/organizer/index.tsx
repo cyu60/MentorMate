@@ -14,6 +14,7 @@ import {
   FileText,
   BarChart,
   FolderKanban,
+  Tags,
 } from "lucide-react";
 import {
   EventDetails,
@@ -32,6 +33,7 @@ import { ScoresTab } from "./scores";
 import { EventDetailsTab } from "./details";
 import { PasswordTab } from "./password";
 import { ParticipantsTab } from "./participants";
+import { RoleLabelsTab } from "./role-labels";
 
 export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<EventDetails | null>(null);
@@ -178,7 +180,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-8 gap-4 mb-6">
+        <TabsList className="grid grid-cols-9 gap-4 mb-6">
           <TabsTrigger value="details" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Event Details
@@ -194,6 +196,10 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           <TabsTrigger value="passwords" className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
             Password
+          </TabsTrigger>
+          <TabsTrigger value="role-labels" className="flex items-center gap-2">
+            <Tags className="h-4 w-4" />
+            Role Labels
           </TabsTrigger>
           <TabsTrigger value="tracks" className="flex items-center gap-2">
             <FolderKanban className="h-4 w-4" />
@@ -246,6 +252,16 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
 
         <TabsContent value="passwords">
           <PasswordTab eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="role-labels">
+          <RoleLabelsTab
+            eventId={eventId}
+            event={event}
+            setEvent={setEvent}
+            saving={saving}
+            setSaving={setSaving}
+          />
         </TabsContent>
 
         <TabsContent value="tracks">
