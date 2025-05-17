@@ -18,10 +18,12 @@ import { Pencil, Globe } from "lucide-react";
 import { FaLinkedin, FaGithub, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface EventWithRole extends EventItem {
   user_event_roles: {
@@ -52,6 +54,9 @@ export default function ProfilePage() {
   const [isEditingLinks, setIsEditingLinks] = useState(false);
   const [newSocialLinks, setNewSocialLinks] = useState<SocialLinks>({});
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("projects");
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -313,265 +318,286 @@ export default function ProfilePage() {
           <p className="mt-2 text-gray-600">{userProfile?.email}</p>
         </div>
 
-        <Tabs defaultValue="projects" className="w-full">
-          <TabsList className="grid w-1/3 mx-auto grid-cols-3 border-none bg-transparent">
-            <TabsTrigger
-              value="projects"
-              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-            >
-              Projects
-            </TabsTrigger>
-            <TabsTrigger
-              value="events"
-              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-            >
-              Events
-            </TabsTrigger>
-            <TabsTrigger
-              value="personal"
-              className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-            >
-              Personal
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="projects" className="mt-12">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading projects...</p>
-              </div>
-            ) : projects.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-600">No projects found.</p>
-              </div>
-            ) : (
-              <ProjectBoard
-                isLoading={isLoading}
-                projectList={projects}
-                session={session ?? undefined}
-                projectBoardContext={
-                  userId === session?.user?.id
-                    ? ProjectBoardContext.MyProjects
-                    : ProjectBoardContext.EventGallery
-                }
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="events" className="mt-12">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading events...</p>
-              </div>
-            ) : events.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-600">No events found.</p>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        {isMobile ? (
+          <div className="mb-8">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select view" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="projects">Projects</SelectItem>
+                <SelectItem value="events">Events</SelectItem>
+                <SelectItem value="personal">Personal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-1/3 mx-auto grid-cols-3 border-none bg-transparent">
+              <TabsTrigger
+                value="projects"
+                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
               >
-                {events.map((event) => (
-                  <Card
-                    key={event.event_id}
-                    className="hover:shadow-lg transition-shadow"
-                  >
-                    {event.cover_image_url && (
-                      <div className="relative h-48 w-full">
-                        <img
-                          src={event.cover_image_url}
-                          alt={event.event_name}
-                          className="object-cover w-full h-full rounded-t-lg"
+                Projects
+              </TabsTrigger>
+              <TabsTrigger
+                value="events"
+                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
+              >
+                Events
+              </TabsTrigger>
+              <TabsTrigger
+                value="personal"
+                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
+              >
+                Personal
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+
+        <div className="mt-12">
+          {activeTab === "projects" && (
+            <div>
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading projects...</p>
+                </div>
+              ) : projects.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No projects found.</p>
+                </div>
+              ) : (
+                <ProjectBoard
+                  isLoading={isLoading}
+                  projectList={projects}
+                  session={session ?? undefined}
+                  projectBoardContext={
+                    userId === session?.user?.id
+                      ? ProjectBoardContext.MyProjects
+                      : ProjectBoardContext.EventGallery
+                  }
+                />
+              )}
+            </div>
+          )}
+          {activeTab === "events" && (
+            <div>
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading events...</p>
+                </div>
+              ) : events.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No events found.</p>
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                  {events.map((event) => (
+                    <Card
+                      key={event.event_id}
+                      className="hover:shadow-lg transition-shadow"
+                    >
+                      {event.cover_image_url && (
+                        <div className="relative h-48 w-full">
+                          <img
+                            src={event.cover_image_url}
+                            alt={event.event_name}
+                            className="object-cover w-full h-full rounded-t-lg"
+                          />
+                        </div>
+                      )}
+                      <CardHeader>
+                        <CardTitle className="text-xl hover:text-blue-600">
+                          <Link href={`/events/${event.event_id}/overview`}>
+                            {event.event_name}
+                          </Link>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              Date: {event.event_date}
+                            </p>
+                            {event.location && (
+                              <p className="text-sm text-gray-600">
+                                Location: {event.location}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant={event.user_event_roles?.[0]?.role}>
+                            {event.user_event_roles?.[0]?.role}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          )}
+          {activeTab === "personal" && (
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Find Me!</span>
+                    {session?.user?.id === userId && (
+                      <button
+                        onClick={() => {
+                          setIsEditingLinks(true);
+                          setNewSocialLinks(userProfile?.links || {});
+                        }}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-all"
+                      >
+                        <Pencil className="w-5 h-5 text-gray-600" />
+                      </button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isEditingLinks ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <FaLinkedin className="w-5 h-5 text-gray-600" />
+                        <Input
+                          type="url"
+                          placeholder="LinkedIn Profile URL"
+                          value={newSocialLinks.linkedin || ""}
+                          onChange={(e) =>
+                            setNewSocialLinks((prev) => ({
+                              ...prev,
+                              linkedin: e.target.value || undefined,
+                            }))
+                          }
                         />
                       </div>
-                    )}
-                    <CardHeader>
-                      <CardTitle className="text-xl hover:text-blue-600">
-                        <Link href={`/events/${event.event_id}/overview`}>
-                          {event.event_name}
-                        </Link>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-gray-600">
-                            Date: {event.event_date}
-                          </p>
-                          {event.location && (
-                            <p className="text-sm text-gray-600">
-                              Location: {event.location}
-                            </p>
-                          )}
-                        </div>
-                        <Badge variant={event.user_event_roles?.[0]?.role}>
-                          {event.user_event_roles?.[0]?.role}
-                        </Badge>
+                      <div className="flex items-center gap-2">
+                        <FaGithub className="w-5 h-5 text-gray-600" />
+                        <Input
+                          type="url"
+                          placeholder="GitHub Profile URL"
+                          value={newSocialLinks.github || ""}
+                          onChange={(e) =>
+                            setNewSocialLinks((prev) => ({
+                              ...prev,
+                              github: e.target.value || undefined,
+                            }))
+                          }
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </motion.div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="personal" className="mt-12">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Find Me!</span>
-                  {session?.user?.id === userId && (
-                    <button
-                      onClick={() => {
-                        setIsEditingLinks(true);
-                        setNewSocialLinks(userProfile?.links || {});
-                      }}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-all"
-                    >
-                      <Pencil className="w-5 h-5 text-gray-600" />
-                    </button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isEditingLinks ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <FaLinkedin className="w-5 h-5 text-gray-600" />
-                      <Input
-                        type="url"
-                        placeholder="LinkedIn Profile URL"
-                        value={newSocialLinks.linkedin || ""}
-                        onChange={(e) =>
-                          setNewSocialLinks((prev) => ({
-                            ...prev,
-                            linkedin: e.target.value || undefined,
-                          }))
-                        }
-                      />
+                      <div className="flex items-center gap-2">
+                        <FaXTwitter className="w-5 h-5 text-gray-600" />
+                        <Input
+                          type="url"
+                          placeholder="Twitter Profile URL"
+                          value={newSocialLinks.twitter || ""}
+                          onChange={(e) =>
+                            setNewSocialLinks((prev) => ({
+                              ...prev,
+                              twitter: e.target.value || undefined,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-gray-600" />
+                        <Input
+                          type="url"
+                          placeholder="Portfolio Website URL"
+                          value={newSocialLinks.portfolio || ""}
+                          onChange={(e) =>
+                            setNewSocialLinks((prev) => ({
+                              ...prev,
+                              portfolio: e.target.value || undefined,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <button
+                          onClick={() => setIsEditingLinks(false)}
+                          className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleUpdateSocialLinks}
+                          className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Save
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FaGithub className="w-5 h-5 text-gray-600" />
-                      <Input
-                        type="url"
-                        placeholder="GitHub Profile URL"
-                        value={newSocialLinks.github || ""}
-                        onChange={(e) =>
-                          setNewSocialLinks((prev) => ({
-                            ...prev,
-                            github: e.target.value || undefined,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaXTwitter className="w-5 h-5 text-gray-600" />
-                      <Input
-                        type="url"
-                        placeholder="Twitter Profile URL"
-                        value={newSocialLinks.twitter || ""}
-                        onChange={(e) =>
-                          setNewSocialLinks((prev) => ({
-                            ...prev,
-                            twitter: e.target.value || undefined,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-gray-600" />
-                      <Input
-                        type="url"
-                        placeholder="Portfolio Website URL"
-                        value={newSocialLinks.portfolio || ""}
-                        onChange={(e) =>
-                          setNewSocialLinks((prev) => ({
-                            ...prev,
-                            portfolio: e.target.value || undefined,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <button
-                        onClick={() => setIsEditingLinks(false)}
-                        className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleUpdateSocialLinks}
-                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {userProfile?.links?.linkedin && (
-                      <a
-                        href={userProfile.links.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                      >
-                        <FaLinkedin className="w-5 h-5" />
-                        <span>LinkedIn Profile</span>
-                      </a>
-                    )}
-                    {userProfile?.links?.github && (
-                      <a
-                        href={userProfile.links.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-gray-900 hover:text-gray-700"
-                      >
-                        <FaGithub className="w-5 h-5" />
-                        <span>GitHub Profile</span>
-                      </a>
-                    )}
-                    {userProfile?.links?.twitter && (
-                      <a
-                        href={userProfile.links.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-400 hover:text-blue-600"
-                      >
-                        <FaXTwitter className="w-5 h-5" />
-                        <span>Twitter Profile</span>
-                      </a>
-                    )}
-                    {userProfile?.links?.portfolio && (
-                      <a
-                        href={userProfile.links.portfolio}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-                      >
-                        <Globe className="w-5 h-5" />
-                        <span>Portfolio Website</span>
-                      </a>
-                    )}
-                    {!userProfile?.links?.linkedin &&
-                      !userProfile?.links?.github &&
-                      !userProfile?.links?.twitter &&
-                      !userProfile?.links?.portfolio && (
-                        <p className="text-gray-500 italic">
-                          No social links added yet
-                        </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {userProfile?.links?.linkedin && (
+                        <a
+                          href={userProfile.links.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                        >
+                          <FaLinkedin className="w-5 h-5" />
+                          <span>LinkedIn Profile</span>
+                        </a>
                       )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                      {userProfile?.links?.github && (
+                        <a
+                          href={userProfile.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-gray-900 hover:text-gray-700"
+                        >
+                          <FaGithub className="w-5 h-5" />
+                          <span>GitHub Profile</span>
+                        </a>
+                      )}
+                      {userProfile?.links?.twitter && (
+                        <a
+                          href={userProfile.links.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-blue-400 hover:text-blue-600"
+                        >
+                          <FaXTwitter className="w-5 h-5" />
+                          <span>Twitter Profile</span>
+                        </a>
+                      )}
+                      {userProfile?.links?.portfolio && (
+                        <a
+                          href={userProfile.links.portfolio}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+                        >
+                          <Globe className="w-5 h-5" />
+                          <span>Portfolio Website</span>
+                        </a>
+                      )}
+                      {!userProfile?.links?.linkedin &&
+                        !userProfile?.links?.github &&
+                        !userProfile?.links?.twitter &&
+                        !userProfile?.links?.portfolio && (
+                          <p className="text-gray-500 italic">
+                            No social links added yet
+                          </p>
+                        )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
