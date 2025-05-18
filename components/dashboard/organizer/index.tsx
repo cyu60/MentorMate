@@ -8,13 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Edit,
   Users,
-  Trophy,
-  Book,
-  Lock,
+  Shield,
   FileText,
   BarChart,
   FolderKanban,
-  Tags,
 } from "lucide-react";
 import {
   EventDetails,
@@ -25,15 +22,12 @@ import {
 } from "@/lib/types";
 
 // Tab components
-import { PrizesTab } from "./prizes";
-import { RulesTab } from "./rules";
-import { TracksTab } from "./tracks";
 import { SubmissionsTab } from "./submissions";
 import { ScoresTab } from "./scores";
 import { EventDetailsTab } from "./details";
-import { PasswordTab } from "./password";
 import { ParticipantsTab } from "./participants";
-import { RoleLabelsTab } from "./role-labels";
+import { EventTracksContainer } from "./tracks";
+import { AccessTab } from "./access";
 
 export function OrganizerDashboard({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<EventDetails | null>(null);
@@ -180,26 +174,15 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-9 gap-4 mb-6">
+        <TabsList className="grid grid-cols-6 gap-4 mb-6">
           <TabsTrigger value="details" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Event Details
           </TabsTrigger>
-          <TabsTrigger value="prizes" className="flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
-            Prizes
-          </TabsTrigger>
-          <TabsTrigger value="rules" className="flex items-center gap-2">
-            <Book className="h-4 w-4" />
-            Rules
-          </TabsTrigger>
-          <TabsTrigger value="passwords" className="flex items-center gap-2">
-            <Lock className="h-4 w-4" />
-            Password
-          </TabsTrigger>
-          <TabsTrigger value="role-labels" className="flex items-center gap-2">
-            <Tags className="h-4 w-4" />
-            Role Labels
+        
+          <TabsTrigger value="access" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Access
           </TabsTrigger>
           <TabsTrigger value="tracks" className="flex items-center gap-2">
             <FolderKanban className="h-4 w-4" />
@@ -230,32 +213,8 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           />
         </TabsContent>
 
-        <TabsContent value="prizes">
-          <PrizesTab
-            event={event}
-            setEvent={setEvent}
-            saving={saving}
-            setSaving={setSaving}
-            toast={toast}
-          />
-        </TabsContent>
-
-        <TabsContent value="rules">
-          <RulesTab
-            event={event}
-            setEvent={setEvent}
-            saving={saving}
-            setSaving={setSaving}
-            toast={toast}
-          />
-        </TabsContent>
-
-        <TabsContent value="passwords">
-          <PasswordTab eventId={eventId} />
-        </TabsContent>
-
-        <TabsContent value="role-labels">
-          <RoleLabelsTab
+        <TabsContent value="access">
+          <AccessTab
             eventId={eventId}
             event={event}
             setEvent={setEvent}
@@ -265,7 +224,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
         </TabsContent>
 
         <TabsContent value="tracks">
-          <TracksTab
+          <EventTracksContainer
             eventId={eventId}
             event={event}
             setEvent={setEvent}

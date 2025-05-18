@@ -8,13 +8,14 @@ import { EventRole } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DEFAULT_ROLE_LABELS } from "@/lib/utils/roles";
+import { EventDetails } from "@/lib/types";
 
 interface RoleLabelsTabProps {
   eventId: string;
-  event: any;
-  setEvent: (event: any) => void;
+  event: EventDetails;
+  setEvent: React.Dispatch<React.SetStateAction<EventDetails | null>>;
   saving: boolean;
-  setSaving: (saving: boolean) => void;
+  setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function RoleLabelsTab({
@@ -93,13 +94,14 @@ export function RoleLabelsTab({
         <div className="space-y-6">
           <p className="text-sm text-gray-500">
             Customize how roles are labeled throughout the platform. For
-            example, you can change "Judge" to "Investor" for a demo day event.
+            example, you can change &quot;Judge&quot; to &quot;Investor&quot;
+            for a demo day event.
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {Object.entries(EventRole)
-              .filter(([_, value]) => value !== EventRole.Admin) // Exclude Admin role
-              .map(([_, role]) => (
+              .filter(([, value]) => value !== EventRole.Admin) // Exclude Admin role
+              .map(([, role]) => (
                 <div key={role} className="space-y-2">
                   <label
                     className="text-sm font-medium"
@@ -109,7 +111,7 @@ export function RoleLabelsTab({
                   </label>
                   <Input
                     id={`role-${role}`}
-                    value={roleLabels[role] || DEFAULT_ROLE_LABELS[role] || ""}
+                    value={roleLabels[role] ?? ""}
                     onChange={(e) => handleLabelChange(role, e.target.value)}
                     placeholder={`Custom label for ${role}`}
                   />
