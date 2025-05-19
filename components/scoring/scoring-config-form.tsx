@@ -12,19 +12,26 @@ import {
   CheckSquare,
   DollarSign,
 } from "lucide-react";
-import { EventScoringConfig, ScoringCriterion, JudgingMode } from "@/lib/types";
+import { EventScoringConfig, ScoringCriterion, JudgingMode, EventTrack } from "@/lib/types";
 import { defaultCriteria } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { JudgingModeSelector } from "../dashboard/organizer/tracks/judging-mode-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ScoringConfigFormProps {
   initialConfig?: EventScoringConfig | null;
   onSave: (config: EventScoringConfig) => void;
   isSubmitting?: boolean;
-  tracks?: any[]; // Add tracks prop to get judging_mode info
+  tracks?: EventTrack[]; // Add tracks prop to get judging_mode info
   onJudgingModeUpdate?: (trackId: string, mode: JudgingMode) => void; // Add update handler
 }
 
@@ -110,6 +117,7 @@ export function ScoringConfigForm({
               id: `criterion_${prev.tracks[trackId].criteria.length + 1}`,
               name: "",
               description: "",
+              type: "numeric", // Default type
               weight: config.defaultWeight,
               min: config.defaultMin,
               max: config.defaultMax,
@@ -389,34 +397,74 @@ export function ScoringConfigForm({
                           />
                         </div>
 
-                        {/* Choice-based criteria display - for investment decision type criteria */}
-                        {criterion.type === "choice" ? (
-                          <div className="space-y-2 border border-blue-100 rounded-md p-3 bg-blue-50">
-                            <label className="text-sm font-medium text-blue-700">
-                              Choice Type Criterion
-                            </label>
-                            <p className="text-xs text-blue-600 mb-2">
-                              This criterion uses predefined choices rather than
-                              a numeric scale.
-                            </p>
-                            <div className="flex gap-2 flex-wrap">
+                        {/* Add question type selector */}
+                        <div>
+                          <label className="text-sm font-medium">Question Type</label>
+                          <Select
+                            value={criterion.type || "numeric"}
+                            onValueChange={(value) =>
+                              updateCriterion(trackId, index, {
+                                type: value as "numeric" | "multiplechoice",
+                              })
+                            }
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select question type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="numeric">Numeric Scale</SelectItem>
+                              <SelectItem value="multiplechoice">Multiple Choice</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Show different fields based on question type */}
+                        { criterion.type === "multiplechoice" ? (
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Options</label>
+                            <div className="space-y-2">
                               {criterion.options?.map((option, optionIndex) => (
-                                <div
-                                  key={optionIndex}
-                                  className="flex items-center gap-1 bg-white border border-blue-200 rounded px-2 py-1"
-                                >
-                                  <span className="text-xs">{option}</span>
+                                <div key={optionIndex} className="flex gap-2">
+                                  <Input
+                                    value={option}
+                                    onChange={(e) => {
+                                      const newOptions = [...(criterion.options || [])];
+                                      newOptions[optionIndex] = e.target.value;
+                                      updateCriterion(trackId, index, { options: newOptions });
+                                    }}
+                                    placeholder="Enter option"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => {
+                                      const newOptions = criterion.options?.filter((_, i) => i !== optionIndex);
+                                      updateCriterion(trackId, index, { options: newOptions });
+                                    }}
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </Button>
                                 </div>
                               ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const newOptions = [...(criterion.options || []), ""];
+                                  updateCriterion(trackId, index, { options: newOptions });
+                                }}
+                              >
+                                <PlusIcon className="h-4 w-4 mr-2" />
+                                Add Option
+                              </Button>
                             </div>
                           </div>
                         ) : (
-                          /* Numeric criteria inputs - for traditional scoring */
                           <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <label className="text-sm font-medium">
-                                Min Score
-                              </label>
+                              <label className="text-sm font-medium">Min Score</label>
                               <Input
                                 type="number"
                                 value={criterion.min ?? config.defaultMin}
@@ -429,9 +477,7 @@ export function ScoringConfigForm({
                               />
                             </div>
                             <div>
-                              <label className="text-sm font-medium">
-                                Max Score
-                              </label>
+                              <label className="text-sm font-medium">Max Score</label>
                               <Input
                                 type="number"
                                 value={criterion.max ?? config.defaultMax}
@@ -444,9 +490,7 @@ export function ScoringConfigForm({
                               />
                             </div>
                             <div>
-                              <label className="text-sm font-medium">
-                                Weight
-                              </label>
+                              <label className="text-sm font-medium">Weight</label>
                               <Input
                                 type="number"
                                 value={criterion.weight ?? config.defaultWeight}

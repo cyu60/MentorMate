@@ -2,7 +2,6 @@
 
 import { ScoringCriterion } from "@/lib/types";
 import { MultipleChoice } from "./multiple-choice";
-import { LikertScale } from "./likert-scale";
 import { Slider } from "@/components/ui/slider";
 import { FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 
@@ -27,14 +26,6 @@ export function QuestionFactory({ criterion, value, onChange }: QuestionFactoryP
       );
     
     case "likert":
-      return (
-        <LikertScale 
-          criterion={criterion} 
-          value={Number(value) || 0} 
-          onChange={(newValue) => onChange(newValue)} 
-        />
-      );
-    
     case "numeric":
     case "scale":
     default:
@@ -44,8 +35,10 @@ export function QuestionFactory({ criterion, value, onChange }: QuestionFactoryP
       const currentValue = Number(value) || min;
       
       return (
-        <FormItem className="space-y-3">
-          <FormLabel>{criterion.name}</FormLabel>
+        <FormItem className="space-y-3 pb-6 border-b border-gray-200 last:border-b-0">
+          <FormLabel>
+            <h3 className="text-lg font-semibold">{criterion.name}</h3>
+          </FormLabel>
           <FormControl>
             <div className="space-y-3">
               <Slider 

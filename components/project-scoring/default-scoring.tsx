@@ -210,7 +210,7 @@ export function DefaultScoring({
           <div className="space-y-4">
             {criteria.map((criterion) => (
               <FormField
-                key={criterion.id}
+                key={criterion.name}
                 control={form.control}
                 name={`scores.${criterion.id}`}
                 render={({ field }) => (
