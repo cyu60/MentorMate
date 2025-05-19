@@ -340,7 +340,7 @@ export function ScoringConfigForm({
                           <AlertDescription className="text-blue-600 text-xs">
                             This track uses the investment judging interface.
                             The scoring criteria below will be mapped to the
-                            investment interface's features.
+                            investment interface&apos;s features.
                           </AlertDescription>
                         </Alert>
                       )}

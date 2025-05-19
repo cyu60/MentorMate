@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Project, EventTrack, JudgingMode } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScoringController } from "@/components/project-scoring/scoring-controller";
 import {
   Accordion,
@@ -11,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { CreateDemoTrack } from "@/components/project-scoring/create-demo-track";
 
 interface JudgeDashboardProps {
   eventId: string;
@@ -36,6 +36,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     trackId: string;
   } | null>(null);
   const [judgeId, setJudgeId] = useState<string>("");
+  const [showDemoTrackCreator, setShowDemoTrackCreator] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -192,17 +193,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     fetchData();
   }, [eventId]);
 
-  const handleScoreSubmitted = (projectId: string, trackId: string) => {
-    setScoredProjects((prev) => {
-      const newMap = new Map(prev);
-      if (!newMap.has(projectId)) {
-        newMap.set(projectId, new Set());
-      }
-      newMap.get(projectId)?.add(trackId);
-      return newMap;
-    });
-    setEditingScore(null);
-  };
+  
 
   // Helper function to get the appropriate scoring component based on track's judging mode
   const getScoringComponent = (projectId: string, trackId: string) => {
@@ -224,6 +215,11 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
         judgeId={judgeId}
       />
     );
+  };
+
+  const handleTrackCreated = () => {
+    // Reload the page to see the new track
+    window.location.reload();
   };
 
   if (isLoading) {
@@ -250,9 +246,33 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
+  console.log(projectsByTrack);
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Judge Dashboard</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Judge Dashboard</h2>
+        <Button
+          variant="outline"
+          onClick={() => setShowDemoTrackCreator(!showDemoTrackCreator)}
+        >
+          {showDemoTrackCreator ? "Hide Demo Options" : "Show Demo Options"}
+        </Button>
+      </div>
+
+      {showDemoTrackCreator && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Demo Options</CardTitle>
+            <CardDescription>
+              Tools to help you test different judging interfaces
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateDemoTrack eventId={eventId} onTrackCreated={handleTrackCreated} />
+          </CardContent>
+        </Card>
+      )}
 
       {Object.entries(projectsByTrack).map(([trackId, trackProjects]) => {
         // Handle unassigned projects

@@ -133,8 +133,9 @@ export interface ScoringCriterion {
   weight?: number;
   min?: number;
   max?: number;
-  type?: "numeric" | "choice" | "scale"; // Type of criterion
+  type?: "numeric" | "choice" | "scale" | "multiplechoice" | "likert"; // Type of criterion
   options?: string[]; // Options for choice-based criteria
+  likertScale?: number; // Number of points on the Likert scale (usually 5 or 7)
 }
 
 export interface TrackScoringConfig {
