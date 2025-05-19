@@ -113,6 +113,13 @@ export function AuthNavbar() {
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-4">
           <Link
+            href={`/profile/${session?.user.id}`}
+            className="block text-gray-700 font-medium hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
+            My Profile
+          </Link>
+          <Link
             href="/events"
             className="block text-gray-700 font-medium hover:text-blue-600"
             onClick={() => setIsOpen(false)}
