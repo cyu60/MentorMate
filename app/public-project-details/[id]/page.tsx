@@ -289,6 +289,16 @@ function ProjectPageContent(): JSX.Element {
                       )}
                       {selectedTrackId && (
                         <>
+                          <div className="mb-4 p-3 bg-blue-50 rounded-md">
+                            <p className="text-blue-900 font-medium">
+                              Selected Track:{" "}
+                              {
+                                projectData?.tracks?.find(
+                                  (track) => track.track_id === selectedTrackId
+                                )?.name
+                              }
+                            </p>
+                          </div>
                           <h3 className="text-lg font-semibold mb-3">
                             Scoring Criteria
                           </h3>
