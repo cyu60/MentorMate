@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
+import { ScoringConfigForm } from "@/components/dashboard/organizer/tracks/scoring-config-form";
 import {
   EventDetails,
   EventScoringConfig,
