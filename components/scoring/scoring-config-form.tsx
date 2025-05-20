@@ -191,26 +191,35 @@ export function ScoringConfigForm({
   const sanitizeCriterion = (criterion: ScoringCriterion): ScoringCriterion => {
     const { type } = criterion;
     const sanitized = { ...criterion };
-    
-    if (type === "multiplechoice") {
-      // For choice-based criteria, remove numeric scoring properties
+
+    // Remove properties not relevant for choice-based questions
+    if (type === "multiplechoice" || type === "choice") {
       delete sanitized.min;
       delete sanitized.max;
-      
-      // Ensure options array exists
+      delete sanitized.likertScale;
+
       if (!sanitized.options || !Array.isArray(sanitized.options)) {
         sanitized.options = [""];
       }
-    } else if (type === "numeric") {
-      // For numeric criteria, remove choice properties
+    } else if (type === "numeric" || type === "scale" || type === "likert") {
+      // Remove choice based properties for numeric questions
       delete sanitized.options;
-      
-      // Ensure numeric properties exist
-      sanitized.min = sanitized.min ?? config.defaultMin;
-      sanitized.max = sanitized.max ?? config.defaultMax;
+
+      sanitized.min = sanitized.min ?? (type === "likert" ? 1 : config.defaultMin);
+
+      if (type === "likert") {
+        sanitized.max = sanitized.likertScale ?? sanitized.max ?? config.defaultMax;
+      } else {
+        sanitized.max = sanitized.max ?? config.defaultMax;
+      }
+
       sanitized.weight = sanitized.weight ?? config.defaultWeight;
+
+      if (type !== "likert") {
+        delete sanitized.likertScale;
+      }
     }
-    
+
     return sanitized;
   };
 
@@ -460,7 +469,12 @@ export function ScoringConfigForm({
                             value={criterion.type || "numeric"}
                             onValueChange={(value) =>
                               updateCriterion(trackId, index, {
-                                type: value as "numeric" | "multiplechoice",
+                                type: value as
+                                  | "numeric"
+                                  | "choice"
+                                  | "scale"
+                                  | "multiplechoice"
+                                  | "likert",
                               })
                             }
                           >
@@ -474,12 +488,15 @@ export function ScoringConfigForm({
                               <SelectItem value="multiplechoice">
                                 Multiple Choice
                               </SelectItem>
+                              <SelectItem value="choice">Choice</SelectItem>
+                              <SelectItem value="scale">Scale</SelectItem>
+                              <SelectItem value="likert">Likert</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         {/* Show different fields based on question type */}
-                        {criterion.type === "multiplechoice" ? (
+                        {criterion.type === "multiplechoice" || criterion.type === "choice" ? (
                           <div className="space-y-2">
                             <label className="text-sm font-medium">
                               Options
