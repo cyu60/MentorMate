@@ -86,7 +86,7 @@ export function DefaultScoring({
           .eq("project_id", projectId)
           .eq("track_id", trackId)
           .eq("judge_id", judgeId)
-          .single();
+          .maybeSingle();
 
         if (!scoreError && existingScore) {
           // Pre-fill the form with existing scores
@@ -114,6 +114,7 @@ export function DefaultScoring({
     setSubmitting(true);
 
     try {
+      console.log(values);
       // Check if a score already exists
       const { data: existingScore, error: checkError } = await supabase
         .from("project_scores")
@@ -168,7 +169,6 @@ export function DefaultScoring({
       });
     } finally {
       setSubmitting(false);
-      window.location.reload();
     }
   };
 
@@ -210,7 +210,7 @@ export function DefaultScoring({
           <div className="space-y-4">
             {criteria.map((criterion) => (
               <FormField
-                key={criterion.name}
+                key={criterion.id}
                 control={form.control}
                 name={`scores.${criterion.id}`}
                 render={({ field }) => (

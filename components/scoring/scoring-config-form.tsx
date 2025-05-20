@@ -12,7 +12,12 @@ import {
   CheckSquare,
   DollarSign,
 } from "lucide-react";
-import { EventScoringConfig, ScoringCriterion, JudgingMode, EventTrack } from "@/lib/types";
+import {
+  EventScoringConfig,
+  ScoringCriterion,
+  JudgingMode,
+  EventTrack,
+} from "@/lib/types";
 import { defaultCriteria } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -98,34 +103,43 @@ export function ScoringConfigForm({
         ...prev.tracks,
         [trackId]: {
           ...prev.tracks[trackId],
-          name,
+          name: name,
         },
       },
     }));
   };
 
   const addCriterion = (trackId: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      tracks: {
-        ...prev.tracks,
-        [trackId]: {
-          ...prev.tracks[trackId],
-          criteria: [
-            ...prev.tracks[trackId].criteria,
-            {
-              id: `criterion_${prev.tracks[trackId].criteria.length + 1}`,
-              name: "",
-              description: "",
-              type: "numeric", // Default type
-              weight: config.defaultWeight,
-              min: config.defaultMin,
-              max: config.defaultMax,
-            },
-          ],
+    setConfig((prev) => {
+      // Create base criterion
+      const baseId = `criterion_${prev.tracks[trackId].criteria.length + 1}`;
+      const baseCriterion: ScoringCriterion = {
+        id: baseId,
+        name: "",
+        description: "",
+        type: "numeric",
+        weight: prev.defaultWeight,
+        min: prev.defaultMin,
+        max: prev.defaultMax
+      };
+      
+      // Sanitize based on criterion type
+      const sanitizedCriterion = sanitizeCriterion(baseCriterion);
+      
+      return {
+        ...prev,
+        tracks: {
+          ...prev.tracks,
+          [trackId]: {
+            ...prev.tracks[trackId],
+            criteria: [
+              ...prev.tracks[trackId].criteria,
+              sanitizedCriterion
+            ],
+          },
         },
-      },
-    }));
+      };
+    });
   };
 
   const removeCriterion = (trackId: string, criterionIndex: number) => {
@@ -148,18 +162,56 @@ export function ScoringConfigForm({
     criterionIndex: number,
     updates: Partial<ScoringCriterion>
   ) => {
-    setConfig((prev) => ({
-      ...prev,
-      tracks: {
-        ...prev.tracks,
-        [trackId]: {
-          ...prev.tracks[trackId],
-          criteria: prev.tracks[trackId].criteria.map((c, i) =>
-            i === criterionIndex ? { ...c, ...updates } : c
-          ),
+    setConfig((prev) => {
+      const currentCriterion = prev.tracks[trackId].criteria[criterionIndex];
+      const updatedCriterion = { ...currentCriterion, ...updates };
+      
+      // Only sanitize when type changes or when specific properties need sanitization
+      let finalCriterion = updatedCriterion;
+      if (updates.type || updates.options !== undefined) {
+        finalCriterion = sanitizeCriterion(updatedCriterion);
+      }
+      
+      return {
+        ...prev,
+        tracks: {
+          ...prev.tracks,
+          [trackId]: {
+            ...prev.tracks[trackId],
+            criteria: prev.tracks[trackId].criteria.map((c, i) =>
+              i === criterionIndex ? finalCriterion : c
+            ),
+          },
         },
-      },
-    }));
+      };
+    });
+  };
+  
+  // Function to sanitize criterion properties based on type
+  const sanitizeCriterion = (criterion: ScoringCriterion): ScoringCriterion => {
+    const { type } = criterion;
+    const sanitized = { ...criterion };
+    
+    if (type === "multiplechoice") {
+      // For choice-based criteria, remove numeric scoring properties
+      delete sanitized.min;
+      delete sanitized.max;
+      
+      // Ensure options array exists
+      if (!sanitized.options || !Array.isArray(sanitized.options)) {
+        sanitized.options = [""];
+      }
+    } else if (type === "numeric") {
+      // For numeric criteria, remove choice properties
+      delete sanitized.options;
+      
+      // Ensure numeric properties exist
+      sanitized.min = sanitized.min ?? config.defaultMin;
+      sanitized.max = sanitized.max ?? config.defaultMax;
+      sanitized.weight = sanitized.weight ?? config.defaultWeight;
+    }
+    
+    return sanitized;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -283,7 +335,9 @@ export function ScoringConfigForm({
                   <label className="text-sm font-medium">Track Name</label>
                   <Input
                     value={track.name}
-                    onChange={(e) => updateTrackName(trackId, e.target.value)}
+                    onChange={(e) => {
+                      updateTrackName(trackId, e.target.value);
+                    }}
                     placeholder="Enter track name"
                   />
                 </div>
@@ -399,7 +453,9 @@ export function ScoringConfigForm({
 
                         {/* Add question type selector */}
                         <div>
-                          <label className="text-sm font-medium">Question Type</label>
+                          <label className="text-sm font-medium">
+                            Question Type
+                          </label>
                           <Select
                             value={criterion.type || "numeric"}
                             onValueChange={(value) =>
@@ -412,25 +468,35 @@ export function ScoringConfigForm({
                               <SelectValue placeholder="Select question type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="numeric">Numeric Scale</SelectItem>
-                              <SelectItem value="multiplechoice">Multiple Choice</SelectItem>
+                              <SelectItem value="numeric">
+                                Numeric Scale
+                              </SelectItem>
+                              <SelectItem value="multiplechoice">
+                                Multiple Choice
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         {/* Show different fields based on question type */}
-                        { criterion.type === "multiplechoice" ? (
+                        {criterion.type === "multiplechoice" ? (
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Options</label>
+                            <label className="text-sm font-medium">
+                              Options
+                            </label>
                             <div className="space-y-2">
                               {criterion.options?.map((option, optionIndex) => (
                                 <div key={optionIndex} className="flex gap-2">
                                   <Input
                                     value={option}
                                     onChange={(e) => {
-                                      const newOptions = [...(criterion.options || [])];
+                                      const newOptions = [
+                                        ...(criterion.options || []),
+                                      ];
                                       newOptions[optionIndex] = e.target.value;
-                                      updateCriterion(trackId, index, { options: newOptions });
+                                      updateCriterion(trackId, index, {
+                                        options: newOptions,
+                                      });
                                     }}
                                     placeholder="Enter option"
                                   />
@@ -439,8 +505,13 @@ export function ScoringConfigForm({
                                     variant="destructive"
                                     size="icon"
                                     onClick={() => {
-                                      const newOptions = criterion.options?.filter((_, i) => i !== optionIndex);
-                                      updateCriterion(trackId, index, { options: newOptions });
+                                      const newOptions =
+                                        criterion.options?.filter(
+                                          (_, i) => i !== optionIndex
+                                        );
+                                      updateCriterion(trackId, index, {
+                                        options: newOptions,
+                                      });
                                     }}
                                   >
                                     <TrashIcon className="h-4 w-4" />
@@ -452,8 +523,13 @@ export function ScoringConfigForm({
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  const newOptions = [...(criterion.options || []), ""];
-                                  updateCriterion(trackId, index, { options: newOptions });
+                                  const newOptions = [
+                                    ...(criterion.options || []),
+                                    "",
+                                  ];
+                                  updateCriterion(trackId, index, {
+                                    options: newOptions,
+                                  });
                                 }}
                               >
                                 <PlusIcon className="h-4 w-4 mr-2" />
@@ -464,7 +540,9 @@ export function ScoringConfigForm({
                         ) : (
                           <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <label className="text-sm font-medium">Min Score</label>
+                              <label className="text-sm font-medium">
+                                Min Score
+                              </label>
                               <Input
                                 type="number"
                                 value={criterion.min ?? config.defaultMin}
@@ -477,7 +555,9 @@ export function ScoringConfigForm({
                               />
                             </div>
                             <div>
-                              <label className="text-sm font-medium">Max Score</label>
+                              <label className="text-sm font-medium">
+                                Max Score
+                              </label>
                               <Input
                                 type="number"
                                 value={criterion.max ?? config.defaultMax}
@@ -490,7 +570,9 @@ export function ScoringConfigForm({
                               />
                             </div>
                             <div>
-                              <label className="text-sm font-medium">Weight</label>
+                              <label className="text-sm font-medium">
+                                Weight
+                              </label>
                               <Input
                                 type="number"
                                 value={criterion.weight ?? config.defaultWeight}

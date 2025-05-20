@@ -31,7 +31,7 @@ export function MultipleChoice({
       </FormLabel>
       <FormControl>
         <RadioGroup
-          value={value ? String(value) : undefined}
+          value={value ? String(value) : ""}
           onValueChange={(newValue) => {
             onChange(newValue);
           }}
