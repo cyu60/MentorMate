@@ -100,6 +100,43 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
 
       const trackScoresMap: TrackScores = {};
 
+      const predefinedMappings: Record<string, number> = {
+        yes: 1,
+        no: 0,
+        true: 1,
+        false: 0,
+        maybe: 0.5,
+      };
+
+      const toNumeric = (
+        value: number | string,
+        criterion?: ScoringCriterion
+      ): number | null => {
+        if (typeof value === "number" && !Number.isNaN(value)) {
+          return value;
+        }
+
+        if (typeof value === "string") {
+          const normalized = value.trim().toLowerCase();
+
+          if (criterion?.options) {
+            const idx = criterion.options.findIndex(
+              (opt) => opt.trim().toLowerCase() === normalized
+            );
+            if (idx !== -1) {
+              // Use position in options array as numeric value (1-based)
+              return idx + 1;
+            }
+          }
+
+          if (predefinedMappings[normalized] !== undefined) {
+            return predefinedMappings[normalized];
+          }
+        }
+
+        return null;
+      };
+
       // Group scores by track and project
       scoreData.forEach((score) => {
         if (!trackScoresMap[score.track_id]) {
@@ -143,13 +180,19 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
               const criterion = trackConfig.criteria.find(
                 (c: ScoringCriterion) => c.id === criterionId
               );
-              return acc + scoreValue * (criterion?.weight || 1);
+              const numeric = toNumeric(scoreValue as number | string, criterion);
+              if (numeric === null) {
+                return acc; // Skip unconvertible values
+              }
+              return acc + numeric * (criterion?.weight || 1);
             },
             0
           );
         } else {
-          // Otherwise use simple average
-          totalScore = Object.values(score.scores).reduce((a, b) => a + b, 0);
+          totalScore = Object.values(score.scores).reduce((acc, val) => {
+            const numeric = toNumeric(val as number | string);
+            return numeric !== null ? acc + numeric : acc;
+          }, 0);
         }
         projectScore.totalScore += totalScore;
         projectScore.numberOfJudges += 1;
