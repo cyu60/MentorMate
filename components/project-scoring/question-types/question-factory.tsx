@@ -25,9 +25,7 @@ export function QuestionFactory({ criterion, value, onChange }: QuestionFactoryP
         />
       );
     
-    case "likert":
     case "numeric":
-    case "scale":
     default:
       // Default to a numeric slider
       const min = criterion.min !== undefined ? criterion.min : 1;
