@@ -24,6 +24,18 @@ export function InvestorView({
   judgeId,
   trackId,
 }: InvestorViewProps) {
+  const decisionMap = {
+    invest: 2,
+    maybe: 1,
+    pass: 0,
+  } as const;
+
+  const decisionReverseMap = {
+    2: "invest",
+    1: "maybe",
+    0: "pass",
+  } as const;
+
   const [decision, setDecision] = useState<string | null>(null);
   const [interestLevel, setInterestLevel] = useState<number>(0);
   const [comments, setComments] = useState("");
@@ -68,9 +80,15 @@ export function InvestorView({
 
         if (data) {
           setExistingScore(data);
-          // Convert special investor scoring format back to form values
-          if (data.scores && data.scores.investor_decision) {
-            setDecision(data.scores.investor_decision);
+          // Convert stored values back to form-friendly values
+          if (data.scores && data.scores.investor_decision !== undefined) {
+            const stored = data.scores.investor_decision as number | string;
+            if (typeof stored === "number") {
+              setDecision(decisionReverseMap[stored]);
+            } else {
+              // backwards compatibility with old string values
+              setDecision(stored);
+            }
             setInterestLevel(data.scores.interest_level || 0);
             setComments(data.comments || "");
           }
@@ -94,7 +112,8 @@ export function InvestorView({
 
       // Prepare the score data in a special format for investor view
       const scoreData = {
-        investor_decision: decision,
+        investor_decision:
+          decision !== null ? decisionMap[decision as keyof typeof decisionMap] : null,
         interest_level: interestLevel,
       };
 

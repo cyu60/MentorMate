@@ -412,36 +412,39 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
                           ) : projectScore ? (
                             <div className="space-y-2 mt-2">
                               {/* For investment mode, display investment decision */}
-                              {projectScore.scores.investor_decision ? (
+                              {projectScore.scores.investor_decision !==
+                              undefined ? (
                                 <div className="space-y-2">
-                                  <div className="font-medium">
-                                    Decision:{" "}
-                                    <span
-                                      className={`${
-                                        String(
-                                          projectScore.scores.investor_decision
-                                        ) === "invest"
-                                          ? "text-green-600"
-                                          : String(
-                                              projectScore.scores
-                                                .investor_decision
-                                            ) === "maybe"
-                                          ? "text-yellow-500"
-                                          : "text-red-600"
-                                      }`}
-                                    >
-                                      {String(
-                                        projectScore.scores.investor_decision
-                                      ) === "invest"
-                                        ? "Invest"
-                                        : String(
-                                            projectScore.scores
-                                              .investor_decision
-                                          ) === "maybe"
-                                        ? "Maybe"
-                                        : "Pass"}
-                                    </span>
-                                  </div>
+                                  {(() => {
+                                    const decisionValue =
+                                      projectScore.scores
+                                        .investor_decision as number | string;
+                                    const decisionStr =
+                                      typeof decisionValue === "number"
+                                        ? decisionValue === 2
+                                          ? "invest"
+                                          : decisionValue === 1
+                                          ? "maybe"
+                                          : "pass"
+                                        : decisionValue;
+                                    const colorClass =
+                                      decisionStr === "invest"
+                                        ? "text-green-600"
+                                        : decisionStr === "maybe"
+                                        ? "text-yellow-500"
+                                        : "text-red-600";
+                                    return (
+                                      <div className="font-medium">
+                                        Decision: <span className={colorClass}>
+                                          {decisionStr === "invest"
+                                            ? "Invest"
+                                            : decisionStr === "maybe"
+                                            ? "Maybe"
+                                            : "Pass"}
+                                        </span>
+                                      </div>
+                                    );
+                                  })()}
 
                                   {projectScore.scores.interest_level !==
                                     undefined && (
