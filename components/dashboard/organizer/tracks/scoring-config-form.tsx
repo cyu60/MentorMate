@@ -21,7 +21,7 @@ import {
 import { defaultCriteria } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { JudgingModeSelector } from "../dashboard/organizer/tracks/judging-mode-selector";
+import { JudgingModeSelector } from "./judging-mode-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
