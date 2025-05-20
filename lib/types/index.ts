@@ -156,14 +156,14 @@ export interface ProjectScore {
   judge_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface ScoreFormData {
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
 }
 

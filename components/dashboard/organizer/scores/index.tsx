@@ -19,7 +19,7 @@ interface DashboardProjectScore {
   project_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   projects: {
     project_name: string;
     lead_name: string;
