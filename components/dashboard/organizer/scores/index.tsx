@@ -138,36 +138,30 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
         // Calculate total score
         // If we have scoring config, use weighted calculation
         let totalScore = 0;
-        if (trackConfig) {
-          Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
-            const criterion = trackConfig.criteria.find(
-              (c: ScoringCriterion) => c.id === criterionId
-            );
-            if (!criterion) return;
+        Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
+          const criterion = trackConfig.criteria.find(
+            (c: ScoringCriterion) => c.id === criterionId
+          );
+          if (!criterion) return;
 
-            if (criterion.type === "choice" || criterion.type === "multiplechoice") {
-              const val = String(scoreValue);
-              if (!projectScore.choiceCounts) projectScore.choiceCounts = {};
-              if (!projectScore.choiceCounts[criterionId]) {
-                projectScore.choiceCounts[criterionId] = {};
-              }
-              const counts = projectScore.choiceCounts[criterionId];
-              counts[val] = (counts[val] || 0) + 1;
-            } else {
-              const numeric =
-                typeof scoreValue === "number" ? scoreValue : parseFloat(String(scoreValue));
-              if (!isNaN(numeric)) {
-                totalScore += numeric * (criterion.weight || 1);
-              }
+          if (criterion.type === "multiplechoice") {
+            const val = String(scoreValue);
+            if (!projectScore.choiceCounts) projectScore.choiceCounts = {};
+            if (!projectScore.choiceCounts[criterionId]) {
+              projectScore.choiceCounts[criterionId] = {};
             }
-          });
-        } else {
-          // Otherwise use simple sum of numeric values
-          totalScore = Object.values(score.scores).reduce((acc, val) => {
-            const num = typeof val === "number" ? val : parseFloat(String(val));
-            return !isNaN(num) ? acc + num : acc;
-          }, 0);
-        }
+            const counts = projectScore.choiceCounts[criterionId];
+            counts[val] = (counts[val] || 0) + 1;
+          } else {
+            const numeric =
+              typeof scoreValue === "number"
+                ? scoreValue
+                : parseFloat(String(scoreValue));
+            if (!isNaN(numeric)) {
+              totalScore += numeric * (criterion.weight || 1);
+            }
+          }
+        });
         projectScore.totalScore += totalScore;
         projectScore.numberOfJudges += 1;
         projectScore.averageScore =
@@ -326,7 +320,7 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
 
                     const choiceCriteria =
                       scoringConfig.tracks[trackId]?.criteria.filter(
-                        (c) => c.type === "choice" || c.type === "multiplechoice"
+                        (c) => c.type === "multiplechoice"
                       ) || [];
                     return (
                       <Card key={trackId} className="overflow-hidden">
@@ -350,7 +344,9 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                     {c.name}
                                   </TableHead>
                                 ))}
-                                <TableHead className="text-right">Judges</TableHead>
+                                <TableHead className="text-right">
+                                  Judges
+                                </TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -365,13 +361,26 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                     {score.averageScore.toFixed(2)}
                                   </TableCell>
                                   {choiceCriteria.map((c) => {
-                                    const counts = score.choiceCounts?.[c.id] || {};
-                                    const display = (c.options || [])
-                                      .map((opt) => `${opt}: ${counts[opt] || 0}`)
-                                      .join(", ");
+                                    const counts =
+                                      score.choiceCounts?.[c.id] || {};
                                     return (
-                                      <TableCell key={c.id} className="text-right">
-                                        {display}
+                                      <TableCell
+                                        key={c.id}
+                                        className="text-right"
+                                      >
+                                        {(c.options || []).map(
+                                          (opt, i) => (
+                                            (
+                                              <span key={opt}>
+                                                {i > 0 && ", "}
+                                                <span className="text-blue-500">
+                                                  {opt}
+                                                </span>
+                                                : {counts[opt] || 0}
+                                              </span>
+                                            )
+                                          )
+                                        )}
                                       </TableCell>
                                     );
                                   })}

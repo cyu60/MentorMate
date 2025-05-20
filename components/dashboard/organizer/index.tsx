@@ -127,6 +127,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
                     min: criterion.min || 1,
                     max: criterion.max || 10,
                     type: criterion.type || "numeric",
+                    options: criterion.options || [],
                   })
                 ),
               };
