@@ -66,7 +66,21 @@ export function TracksTab({
         variant: "destructive",
       });
     } else {
-      setTracks(data || []);
+      const typedTracks = (data || []).map((track) => ({
+        ...track,
+        scoring_criteria: track.scoring_criteria
+          ? {
+              ...track.scoring_criteria,
+              criteria: track.scoring_criteria.criteria.map(
+                (c: ScoringCriterion) => ({
+                  ...c,
+                  type: c.type || "numeric",
+                })
+              ),
+            }
+          : track.scoring_criteria,
+      }));
+      setTracks(typedTracks);
     }
   };
 
@@ -130,7 +144,22 @@ export function TracksTab({
         .eq("event_id", eventId);
 
       if (refreshedTracks && event) {
-        const updatedTracks = refreshedTracks as unknown as EventTrack[];
+        const updatedTracks = (refreshedTracks as unknown as EventTrack[]).map(
+          (track) => ({
+            ...track,
+            scoring_criteria: track.scoring_criteria
+              ? {
+                  ...track.scoring_criteria,
+                  criteria: track.scoring_criteria.criteria.map(
+                    (c: ScoringCriterion) => ({
+                      ...c,
+                      type: c.type || "numeric",
+                    })
+                  ),
+                }
+              : track.scoring_criteria,
+          })
+        );
         setTracks(updatedTracks);
 
         const updatedEvent = {

@@ -95,10 +95,34 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
           .single();
 
         if (error) throw error;
-        setEvent(eventData);
+
+        // Normalize track criteria to ensure each criterion has a type field
+        const normalizedTracks = (eventData.event_tracks || []).map(
+          (track: EventTrack) => ({
+            ...track,
+            scoring_criteria: track.scoring_criteria
+              ? {
+                  ...track.scoring_criteria,
+                  criteria: track.scoring_criteria.criteria.map(
+                    (criterion: ScoringCriterion) => ({
+                      ...criterion,
+                      type: criterion.type || "numeric",
+                    })
+                  ),
+                }
+              : track.scoring_criteria,
+          })
+        );
+
+        const normalizedEvent = {
+          ...eventData,
+          event_tracks: normalizedTracks,
+        } as EventDetails;
+
+        setEvent(normalizedEvent);
 
         // Map event tracks to scoring_config structure if needed
-        if (eventData && eventData.event_tracks) {
+        if (normalizedTracks.length > 0) {
           const tracksConfig: Record<
             string,
             {
@@ -114,7 +138,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
             }
           > = {};
 
-          eventData.event_tracks.forEach((track: EventTrack) => {
+          normalizedTracks.forEach((track: EventTrack) => {
             if (track.track_id && track.scoring_criteria) {
               tracksConfig[track.track_id] = {
                 name: track.name,

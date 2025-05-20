@@ -64,18 +64,24 @@ export function DefaultScoring({
         if (trackError) throw trackError;
 
         if (trackData?.scoring_criteria?.criteria) {
-          setCriteria(trackData.scoring_criteria.criteria);
-          
+          const typedCriteria = trackData.scoring_criteria.criteria.map(
+            (criterion: ScoringCriterion) => ({
+              ...criterion,
+              type: criterion.type || "numeric",
+            })
+          );
+          setCriteria(typedCriteria);
+
           // Initialize form with default values
           const defaultScores: Record<string, number | string> = {};
-          trackData.scoring_criteria.criteria.forEach((criterion: ScoringCriterion) => {
+          typedCriteria.forEach((criterion: ScoringCriterion) => {
             if (criterion.type === "multiplechoice") {
               defaultScores[criterion.id] = "";
             } else {
               defaultScores[criterion.id] = criterion.min || 1;
             }
           });
-          
+
           form.reset({ scores: defaultScores, comments: "" });
         }
 
