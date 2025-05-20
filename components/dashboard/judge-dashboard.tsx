@@ -17,7 +17,7 @@ interface JudgeDashboardProps {
 }
 
 interface ProjectScore {
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments: string;
 }
 

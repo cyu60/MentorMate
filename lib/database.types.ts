@@ -55,7 +55,7 @@ export interface Database {
           judge_id: string
           track_id: string
           event_id: string
-          scores: Record<string, number>
+          scores: Record<string, number | string>
           comments: string | null
           created_at: string
           updated_at: string

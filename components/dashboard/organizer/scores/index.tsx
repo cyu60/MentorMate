@@ -19,7 +19,7 @@ interface DashboardProjectScore {
   project_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   projects: {
     project_name: string;
     lead_name: string;
@@ -37,6 +37,7 @@ interface TrackScore {
   averageScore: number;
   totalScore: number;
   numberOfJudges: number;
+  choiceCounts?: Record<string, Record<string, number>>;
 }
 
 interface TrackScores {
@@ -138,18 +139,34 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
         // If we have scoring config, use weighted calculation
         let totalScore = 0;
         if (trackConfig) {
-          totalScore = Object.entries(score.scores).reduce(
-            (acc, [criterionId, scoreValue]) => {
-              const criterion = trackConfig.criteria.find(
-                (c: ScoringCriterion) => c.id === criterionId
-              );
-              return acc + scoreValue * (criterion?.weight || 1);
-            },
-            0
-          );
+          Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
+            const criterion = trackConfig.criteria.find(
+              (c: ScoringCriterion) => c.id === criterionId
+            );
+            if (!criterion) return;
+
+            if (criterion.type === "choice" || criterion.type === "multiplechoice") {
+              const val = String(scoreValue);
+              if (!projectScore.choiceCounts) projectScore.choiceCounts = {};
+              if (!projectScore.choiceCounts[criterionId]) {
+                projectScore.choiceCounts[criterionId] = {};
+              }
+              const counts = projectScore.choiceCounts[criterionId];
+              counts[val] = (counts[val] || 0) + 1;
+            } else {
+              const numeric =
+                typeof scoreValue === "number" ? scoreValue : parseFloat(String(scoreValue));
+              if (!isNaN(numeric)) {
+                totalScore += numeric * (criterion.weight || 1);
+              }
+            }
+          });
         } else {
-          // Otherwise use simple average
-          totalScore = Object.values(score.scores).reduce((a, b) => a + b, 0);
+          // Otherwise use simple sum of numeric values
+          totalScore = Object.values(score.scores).reduce((acc, val) => {
+            const num = typeof val === "number" ? val : parseFloat(String(val));
+            return !isNaN(num) ? acc + num : acc;
+          }, 0);
         }
         projectScore.totalScore += totalScore;
         projectScore.numberOfJudges += 1;
@@ -306,6 +323,11 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                         trackId.includes(t.name)
                       )?.name ||
                       trackId;
+
+                    const choiceCriteria =
+                      scoringConfig.tracks[trackId]?.criteria.filter(
+                        (c) => c.type === "choice" || c.type === "multiplechoice"
+                      ) || [];
                     return (
                       <Card key={trackId} className="overflow-hidden">
                         <div className="bg-primary text-primary-foreground p-4">
@@ -323,9 +345,12 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                 <TableHead className="text-right">
                                   Average Score
                                 </TableHead>
-                                <TableHead className="text-right">
-                                  Judges
-                                </TableHead>
+                                {choiceCriteria.map((c) => (
+                                  <TableHead key={c.id} className="text-right">
+                                    {c.name}
+                                  </TableHead>
+                                ))}
+                                <TableHead className="text-right">Judges</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -339,6 +364,17 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                   <TableCell className="text-right">
                                     {score.averageScore.toFixed(2)}
                                   </TableCell>
+                                  {choiceCriteria.map((c) => {
+                                    const counts = score.choiceCounts?.[c.id] || {};
+                                    const display = (c.options || [])
+                                      .map((opt) => `${opt}: ${counts[opt] || 0}`)
+                                      .join(", ");
+                                    return (
+                                      <TableCell key={c.id} className="text-right">
+                                        {display}
+                                      </TableCell>
+                                    );
+                                  })}
                                   <TableCell className="text-right">
                                     {score.numberOfJudges}
                                   </TableCell>
