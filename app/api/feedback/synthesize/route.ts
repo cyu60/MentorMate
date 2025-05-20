@@ -63,7 +63,7 @@ Given multiple pieces of feedback about a project, your task is to:
 2. Provide actionable recommendations
 3. Present the information in a clear, organized format
 
-Please analyze the following feedback and provide a comprehensive synthesis. KEEP IT BRIEF WITHOUT LOSING INFORMATION. Provide your response in simple text form without delimters:`;
+Please analyze the following feedback and provide a comprehensive synthesis. KEEP IT BRIEF WITHOUT LOSING INFORMATION. Provide your response in simple text form without delimiters:`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
