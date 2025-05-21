@@ -213,7 +213,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     />
     );
   };
-  
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -237,8 +237,6 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     }
     return acc;
   }, {} as Record<string, Project[]>);
-
-  console.log(projectsByTrack);
 
   return (
     <div className="space-y-6">
