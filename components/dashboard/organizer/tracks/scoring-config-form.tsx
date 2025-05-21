@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,22 +8,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   TrashIcon,
   PlusIcon,
-  AlertTriangle,
-  CheckSquare,
-  DollarSign,
 } from "lucide-react";
 import {
   EventScoringConfig,
   ScoringCriterion,
-  JudgingMode,
   EventTrack,
 } from "@/lib/types";
 import { defaultCriteria } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { JudgingModeSelector } from "./judging-mode-selector";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -36,8 +29,7 @@ interface ScoringConfigFormProps {
   initialConfig?: EventScoringConfig | null;
   onSave: (config: EventScoringConfig) => void;
   isSubmitting?: boolean;
-  tracks?: EventTrack[]; // Add tracks prop to get judging_mode info
-  onJudgingModeUpdate?: (trackId: string, mode: JudgingMode) => void; // Add update handler
+  tracks?: EventTrack[]; 
 }
 
 export function ScoringConfigForm({
@@ -45,7 +37,6 @@ export function ScoringConfigForm({
   onSave,
   isSubmitting = false,
   tracks = [],
-  onJudgingModeUpdate,
 }: ScoringConfigFormProps) {
   const [config, setConfig] = useState<EventScoringConfig>(
     initialConfig || {
@@ -219,65 +210,6 @@ export function ScoringConfigForm({
     onSave(config);
   };
 
-  // Update a track's criteria to match its judging mode
-  const updateTrackCriteriaForMode = (trackId: string) => {
-    const track = tracks.find((t) => t.track_id === trackId);
-    if (!track) return;
-
-    // If the track is in investment mode, ensure criteria are investment-focused
-    if (track.judging_mode === JudgingMode.Investment) {
-      // Create a deep copy of the track in config
-      setConfig((prev) => {
-        const updatedConfig = { ...prev };
-        if (updatedConfig.tracks[trackId]) {
-          // Only update if the criteria doesn't already have investment-type fields
-          const hasInvestmentCriteria = updatedConfig.tracks[
-            trackId
-          ].criteria.some(
-            (c) => c.id === "investor_decision" || c.type === "choice"
-          );
-
-          if (!hasInvestmentCriteria) {
-            updatedConfig.tracks[trackId] = {
-              ...updatedConfig.tracks[trackId],
-              criteria: [
-                {
-                  id: "investor_decision",
-                  name: "Investment Decision",
-                  description: "Would you invest in this company?",
-                  weight: 1,
-                  type: "choice",
-                  options: ["invest", "pass", "maybe"],
-                  min: 0,
-                  max: 1,
-                },
-                {
-                  id: "interest_level",
-                  name: "Interest Level",
-                  description: "How interested are you in this company?",
-                  weight: 1,
-                  type: "scale",
-                  min: 0,
-                  max: 5,
-                },
-              ],
-            };
-          }
-        }
-        return updatedConfig;
-      });
-    }
-  };
-
-  // Check all tracks when the component mounts or tracks change
-  useEffect(() => {
-    tracks.forEach((track) => {
-      if (track.track_id && config.tracks[track.track_id]) {
-        updateTrackCriteriaForMode(track.track_id);
-      }
-    });
-  }, [tracks]);
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
@@ -328,11 +260,13 @@ export function ScoringConfigForm({
         </div>
 
         {Object.entries(config.tracks).map(([trackId, track]) => (
-          <Card key={trackId} className="p-4">
+          <Card key={trackId} className="p-4 border-2 border-blue-400">
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <label className="text-sm font-medium">Track Name</label>
+                  <h3 className="text-lg font-semibold">
+                    Track Name
+                  </h3>
                   <Input
                     value={track.name}
                     onChange={(e) => {
@@ -341,29 +275,6 @@ export function ScoringConfigForm({
                     placeholder="Enter track name"
                   />
                 </div>
-
-                {/* Show track judging mode badge if available */}
-                {tracks.find((t) => t.track_id === trackId)?.judging_mode && (
-                  <Badge
-                    className={
-                      tracks.find((t) => t.track_id === trackId)
-                        ?.judging_mode === JudgingMode.Investment
-                        ? "bg-green-100 text-green-800 hover:bg-green-200"
-                        : "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    }
-                  >
-                    {tracks.find((t) => t.track_id === trackId)
-                      ?.judging_mode === JudgingMode.Investment ? (
-                      <>
-                        <DollarSign className="h-3.5 w-3.5 mr-1" /> Investment
-                      </>
-                    ) : (
-                      <>
-                        <CheckSquare className="h-3.5 w-3.5 mr-1" /> Traditional
-                      </>
-                    )}
-                  </Badge>
-                )}
 
                 <Button
                   type="button"
@@ -374,48 +285,6 @@ export function ScoringConfigForm({
                   <TrashIcon className="h-4 w-4" />
                 </Button>
               </div>
-
-              {onJudgingModeUpdate && (
-                <div className="py-3 border-t my-4">
-                  <h3 className="text-sm font-medium mb-3">
-                    Judging Interface
-                  </h3>
-                  {tracks.find((t) => t.track_id === trackId) ? (
-                    <>
-                      <JudgingModeSelector
-                        trackId={trackId}
-                        currentMode={
-                          tracks.find((t) => t.track_id === trackId)
-                            ?.judging_mode || JudgingMode.Traditional
-                        }
-                        onUpdate={(mode) => onJudgingModeUpdate(trackId, mode)}
-                      />
-
-                      {/* Show informational alert for investment tracks */}
-                      {tracks.find((t) => t.track_id === trackId)
-                        ?.judging_mode === JudgingMode.Investment && (
-                        <Alert className="mt-4 bg-blue-50">
-                          <AlertTriangle className="h-4 w-4 text-blue-600" />
-                          <AlertTitle className="text-blue-700 text-sm">
-                            Investment Mode Active
-                          </AlertTitle>
-                          <AlertDescription className="text-blue-600 text-xs">
-                            This track uses the investment judging interface.
-                            The scoring criteria below will be mapped to the
-                            investment interface&apos;s features.
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </>
-                  ) : (
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-sm text-muted-foreground">
-                        Save the track first to configure judging mode
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
 
               <div className="space-y-4">
                 {track.criteria.map((criterion, index) => (

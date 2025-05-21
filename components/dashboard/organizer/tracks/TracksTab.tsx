@@ -6,7 +6,6 @@ import {
   EventDetails,
   EventScoringConfig,
   EventTrack,
-  JudgingMode,
 } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
@@ -39,18 +38,6 @@ export function TracksTab({
 }: TracksTabProps) {
   const [tracks, setTracks] = useState<EventTrack[]>([]);
 
-  const handleJudgingModeUpdate = (trackId: string, mode: JudgingMode) => {
-    // Update the tracks in state
-    setTracks((prevTracks) =>
-      prevTracks.map((track) =>
-        track.track_id === trackId ? { ...track, judging_mode: mode } : track
-      )
-    );
-
-    // Trigger a reload of the tracks data to get the updated criteria
-    fetchTracks();
-  };
-
   // Function to fetch tracks data
   const fetchTracks = async () => {
     const { data, error } = await supabase
@@ -70,7 +57,6 @@ export function TracksTab({
     }
   };
 
-  // Fetch existing tracks to get judging_mode values
   useEffect(() => {
     fetchTracks();
   }, [eventId, toast]);
@@ -82,12 +68,8 @@ export function TracksTab({
       // Store the updated config in state
       setScoringConfig(config);
 
-      // Preserve judging_mode when updating tracks
       const tracksToUpsert = Object.entries(config.tracks).map(
         ([trackId, trackConfig]) => {
-          // Find existing track to get judging_mode if available
-          const existingTrack = tracks.find((t) => t.track_id === trackId);
-
           return {
             track_id: trackId,
             event_id: eventId,
@@ -97,9 +79,6 @@ export function TracksTab({
               name: trackConfig.name,
               criteria: trackConfig.criteria,
             },
-            // Preserve existing judging_mode or default to traditional
-            judging_mode:
-              existingTrack?.judging_mode || JudgingMode.Traditional,
           };
         }
       );
@@ -160,8 +139,7 @@ export function TracksTab({
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground mb-6">
         Configure your event tracks below. For each track, you can set up
-        scoring criteria and choose the judging interface (traditional
-        scoring or investment decision).
+        scoring criteria.
       </p>
 
       <ScoringConfigForm
@@ -169,7 +147,6 @@ export function TracksTab({
         isSubmitting={saving}
         onSave={handleScoreUpdate}
         tracks={tracks}
-        onJudgingModeUpdate={handleJudgingModeUpdate}
       />
     </div>
   );

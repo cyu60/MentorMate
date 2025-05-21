@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { TrashIcon } from "lucide-react";
 import { EventDetails } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
@@ -101,13 +102,12 @@ export function PrizesTab({
       
       {event.event_tracks && event.event_tracks.length > 0 ? (
         event.event_tracks.map((track) => (
-          <div key={track.track_id} className="border p-4 rounded-lg">
-            <h3 className="text-lg font-bold mb-2">{track.name}</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              {track.description}
-            </p>
-
-            <div className="space-y-4">
+          <Card key={track.track_id} className="p-4 border-2 border-blue-400">
+            <CardHeader>
+              <CardTitle>{track.name}</CardTitle>
+              <CardDescription>{track.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               {track.prizes &&
                 track.prizes.map((prize, prizeIndex) => (
                   <div
@@ -259,15 +259,17 @@ export function PrizesTab({
               >
                 Add Prize to {track.name}
               </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))
       ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-600">
-            No tracks found. Please add tracks to manage prizes.
-          </p>
-        </div>
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-600">
+              No tracks found. Please add tracks to manage prizes.
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       <Button

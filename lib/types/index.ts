@@ -15,14 +15,6 @@ export enum EventVisibility {
   Draft = "draft",
 }
 
-export enum JudgingMode {
-  Traditional = "traditional",
-  Investment = "investment",
-  // Future modes can be added here
-  // PeerReview = "peer_review",
-  // Qualitative = "qualitative",
-}
-
 export interface UserProfile {
   uid: string;
   display_name: string;
@@ -73,7 +65,6 @@ export interface EventTrack {
   label?: string;
   prizes?: Prize[];
   scoring_criteria: TrackScoringConfig;
-  judging_mode?: JudgingMode;
   created_at: string;
   updated_at: string;
 }
@@ -88,7 +79,6 @@ export interface EventDetails extends EventItem {
   rules: Rule[];
   event_tracks?: EventTrack[];
   role_labels?: Record<string, string>;
-  judging_mode?: "traditional" | "investment";
 }
 
 // Project Types

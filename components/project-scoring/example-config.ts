@@ -1,4 +1,4 @@
-import { TrackScoringConfig, JudgingMode } from "@/lib/types";
+import { TrackScoringConfig } from "@/lib/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 // Example scoring configuration with different question types
@@ -57,7 +57,6 @@ export async function createExampleTrack(supabase: SupabaseClient, eventId: stri
       name: "Demo Track with Different Question Types",
       description: "A demonstration track with multiple question types",
       scoring_criteria: exampleScoringConfig,
-      judging_mode: JudgingMode.Traditional
     })
     .select();
 

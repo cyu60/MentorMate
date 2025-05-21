@@ -86,7 +86,7 @@ export function RoleLabelsTab({
   };
 
   return (
-    <Card>
+    <Card className="p-4 border-2 border-blue-400">
       <CardHeader>
         <CardTitle>Customize Role Labels</CardTitle>
       </CardHeader>

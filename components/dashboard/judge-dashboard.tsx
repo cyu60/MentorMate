@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Project, EventTrack, JudgingMode } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ScoringController } from "@/components/project-scoring/scoring-controller";
+import { Project, EventTrack } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { CreateDemoTrack } from "@/components/project-scoring/create-demo-track";
+import { DefaultScoring } from "../project-scoring/default-scoring";
 
 interface JudgeDashboardProps {
   eventId: string;
@@ -36,7 +35,6 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     trackId: string;
   } | null>(null);
   const [judgeId, setJudgeId] = useState<string>("");
-  const [showDemoTrackCreator, setShowDemoTrackCreator] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,8 +65,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
             track_id,
             name,
             description,
-            scoring_criteria,
-            judging_mode
+            scoring_criteria
           `
           )
           .eq("event_id", eventId);
@@ -208,12 +205,12 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     }
 
     return (
-      <ScoringController
-        projectId={projectId}
-        eventId={eventId}
-        trackId={trackId}
-        judgeId={judgeId}
-      />
+      <DefaultScoring
+      projectId={projectId}
+      eventId={eventId}
+      judgeId={judgeId}
+      trackId={trackId}
+    />
     );
   };
 
@@ -252,27 +249,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Judge Dashboard</h2>
-        <Button
-          variant="outline"
-          onClick={() => setShowDemoTrackCreator(!showDemoTrackCreator)}
-        >
-          {showDemoTrackCreator ? "Hide Demo Options" : "Show Demo Options"}
-        </Button>
       </div>
-
-      {showDemoTrackCreator && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Demo Options</CardTitle>
-            <CardDescription>
-              Tools to help you test different judging interfaces
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CreateDemoTrack eventId={eventId} onTrackCreated={handleTrackCreated} />
-          </CardContent>
-        </Card>
-      )}
 
       {Object.entries(projectsByTrack).map(([trackId, trackProjects]) => {
         // Handle unassigned projects
@@ -311,8 +288,6 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
         if (!trackInfo) return null;
 
         // Determine judging interface type
-        const judgingMode = trackInfo.judging_mode || JudgingMode.Traditional;
-
         const unScoredTrackProjects = trackProjects.filter(
           (project) => !scoredProjects.get(project.id)?.has(trackId)
         );
@@ -324,16 +299,6 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
           <div key={trackId} className="space-y-4">
             <h3 className="text-xl font-semibold">{trackInfo.name}</h3>
             <p className="text-gray-600">{trackInfo.description}</p>
-
-            {/* Display judging interface type */}
-            <p className="text-sm font-medium">
-              Judging Mode:{" "}
-              <span className="text-blue-600">
-                {judgingMode === JudgingMode.Investment
-                  ? "Investment Decision"
-                  : "Traditional Scoring"}
-              </span>
-            </p>
 
             <Card>
               <CardHeader>
@@ -411,76 +376,30 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
                             getScoringComponent(project.id, trackId)
                           ) : projectScore ? (
                             <div className="space-y-2 mt-2">
-                              {/* For investment mode, display investment decision */}
-                              {projectScore.scores.investor_decision ? (
-                                <div className="space-y-2">
-                                  <div className="font-medium">
-                                    Decision:{" "}
-                                    <span
-                                      className={`${
-                                        String(
-                                          projectScore.scores.investor_decision
-                                        ) === "invest"
-                                          ? "text-green-600"
-                                          : String(
-                                              projectScore.scores
-                                                .investor_decision
-                                            ) === "maybe"
-                                          ? "text-yellow-500"
-                                          : "text-red-600"
-                                      }`}
-                                    >
-                                      {String(
-                                        projectScore.scores.investor_decision
-                                      ) === "invest"
-                                        ? "Invest"
-                                        : String(
-                                            projectScore.scores
-                                              .investor_decision
-                                          ) === "maybe"
-                                        ? "Maybe"
-                                        : "Pass"}
-                                    </span>
-                                  </div>
-
-                                  {projectScore.scores.interest_level !==
-                                    undefined && (
-                                    <div className="text-sm">
-                                      <span className="font-medium">
-                                        Interest Level:{" "}
-                                      </span>
-                                      <span className="text-gray-600">
-                                        {projectScore.scores.interest_level}/5
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                /* For traditional mode, display criteria scores */
-                                <div className="grid grid-cols-2 gap-4">
-                                  {Object.entries(projectScore.scores).map(
-                                    ([criterionId, score]) => {
-                                      const criterion =
-                                        trackInfo.scoring_criteria?.criteria.find(
-                                          (c) => c.id === criterionId
-                                        );
-                                      return (
-                                        <div
-                                          key={criterionId}
-                                          className="text-sm"
-                                        >
-                                          <span className="font-medium">
-                                            {criterion?.name}:{" "}
-                                          </span>
-                                          <span className="text-gray-600">
-                                            {score}
-                                          </span>
-                                        </div>
+                              {/* Display criteria scores */}
+                              <div className="grid grid-cols-2 gap-4">
+                                {Object.entries(projectScore.scores).map(
+                                  ([criterionId, score]) => {
+                                    const criterion =
+                                      trackInfo.scoring_criteria?.criteria.find(
+                                        (c) => c.id === criterionId
                                       );
-                                    }
-                                  )}
-                                </div>
-                              )}
+                                    return (
+                                      <div
+                                        key={criterionId}
+                                        className="text-sm"
+                                      >
+                                        <span className="font-medium">
+                                          {criterion?.name}:{" "}
+                                        </span>
+                                        <span className="text-gray-600">
+                                          {score}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                )}
+                              </div>
 
                               {projectScore.comments && (
                                 <div className="mt-2">
