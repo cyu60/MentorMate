@@ -213,12 +213,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     />
     );
   };
-
-  const handleTrackCreated = () => {
-    // Reload the page to see the new track
-    window.location.reload();
-  };
-
+  
   if (isLoading) {
     return <div>Loading...</div>;
   }

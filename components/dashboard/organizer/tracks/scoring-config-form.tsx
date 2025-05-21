@@ -36,7 +36,6 @@ export function ScoringConfigForm({
   initialConfig,
   onSave,
   isSubmitting = false,
-  tracks = [],
 }: ScoringConfigFormProps) {
   const [config, setConfig] = useState<EventScoringConfig>(
     initialConfig || {

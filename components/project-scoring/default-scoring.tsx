@@ -110,6 +110,7 @@ export function DefaultScoring({
     fetchData();
   }, [projectId, trackId, judgeId, toast, form]);
 
+
   const onSubmit = async (values: FormValues) => {
     setSubmitting(true);
 
@@ -155,6 +156,7 @@ export function DefaultScoring({
 
         if (insertError) throw insertError;
       }
+      window.location.reload();
 
       toast({
         title: "Score submitted",
