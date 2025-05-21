@@ -31,17 +31,19 @@ export const exampleScoringConfig: TrackScoringConfig = {
       id: "usability",
       name: "User Experience",
       description: "The product is intuitive and easy to use",
-      type: "likert",
-      likertScale: 5,
-      weight: 2
+      weight: 2,
+      type: "numeric",
+      min: 1,
+      max: 10
     },
     {
       id: "design",
       name: "Visual Design",
       description: "How visually appealing is the project?",
-      type: "likert",
-      likertScale: 7,
-      weight: 1
+      weight: 1,
+      type: "numeric",
+      min: 1,
+      max: 10
     }
   ]
 };

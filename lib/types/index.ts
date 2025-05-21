@@ -133,9 +133,8 @@ export interface ScoringCriterion {
   weight?: number;
   min?: number;
   max?: number;
-  type?: "numeric" | "choice" | "scale" | "multiplechoice" | "likert"; // Type of criterion
+  type?: "numeric" | "multiplechoice"; // Type of criterion
   options?: string[]; // Options for choice-based criteria
-  likertScale?: number; // Number of points on the Likert scale (usually 5 or 7)
 }
 
 export interface TrackScoringConfig {
@@ -156,14 +155,14 @@ export interface ProjectScore {
   judge_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface ScoreFormData {
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
 }
 

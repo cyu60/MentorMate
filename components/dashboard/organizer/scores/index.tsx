@@ -19,7 +19,7 @@ interface DashboardProjectScore {
   project_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   projects: {
     project_name: string;
     lead_name: string;
@@ -37,6 +37,7 @@ interface TrackScore {
   averageScore: number;
   totalScore: number;
   numberOfJudges: number;
+  choiceCounts?: Record<string, Record<string, number>>;
 }
 
 interface TrackScores {
@@ -137,20 +138,30 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
         // Calculate total score
         // If we have scoring config, use weighted calculation
         let totalScore = 0;
-        if (trackConfig) {
-          totalScore = Object.entries(score.scores).reduce(
-            (acc, [criterionId, scoreValue]) => {
-              const criterion = trackConfig.criteria.find(
-                (c: ScoringCriterion) => c.id === criterionId
-              );
-              return acc + scoreValue * (criterion?.weight || 1);
-            },
-            0
+        Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
+          const criterion = trackConfig.criteria.find(
+            (c: ScoringCriterion) => c.id === criterionId
           );
-        } else {
-          // Otherwise use simple average
-          totalScore = Object.values(score.scores).reduce((a, b) => a + b, 0);
-        }
+          if (!criterion) return;
+
+          if (criterion.type === "multiplechoice") {
+            const val = String(scoreValue);
+            if (!projectScore.choiceCounts) projectScore.choiceCounts = {};
+            if (!projectScore.choiceCounts[criterionId]) {
+              projectScore.choiceCounts[criterionId] = {};
+            }
+            const counts = projectScore.choiceCounts[criterionId];
+            counts[val] = (counts[val] || 0) + 1;
+          } else {
+            const numeric =
+              typeof scoreValue === "number"
+                ? scoreValue
+                : parseFloat(String(scoreValue));
+            if (!isNaN(numeric)) {
+              totalScore += numeric * (criterion.weight || 1);
+            }
+          }
+        });
         projectScore.totalScore += totalScore;
         projectScore.numberOfJudges += 1;
         projectScore.averageScore =
@@ -306,6 +317,11 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                         trackId.includes(t.name)
                       )?.name ||
                       trackId;
+
+                    const choiceCriteria =
+                      scoringConfig.tracks[trackId]?.criteria.filter(
+                        (c) => c.type === "multiplechoice"
+                      ) || [];
                     return (
                       <Card key={trackId} className="overflow-hidden">
                         <div className="bg-primary text-primary-foreground p-4">
@@ -323,6 +339,11 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                 <TableHead className="text-right">
                                   Average Score
                                 </TableHead>
+                                {choiceCriteria.map((c) => (
+                                  <TableHead key={c.id} className="text-right">
+                                    {c.name}
+                                  </TableHead>
+                                ))}
                                 <TableHead className="text-right">
                                   Judges
                                 </TableHead>
@@ -339,6 +360,30 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                                   <TableCell className="text-right">
                                     {score.averageScore.toFixed(2)}
                                   </TableCell>
+                                  {choiceCriteria.map((c) => {
+                                    const counts =
+                                      score.choiceCounts?.[c.id] || {};
+                                    return (
+                                      <TableCell
+                                        key={c.id}
+                                        className="text-right"
+                                      >
+                                        {(c.options || []).map(
+                                          (opt, i) => (
+                                            (
+                                              <span key={opt}>
+                                                {i > 0 && ", "}
+                                                <span className="text-blue-500">
+                                                  {opt}
+                                                </span>
+                                                : {counts[opt] || 0}
+                                              </span>
+                                            )
+                                          )
+                                        )}
+                                      </TableCell>
+                                    );
+                                  })}
                                   <TableCell className="text-right">
                                     {score.numberOfJudges}
                                   </TableCell>
