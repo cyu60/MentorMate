@@ -193,7 +193,7 @@ export function PasswordTab({ eventId }: PasswordTabProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="p-4 border-2 border-blue-400">
         <CardHeader>
           <CardTitle>Event Visibility</CardTitle>
         </CardHeader>
@@ -248,7 +248,7 @@ export function PasswordTab({ eventId }: PasswordTabProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-4 border-2 border-blue-400">
         <CardHeader>
           <CardTitle>Role Passwords</CardTitle>
         </CardHeader>

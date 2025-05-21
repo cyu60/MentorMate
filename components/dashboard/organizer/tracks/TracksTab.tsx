@@ -1,8 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScoringConfigForm } from "@/components/scoring/scoring-config-form";
-import { EventDetails, EventScoringConfig, EventTrack } from "@/lib/types";
+import { useState, useEffect } from "react";
+import { ScoringConfigForm } from "@/components/dashboard/organizer/tracks/scoring-config-form";
+import {
+  EventDetails,
+  EventScoringConfig,
+  EventTrack,
+} from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
 interface TracksTabProps {
@@ -32,6 +36,31 @@ export function TracksTab({
   setSaving,
   toast,
 }: TracksTabProps) {
+  const [tracks, setTracks] = useState<EventTrack[]>([]);
+
+  // Function to fetch tracks data
+  const fetchTracks = async () => {
+    const { data, error } = await supabase
+      .from("event_tracks")
+      .select("*")
+      .eq("event_id", eventId);
+
+    if (error) {
+      console.error("Error fetching tracks:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load track data",
+        variant: "destructive",
+      });
+    } else {
+      setTracks(data || []);
+    }
+  };
+
+  useEffect(() => {
+    fetchTracks();
+  }, [eventId, toast]);
+
   const handleScoreUpdate = async (config: EventScoringConfig) => {
     try {
       setSaving(true);
@@ -39,18 +68,19 @@ export function TracksTab({
       // Store the updated config in state
       setScoringConfig(config);
 
-      // Prepare all tracks for upsert
       const tracksToUpsert = Object.entries(config.tracks).map(
-        ([trackId, trackConfig]) => ({
-          track_id: trackId,
-          event_id: eventId,
-          name: trackConfig.name,
-          description: trackConfig.name, // Default description is same as name
-          scoring_criteria: {
+        ([trackId, trackConfig]) => {
+          return {
+            track_id: trackId,
+            event_id: eventId,
             name: trackConfig.name,
-            criteria: trackConfig.criteria,
-          },
-        })
+            description: trackConfig.name, // Default description is same as name
+            scoring_criteria: {
+              name: trackConfig.name,
+              criteria: trackConfig.criteria,
+            },
+          };
+        }
       );
 
       // Perform upsert on all tracks at once
@@ -79,9 +109,12 @@ export function TracksTab({
         .eq("event_id", eventId);
 
       if (refreshedTracks && event) {
+        const updatedTracks = refreshedTracks as unknown as EventTrack[];
+        setTracks(updatedTracks);
+
         const updatedEvent = {
           ...event,
-          event_tracks: refreshedTracks as unknown as EventTrack[],
+          event_tracks: updatedTracks,
         };
         setEvent(updatedEvent);
       }
@@ -103,17 +136,18 @@ export function TracksTab({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Event Tracks</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScoringConfigForm
-          initialConfig={scoringConfig}
-          isSubmitting={saving}
-          onSave={handleScoreUpdate}
-        />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground mb-6">
+        Configure your event tracks below. For each track, you can set up
+        scoring criteria.
+      </p>
+
+      <ScoringConfigForm
+        initialConfig={scoringConfig}
+        isSubmitting={saving}
+        onSave={handleScoreUpdate}
+        tracks={tracks}
+      />
+    </div>
   );
 }

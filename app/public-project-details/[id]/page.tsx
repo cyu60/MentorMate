@@ -17,7 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
 import { Download, ExternalLink, ChevronDown, Users } from "lucide-react";
-import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
+import { ProjectScoringForm } from "@/components/project-scoring/project-scoring-form";
 
 function ProjectPageContent(): JSX.Element {
   const { id: projectId } = useParams();

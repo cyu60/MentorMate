@@ -37,7 +37,7 @@ export function ProjectScoringForm({
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ScoreFormData>(() => {
     // Initialize scores with default values
-    const initialScores: Record<string, number> = {};
+    const initialScores: Record<string, number | string> = {};
     criteria.forEach((criterion) => {
       initialScores[criterion.id] = Math.floor(
         ((criterion.max ?? defaultMax) + (criterion.min ?? defaultMin)) / 2
@@ -52,7 +52,7 @@ export function ProjectScoringForm({
 
   useEffect(() => {
     // Reset form data when track changes
-    const initialScores: Record<string, number> = {};
+    const initialScores: Record<string, number | string> = {};
     criteria.forEach((criterion) => {
       initialScores[criterion.id] = Math.floor(
         ((criterion.max ?? defaultMax) + (criterion.min ?? defaultMin)) / 2

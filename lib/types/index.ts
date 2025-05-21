@@ -9,7 +9,7 @@ export enum EventRole {
 
 export enum EventVisibility {
   Test = "test",
-  Demo = "demo", 
+  Demo = "demo",
   Private = "private",
   Public = "public",
   Draft = "draft",
@@ -78,6 +78,7 @@ export interface EventDetails extends EventItem {
   created_at: string;
   rules: Rule[];
   event_tracks?: EventTrack[];
+  role_labels?: Record<string, string>;
 }
 
 // Project Types
@@ -122,6 +123,8 @@ export interface ScoringCriterion {
   weight?: number;
   min?: number;
   max?: number;
+  type?: "numeric" | "multiplechoice"; // Type of criterion
+  options?: string[]; // Options for choice-based criteria
 }
 
 export interface TrackScoringConfig {
@@ -142,14 +145,14 @@ export interface ProjectScore {
   judge_id: string;
   track_id: string;
   event_id: string;
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface ScoreFormData {
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments?: string;
 }
 

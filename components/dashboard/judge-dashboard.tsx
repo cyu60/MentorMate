@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Project, EventTrack } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectScoringForm } from "@/components/scoring/project-scoring-form";
 import {
   Accordion,
   AccordionContent,
@@ -10,13 +9,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { DefaultScoring } from "../project-scoring/default-scoring";
 
 interface JudgeDashboardProps {
   eventId: string;
 }
 
 interface ProjectScore {
-  scores: Record<string, number>;
+  scores: Record<string, number | string>;
   comments: string;
 }
 
@@ -34,10 +34,28 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     projectId: string;
     trackId: string;
   } | null>(null);
+  const [judgeId, setJudgeId] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Get current user's ID
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.error("Error fetching session:", sessionError);
+          throw new Error(`Failed to fetch session: ${sessionError.message}`);
+        }
+
+        if (!session) {
+          throw new Error("No active session found");
+        }
+
+        setJudgeId(session.user.id);
+
         // Fetch event tracks
         const { data: trackData, error: trackError } = await supabase
           .from("event_tracks")
@@ -112,16 +130,6 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
         setProjects(Array.from(projectMap.values()));
 
         // Fetch current user's scores
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          console.error("Error fetching session:", sessionError);
-          throw new Error(`Failed to fetch session: ${sessionError.message}`);
-        }
-
         if (session) {
           const { data: scoresData, error: scoresError } = await supabase
             .from("project_scores")
@@ -182,16 +190,28 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
     fetchData();
   }, [eventId]);
 
-  const handleScoreSubmitted = (projectId: string, trackId: string) => {
-    setScoredProjects((prev) => {
-      const newMap = new Map(prev);
-      if (!newMap.has(projectId)) {
-        newMap.set(projectId, new Set());
-      }
-      newMap.get(projectId)?.add(trackId);
-      return newMap;
-    });
-    setEditingScore(null);
+  
+
+  // Helper function to get the appropriate scoring component based on track's judging mode
+  const getScoringComponent = (projectId: string, trackId: string) => {
+    const trackInfo = eventTracks.find((t) => t.track_id === trackId);
+
+    if (!trackInfo || !trackInfo.scoring_criteria) {
+      return (
+        <p className="text-yellow-600">
+          Scoring criteria not configured for this track.
+        </p>
+      );
+    }
+
+    return (
+      <DefaultScoring
+      projectId={projectId}
+      eventId={eventId}
+      judgeId={judgeId}
+      trackId={trackId}
+    />
+    );
   };
 
   if (isLoading) {
@@ -220,7 +240,9 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Judge Dashboard</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Judge Dashboard</h2>
+      </div>
 
       {Object.entries(projectsByTrack).map(([trackId, trackProjects]) => {
         // Handle unassigned projects
@@ -258,6 +280,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
         const trackInfo = eventTracks.find((t) => t.track_id === trackId);
         if (!trackInfo) return null;
 
+        // Determine judging interface type
         const unScoredTrackProjects = trackProjects.filter(
           (project) => !scoredProjects.get(project.id)?.has(trackId)
         );
@@ -292,20 +315,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          {trackInfo.scoring_criteria ? (
-                            <ProjectScoringForm
-                              projectId={project.id}
-                              trackId={trackId}
-                              criteria={trackInfo.scoring_criteria.criteria}
-                              onScoreSubmitted={() =>
-                                handleScoreSubmitted(project.id, trackId)
-                              }
-                            />
-                          ) : (
-                            <p className="text-yellow-600">
-                              Scoring criteria not configured for this track.
-                            </p>
-                          )}
+                          {getScoringComponent(project.id, trackId)}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
@@ -355,17 +365,11 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
                             </Button>
                           </div>
 
-                          {isEditing && trackInfo.scoring_criteria ? (
-                            <ProjectScoringForm
-                              projectId={project.id}
-                              trackId={trackId}
-                              criteria={trackInfo.scoring_criteria.criteria}
-                              onScoreSubmitted={() =>
-                                handleScoreSubmitted(project.id, trackId)
-                              }
-                            />
+                          {isEditing ? (
+                            getScoringComponent(project.id, trackId)
                           ) : projectScore ? (
                             <div className="space-y-2 mt-2">
+                              {/* Display criteria scores */}
                               <div className="grid grid-cols-2 gap-4">
                                 {Object.entries(projectScore.scores).map(
                                   ([criterionId, score]) => {
@@ -389,6 +393,7 @@ export function JudgeDashboard({ eventId }: JudgeDashboardProps) {
                                   }
                                 )}
                               </div>
+
                               {projectScore.comments && (
                                 <div className="mt-2">
                                   <p className="text-sm font-medium">
