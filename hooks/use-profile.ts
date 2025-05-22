@@ -40,9 +40,12 @@ export function useProfile(): UseProfileResult {
         if (profileError || !userProfile) {
           setIsLoading(false);
           setError("Error fetching user profile");
+          setProfile(null);
+          return;
         }
 
         setProfile(userProfile);
+        setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         setError("Error fetching user profile");
