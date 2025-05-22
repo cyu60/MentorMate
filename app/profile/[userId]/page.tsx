@@ -21,14 +21,7 @@ import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import Image from "next/image";
 
 interface EventWithRole extends EventItem {
   user_event_roles: {
@@ -60,7 +53,6 @@ export default function ProfilePage() {
   const [newSocialLinks, setNewSocialLinks] = useState<SocialLinks>({});
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("projects");
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const tabs = [
     { key: "projects", label: "Projects" },
@@ -398,10 +390,12 @@ export default function ProfilePage() {
                     >
                       {event.cover_image_url && (
                         <div className="relative h-48 w-full">
-                          <img
+                          <Image
+                            width={400}
+                            height={200}
                             src={event.cover_image_url}
                             alt={event.event_name}
-                            className="object-cover w-full h-full rounded-t-lg"
+                            className="rounded-t-lg object-cover"
                           />
                         </div>
                       )}

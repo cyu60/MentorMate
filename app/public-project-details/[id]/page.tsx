@@ -70,9 +70,9 @@ function ProjectPageContent(): JSX.Element {
           console.error("Error fetching project tracks:", tracksError);
         } else if (tracks) {
           setProjectTracks(
-            tracks.map((track: any) => ({
+            tracks.map((track: { track_id: string; tracks: { name: string }[] }) => ({
               track_id: track.track_id,
-              name: track.tracks.name,
+              name: track.tracks[0].name,
             }))
           );
         }
