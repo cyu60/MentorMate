@@ -85,7 +85,7 @@ export function EventsList({ events }: EventsListProps) {
   };
 
   return (
-    <div className="grid gap-3 sm:gap-6 grid-cols-1 max-w-7xl mx-auto px-4 sm:px-6">
+    <>
       {events.map((event) => {
         const userRole = getUserRoleForEvent(event.event_id);
 
@@ -93,11 +93,11 @@ export function EventsList({ events }: EventsListProps) {
           <Link
             href={`/events/${event.event_id}/overview`}
             key={event.event_id}
-            className="block"
+            className="block h-full"
           >
-            <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+            <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 overflow-hidden border-2 hover:border-primary/50">
               <div
-                className="w-full h-[120px] sm:h-[200px] bg-[#000080]"
+                className="w-full h-[200px] bg-gradient-to-br from-primary/20 to-primary/10"
                 style={
                   event.cover_image_url
                     ? {
@@ -108,28 +108,22 @@ export function EventsList({ events }: EventsListProps) {
                     : undefined
                 }
               />
-              <div className="p-3 sm:p-4 space-y-2">
-                <CardTitle className="text-lg sm:text-xl font-semibold">
+              <div className="p-4 space-y-3 flex-grow">
+                <CardTitle className="text-xl font-semibold line-clamp-2">
                   {event.event_name}
                 </CardTitle>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  <Badge
-                    variant="secondary"
-                    className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[150px]"
-                  >
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-sm">
                     {event.event_date}
                   </Badge>
-                  <Badge
-                    variant="outline"
-                    className="text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[200px]"
-                  >
+                  <Badge variant="outline" className="text-sm">
                     {event.location}
                   </Badge>
                 </div>
                 {userRole && (
                   <Badge
                     variant={getRoleBadgeVariant(userRole)}
-                    className="capitalize text-xs sm:text-sm mt-1"
+                    className="capitalize text-sm mt-2"
                   >
                     {userRole}
                   </Badge>
@@ -139,6 +133,6 @@ export function EventsList({ events }: EventsListProps) {
           </Link>
         );
       })}
-    </div>
+    </>
   );
 }

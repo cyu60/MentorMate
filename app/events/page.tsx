@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/footer";
 import { EventsPageClient } from "@/components/eventsPageClient";
 import { createSupabaseClient } from "../utils/supabase/server";
 import { EventRole, EventVisibility } from "@/lib/types";
-// Disable static generation for this page
+
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
@@ -122,7 +122,7 @@ export default async function EventsPage() {
       {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       <div className="flex-grow">
         <div className="max-w-7xl mx-auto py-8 px-6 lg:px-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900">
             Events
           </h1>
           <EventsPageClient eventsList={eventsList} />

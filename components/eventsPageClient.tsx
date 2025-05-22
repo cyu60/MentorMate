@@ -5,118 +5,69 @@ import { EventsList } from "@/components/events/events-list";
 import { Input } from "@/components/ui/input";
 import { EventItem } from "@/lib/types";
 import { UI_TEXT, DEFAULT_VALUES } from "@/lib/constants";
-// import { DateRangePicker } from "react-date-range";
-// import "react-date-range/dist/styles.css";
-// import "react-date-range/dist/theme/default.css";
 
 export function EventsPageClient({ eventsList }: { eventsList: EventItem[] }) {
   const [searchTerm, setSearchTerm] = useState(DEFAULT_VALUES.SEARCH_TERM);
-  // Default date range to today for both start and end.
-  // const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-  //   start: new Date().toISOString().split("T")[0],
-  //   end: new Date().toISOString().split("T")[0],
-  // });
-  // const [showCalendar, setShowCalendar] = useState(false);
-  // const calendarRef = useRef<HTMLDivElement>(null);
-
-  // Close calendar when clicking outside
-  // useEffect(() => {
-  //   function handleClickOutside(event: MouseEvent) {
-  //     if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
-  //       setShowCalendar(false);
-  //     }
-  //   }
-  //   if (showCalendar) {
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //   } else {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   }
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [showCalendar]);
 
   const filteredEvents = useMemo(() => {
-    return eventsList.filter((event) => {
-      // Filter by event name
-      const nameMatch = event.event_name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      // Date range filtering commented out
-      // const eventDate = new Date(event.event_date);
-      // let dateMatch = true;
-      // if (dateRange.start) {
-      //   dateMatch = dateMatch && eventDate >= new Date(dateRange.start);
-      // }
-      // if (dateRange.end) {
-      //   dateMatch = dateMatch && eventDate <= new Date(dateRange.end);
-      // }
-
-      // Return only the name match (date filtering is disabled)
-      return nameMatch; // && dateMatch;
-    });
+    return eventsList.filter((event) =>
+      event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [eventsList, searchTerm]);
 
-  // Display formatted date range in the input-like field
-  // const formattedDateRange = `${dateRange.start} to ${dateRange.end}`;
-
   return (
-    <div>
-      {/* Search & Date Range Input */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+    <div className="container mx-auto px-4 py-8">
+      <div className="relative w-full mb-8">
         <Input
           type="text"
           placeholder={UI_TEXT.SEARCH_PLACEHOLDER}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full"
+          className="w-full pl-10"
         />
-
-        {/* <div className="relative w-full md:w-1/4">
-          <div
-            className="border border-gray-300 rounded px-3 py-2 w-full h-10 cursor-pointer bg-white flex items-center"
-            onClick={() => setShowCalendar((prev) => !prev)}
-          >
-            {formattedDateRange}
-          </div>
-          {showCalendar && (
-            <div ref={calendarRef} className="absolute z-10 mt-2">
-              <DateRangePicker
-                ranges={[
-                  {
-                    startDate: dateRange.start ? new Date(dateRange.start) : new Date(),
-                    endDate: dateRange.end ? new Date(dateRange.end) : new Date(),
-                    key: "selection",
-                  },
-                ]}
-                onChange={(ranges) =>
-                  setDateRange({
-                    start: ranges.selection.startDate
-                      ? ranges.selection.startDate.toISOString().split("T")[0]
-                      : "",
-                    end: ranges.selection.endDate
-                      ? ranges.selection.endDate.toISOString().split("T")[0]
-                      : "",
-                  })
-                }
-                color="#2563eb"
-                staticRanges={[]} // Remove preset ranges
-                inputRanges={[]}  // Remove input ranges
-              />
-            </div>
-          )}
-        </div> */}
+        <svg
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
       </div>
 
-      {/* Render Filtered Events */}
-      <EventsList events={filteredEvents} />
-
-      {/* Empty State */}
-      {filteredEvents.length === 0 && (
-        <p className="text-center text-muted-foreground mt-4">
-          {UI_TEXT.NO_EVENTS_FOUND}
-        </p>
+      {filteredEvents.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <EventsList events={filteredEvents} />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <svg
+            className="h-16 w-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No events found
+          </h3>
+          <p className="text-gray-500 max-w-sm">
+            {searchTerm
+              ? `No events match your search "${searchTerm}". Try adjusting your search terms.`
+              : UI_TEXT.NO_EVENTS_FOUND}
+          </p>
+        </div>
       )}
     </div>
   );
