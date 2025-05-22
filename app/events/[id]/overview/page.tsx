@@ -159,7 +159,7 @@ export default async function EventOverviewPage({ params }: PageProps) {
                         <span className="font-medium text-gray-800">
                           {event.name}
                         </span>
-                        <span className="text-gray-500">{event.time}</span>
+                        <span className="text-gray-500 whitespace-nowrap">{event.time}</span>
                       </div>
                     ))}
                   </div>
