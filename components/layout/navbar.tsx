@@ -65,7 +65,7 @@ export function Navbar() {
               alt="Mentor Mate Logo"
               width={32}
               height={32}
-              className="object-contain"
+              className="object-contain pl-2"
             />
             <span className="font-bold text-lg text-blue-900">MentorMates</span>
           </Link>
