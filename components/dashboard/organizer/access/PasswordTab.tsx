@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { EventRole, EventVisibility } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
+import { getRoleLabel } from "@/lib/utils/roles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -17,9 +18,10 @@ import {
 
 interface PasswordTabProps {
   eventId: string;
+  roleLabels?: Record<string, string> | null;
 }
 
-export function PasswordTab({ eventId }: PasswordTabProps) {
+export function PasswordTab({ eventId, roleLabels }: PasswordTabProps) {
   const [rolePasswords, setRolePasswords] = useState<Record<string, string>>(
     {}
   );
@@ -187,9 +189,6 @@ export function PasswordTab({ eventId }: PasswordTabProps) {
     }
   };
 
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  };
 
   return (
     <div className="space-y-6">
@@ -254,30 +253,33 @@ export function PasswordTab({ eventId }: PasswordTabProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {availableRoles.map((role) => (
-              <div key={role} className="space-y-2">
-                <label className="text-sm font-medium">
-                  {capitalizeFirstLetter(role)} Password
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    type="password"
-                    value={rolePasswords[role] || ""}
-                    onChange={(e) => handlePasswordChange(role, e.target.value)}
-                    placeholder={`Set ${role} password`}
-                  />
-                  <Button
-                    onClick={() => handleSetPassword(role)}
-                    disabled={isLoading || !rolePasswords[role]}
-                  >
-                    Save
-                  </Button>
+            {availableRoles.map((role) => {
+              const label = getRoleLabel(role, roleLabels);
+              return (
+                <div key={role} className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {label} Password
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      value={rolePasswords[role] || ""}
+                      onChange={(e) => handlePasswordChange(role, e.target.value)}
+                      placeholder={`Set ${label.toLowerCase()} password`}
+                    />
+                    <Button
+                      onClick={() => handleSetPassword(role)}
+                      disabled={isLoading || !rolePasswords[role]}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    This password will be used by {label.toLowerCase()}s to join the event.
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500">
-                  This password will be used by {role}s to join the event.
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

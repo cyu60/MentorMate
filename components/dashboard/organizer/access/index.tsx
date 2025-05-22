@@ -37,7 +37,7 @@ export function AccessTab({
           </TabsList>
 
           <TabsContent value="password">
-            <PasswordTab eventId={eventId} />
+            <PasswordTab eventId={eventId} roleLabels={event.role_labels} />
           </TabsContent>
 
           <TabsContent value="role-labels">
