@@ -18,11 +18,16 @@ import { Pencil, Globe } from "lucide-react";
 import { FaLinkedin, FaGithub, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface EventWithRole extends EventItem {
@@ -56,6 +61,12 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("projects");
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const tabs = [
+    { key: "projects", label: "Projects" },
+    { key: "events", label: "Events" },
+    { key: "personal", label: "Personal" },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -318,45 +329,25 @@ export default function ProfilePage() {
           <p className="mt-2 text-gray-600">{userProfile?.email}</p>
         </div>
 
-        {isMobile ? (
-          <div className="mb-8">
-            <Select value={activeTab} onValueChange={setActiveTab}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select view" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="projects">Projects</SelectItem>
-                <SelectItem value="events">Events</SelectItem>
-                <SelectItem value="personal">Personal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-1/3 mx-auto grid-cols-3 border-none bg-transparent">
-              <TabsTrigger
-                value="projects"
-                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-              >
-                Projects
-              </TabsTrigger>
-              <TabsTrigger
-                value="events"
-                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-              >
-                Events
-              </TabsTrigger>
-              <TabsTrigger
-                value="personal"
-                className="border-none py-4 data-[state=active]:border-b-2 data-[state=active]:border-gray-900 hover:border-b-2 hover:border-gray-300 transition-all"
-              >
-                Personal
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        )}
+        <div className="flex justify-center space-x-8 border-b">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`py-4 px-6 text-lg font-medium focus:outline-none transition
+                ${
+                  activeTab === tab.key
+                    ? "border-b-2 border-gray-900 text-gray-900"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-        <div className="mt-12">
+        <div className="mt-8">
           {activeTab === "projects" && (
             <div>
               {isLoading ? (
