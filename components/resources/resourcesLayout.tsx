@@ -13,19 +13,23 @@ export default function ResourcesLayout() {
                         key={resource.id}
                         className="group relative flex flex-col justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm transition hover:shadow-md"
                     >
-                        <Image
-                            src={resource.thumbnail}
-                            alt={resource.title}
-                            width={200}
-                            height={150}
-                            className="mb-4 object-contain"
-                        />
+                        <div className="flex justify-center">
+                            <Image
+                                src={resource.thumbnail}
+                                alt={resource.title}
+                                width={200}
+                                height={150}
+                                className="mb-4 object-contain mx-auto"
+                            />
+                        </div>
                         <h3 className="text-lg font-semibold text-gray-800 group-hover:text-gray-900">
                             {resource.title}
                         </h3>
                         <p className="mt-1 text-sm text-gray-600">{resource.description}</p>
                         <button
-                            onClick={() => window.open(resource.fileUrl, "_blank", "noopener,noreferrer")}
+                            onClick={() =>
+                                window.open(resource.fileUrl, "_blank", "noopener,noreferrer")
+                            }
                             className="mt-4 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-gray-400 hover:text-gray-900 transition"
                         >
                             Open Source
