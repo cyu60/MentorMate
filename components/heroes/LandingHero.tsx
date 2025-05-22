@@ -32,6 +32,9 @@ export function LandingHero() {
                   Game Jams
                 </span>
                 <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
+                  Demo Day
+                </span>
+                <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
                   Pitch Competitions
                 </span>
                 <span className="text-blue-900 font-bold bg-blue-300/30 px-2 py-1 rounded">
@@ -43,8 +46,8 @@ export function LandingHero() {
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mt-4 mb-8">
             Built <strong>by students, for students</strong>, and backed by{" "}
             <strong>learning sciences</strong> and <strong>pedagogy</strong>,
-            Mentor Mates guides you through every step of your hackathon or
-            innovation event. From structured learning resources to streamlined
+            Mentor Mates guides you through every step of your hackathon,
+            Demo Day, or innovation event. From structured learning resources to streamlined
             logistics, our platform helps you focus on what truly matters:
             creating <em>impactful</em> projects.
           </p>
@@ -155,20 +158,24 @@ export function LandingHero() {
       <style jsx>{`
         @keyframes slideWords {
           0%,
-          20% {
+          16% {
             transform: translateY(0%);
           }
-          25%,
-          45% {
-            transform: translateY(-25%);
+          20%,
+          36% {
+            transform: translateY(-20%);
           }
-          50%,
-          70% {
-            transform: translateY(-50%);
+          40%,
+          56% {
+            transform: translateY(-40%);
           }
-          75%,
-          95% {
-            transform: translateY(-75%);
+          60%,
+          76% {
+            transform: translateY(-60%);
+          }
+          80%,
+          96% {
+            transform: translateY(-80%);
           }
           100% {
             transform: translateY(-100%);
@@ -193,7 +200,7 @@ export function LandingHero() {
         .animate-word-slide span:first-child::after {
           content: "Student Hackathons";
           position: absolute;
-          top: 160px;
+          top: 200px;
           left: 0;
           right: 0;
           display: flex;
