@@ -48,6 +48,29 @@ export const defaultCriteria: ScoringCriterion[] = [
   },
 ];
 
+export const defaultInvestmentCriteria = [
+  {
+    id: "investor_decision",
+    name: "Investment Decision",
+    description: "Would you invest in this company?",
+    weight: 1,
+    type: "choice",
+    options: ["invest", "pass", "maybe"],
+    min: 0,
+    max: 2,
+  },
+  {
+    id: "interest_level",
+    name: "Interest Level",
+    description: "How interested are you in this company?",
+    weight: 1,
+    type: "scale",
+    min: 0,
+    max: 5,
+  },
+];
+
+
 export const ADMIN_USER_IDS: AdminUserId[] = [
   // Add your admin user IDs here
   "5fd21fad-2ea4-4caa-aab1-596ab7f6a4d7", // spencer

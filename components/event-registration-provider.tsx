@@ -21,6 +21,7 @@ export interface EventRegistrationContextType {
   setIsRegistered: (value: boolean) => void;
   userRole: EventRole | null;
   setUserRole: (value: EventRole | null) => void;
+  roleLabels: Record<string, string> | null;
 }
 
 export interface EventRegistrationProviderProps {
@@ -34,6 +35,9 @@ export function EventRegistrationProvider({
 }: EventRegistrationProviderProps) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [userRole, setUserRole] = useState<EventRole | null>(null);
+  const [roleLabels, setRoleLabels] = useState<Record<string, string> | null>(
+    null
+  );
 
   useEffect(() => {
     async function checkRegistrationStatus() {
@@ -44,6 +48,17 @@ export function EventRegistrationProvider({
         if (!session) return;
 
         const userId = session.user.id;
+
+        // Fetch event details including role_labels
+        const { data: eventData } = await supabase
+          .from("events")
+          .select("role_labels")
+          .eq("event_id", eventId)
+          .single();
+
+        if (eventData?.role_labels) {
+          setRoleLabels(eventData.role_labels);
+        }
 
         // Check user_event_roles table for role
         const { data: roleData } = await supabase
@@ -70,7 +85,13 @@ export function EventRegistrationProvider({
 
   return (
     <EventRegistrationContext.Provider
-      value={{ isRegistered, setIsRegistered, userRole, setUserRole }}
+      value={{
+        isRegistered,
+        setIsRegistered,
+        userRole,
+        setUserRole,
+        roleLabels,
+      }}
     >
       {children}
     </EventRegistrationContext.Provider>
