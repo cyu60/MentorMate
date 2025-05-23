@@ -14,14 +14,28 @@ import { EventRole } from "@/lib/types";
 
 export default function GalleryPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const slug = params.id as string;
+  const [eventId, setEventId] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { isRegistered, userRole } = useEventRegistration();
 
+  useEffect(() => {
+    const resolveEventId = async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("event_id")
+        .or(`slug.eq.${slug},event_id.eq.${slug}`)
+        .maybeSingle();
+      if (data) setEventId(data.event_id);
+    };
+    resolveEventId();
+  }, [slug]);
+
   // Sets 'projects' state to a list of projects the event_id is associated with
   useEffect(() => {
+    if (!eventId) return;
     const fetchProjects = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -40,6 +54,10 @@ export default function GalleryPage() {
 
     fetchProjects();
   }, [eventId]);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   const filteredProjects = projects.filter(
     (project) =>

@@ -42,29 +42,31 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
   const supabase = await createSupabaseClient();
 
-  // Update the Promise.all to use a join
-  const [eventResult, tracksResult] = await Promise.all([
-    supabase.from("events").select("*").eq("event_id", id).single(),
-    supabase
-      .from("event_tracks")
-      .select(
-        `
-        *,
-        prizes (
-          prize_amount,
-          prize_description
-        )
-      `
-      )
-      .eq("event_id", id),
-  ]);
+  const { data: eventData, error: eventError } = await supabase
+    .from("events")
+    .select("*")
+    .or(`slug.eq.${id},event_id.eq.${id}`)
+    .single();
 
-  if (eventResult.error) {
+  if (eventError || !eventData) {
     notFound();
   }
 
-  const typedEvent = eventResult.data as EventDetails;
-  const tracks = (tracksResult.data || []) as EventTrack[];
+  const { data: tracksData } = await supabase
+    .from("event_tracks")
+    .select(
+      `
+      *,
+      prizes (
+        prize_amount,
+        prize_description
+      )
+    `
+    )
+    .eq("event_id", eventData.event_id);
+
+  const typedEvent = eventData as EventDetails;
+  const tracks = (tracksData || []) as EventTrack[];
 
   // Check if user has joined
   const {
@@ -82,19 +84,19 @@ export default async function EventOverviewPage({ params }: PageProps) {
 
     if (userEventRoles) {
       const events = userEventRoles.map((role) => role.event_id);
-      hasJoined = events.includes(id);
+      hasJoined = events.includes(eventData.event_id);
     }
   }
 
   return (
     <div className="container mx-auto py-4">
       {/* Status Bar */}
-      <EventStatusBar eventId={id} />
+      <EventStatusBar eventId={eventData.event_id} />
 
       {/* Join Button */}
       {!hasJoined && (
         <div className="flex justify-center mb-8">
-          <JoinEventButton eventId={id} eventName={typedEvent.event_name} />
+          <JoinEventButton eventId={eventData.event_id} eventName={typedEvent.event_name} />
         </div>
       )}
 

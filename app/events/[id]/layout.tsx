@@ -28,6 +28,7 @@ export default async function Layout({
     .from("events")
     .select(`
       event_id,
+      slug,
       event_name,
       event_date,
       location,
@@ -35,7 +36,7 @@ export default async function Layout({
       event_description,
       cover_image_url
     `)
-    .eq("event_id", id)
+    .or(`slug.eq.${id},event_id.eq.${id}`)
     .single();
 
   if (!event) {
@@ -45,7 +46,7 @@ export default async function Layout({
   return (
     <div className="min-h-screen flex flex-col">
       {isAuthenticated ? <AuthNavbar /> : <Navbar />}
-      <EventRegistrationWrapper eventId={id}>
+      <EventRegistrationWrapper eventId={event.event_id}>
         <main className="flex-1 overflow-auto">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full">
             <EventHeader
@@ -54,7 +55,7 @@ export default async function Layout({
               eventDate={event.event_date}
               location={event.location}
               description={event.event_blurb || event.event_description}
-              eventId={id}
+              eventId={event.slug || event.event_id}
             />
               {children}
           </div>
@@ -75,7 +76,7 @@ export async function generateMetadata({
   const { data: event } = await supabase
     .from("events")
     .select("event_name")
-    .eq("event_id", id)
+    .or(`slug.eq.${id},event_id.eq.${id}`)
     .single();
 
   return {

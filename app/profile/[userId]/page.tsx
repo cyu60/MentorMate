@@ -179,6 +179,7 @@ export default function ProfilePage() {
           .select(
             `
                 event_id,
+                slug,
                 event_name,
                 event_date,
                 location,
@@ -401,7 +402,7 @@ export default function ProfilePage() {
                       )}
                       <CardHeader>
                         <CardTitle className="text-xl hover:text-blue-600">
-                          <Link href={`/events/${event.event_id}/overview`}>
+                          <Link href={`/events/${event.slug || event.event_id}/overview`}>
                             {event.event_name}
                           </Link>
                         </CardTitle>

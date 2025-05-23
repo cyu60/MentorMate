@@ -8,9 +8,22 @@ import { useParams } from "next/navigation";
 // Project Submission Page
 export default function ProjectSubmissionPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const slug = params.id as string;
+  const [eventId, setEventId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const resolveEventId = async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("event_id")
+        .or(`slug.eq.${slug},event_id.eq.${slug}`)
+        .maybeSingle();
+      if (data) setEventId(data.event_id);
+    };
+    resolveEventId();
+  }, [slug]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -43,6 +56,10 @@ export default function ProjectSubmissionPage() {
     };
     getUser();
   }, []);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto py-8">

@@ -39,12 +39,25 @@ export default async function PublicFeedPage({
   const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
   const currentPage = parseInt(resolvedSearchParams.page || "1")
 
+  const { data: event } = await supabase
+    .from("events")
+    .select("event_id, slug")
+    .or(`slug.eq.${id},event_id.eq.${id}`)
+    .single()
+
+  if (!event) {
+    return <div>Event not found</div>
+  }
+
+  const eventId = event.event_id
+  const slug = event.slug || id
+
   try {
     // Fetch all public feed items
     const { data: feedItems, error: feedError } = await supabase
       .from("platform_engagement")
       .select("*")
-      .eq("event_id", id)
+      .eq("event_id", eventId)
       .eq("is_private", false)
       .order("created_at", { ascending: false })
 
@@ -121,7 +134,7 @@ export default async function PublicFeedPage({
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-6">
             {currentPage > 1 && (
-              <Link href={`/events/${id}/feed/public?page=${currentPage - 1}`}>
+              <Link href={`/events/${slug}/feed/public?page=${currentPage - 1}`}>
                 <Button variant="outline">Previous</Button>
               </Link>
             )}
@@ -129,7 +142,7 @@ export default async function PublicFeedPage({
               Page {currentPage} of {totalPages}
             </span>
             {currentPage < totalPages && (
-              <Link href={`/events/${id}/feed/public?page=${currentPage + 1}`}>
+              <Link href={`/events/${slug}/feed/public?page=${currentPage + 1}`}>
                 <Button variant="outline">Next</Button>
               </Link>
             )}

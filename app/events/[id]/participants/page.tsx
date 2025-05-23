@@ -16,10 +16,26 @@ export default async function PublicParticipantsPage({ params }: PageProps) {
   const supabase = await createSupabaseClient();
   const { id } = await params;
 
+  const { data: event } = await supabase
+    .from("events")
+    .select("event_id")
+    .or(`slug.eq.${id},event_id.eq.${id}`)
+    .single();
+
+  if (!event) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-red-500">Event not found</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const { data: participants, error } = await supabase
     .from("user_event_roles")
     .select("user_id, user_profiles!user_id(uid, display_name)")
-    .eq("event_id", id)
+    .eq("event_id", event.event_id)
     .eq("role", "participant")
     .overrideTypes<
       Array<{

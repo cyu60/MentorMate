@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";
 import { ParticipantDashboard } from "@/components/dashboard/participant-dashboard";
@@ -11,9 +12,26 @@ import { useState, useEffect } from "react";
 
 export default function DashboardPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const slug = params.id as string;
+  const [eventId, setEventId] = useState<string | null>(null);
   const { userRole } = useEventRegistration();
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const resolveEventId = async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("event_id")
+        .or(`slug.eq.${slug},event_id.eq.${slug}`)
+        .maybeSingle();
+      if (data) setEventId(data.event_id);
+    };
+    resolveEventId();
+  }, [slug]);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   useEffect(() => {
     // Simulate loading time for the dashboard, give time for the data to load
