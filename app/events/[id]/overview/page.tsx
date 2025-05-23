@@ -13,6 +13,7 @@ import {
   EventTrack,
 } from "@/lib/types";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -42,11 +43,19 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
   const supabase = await createSupabaseClient();
 
-  const { data: eventData, error: eventError } = await supabase
-    .from("events")
-    .select("*")
-    .or(`slug.eq.${id},event_id.eq.${id}`)
-    .single();
+  const isUUID = isValidUUID(id);
+
+  let query = supabase.from("events").select("*");
+
+  if (isUUID) {
+    // If it's a UUID, check both slug and event_id
+    query = query.or(`slug.eq.${id},event_id.eq.${id}`);
+  } else {
+    // If it's not a UUID, only check slug
+    query = query.eq("slug", id);
+  }
+
+  const { data: eventData, error: eventError } = await query.single();
 
   if (eventError || !eventData) {
     notFound();
@@ -72,19 +81,22 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   let hasJoined = false;
 
   if (user) {
-    if (!user.email) return;
+    if (!user.email) {
+      // Skip join check if user has no email
+    } else {
+      const { data: userEventRoles } = await supabase
+        .from("user_event_roles")
+        .select("event_id")
+        .in("uid", [user.id]);
 
-    const { data: userEventRoles } = await supabase
-      .from("user_event_roles")
-      .select("event_id")
-      .in("uid", [user.id]);
-
-    if (userEventRoles) {
-      const events = userEventRoles.map((role) => role.event_id);
-      hasJoined = events.includes(eventData.event_id);
+      if (userEventRoles) {
+        const events = userEventRoles.map((role) => role.event_id);
+        hasJoined = events.includes(eventData.event_id);
+      }
     }
   }
 
@@ -96,7 +108,10 @@ export default async function EventOverviewPage({ params }: PageProps) {
       {/* Join Button */}
       {!hasJoined && (
         <div className="flex justify-center mb-8">
-          <JoinEventButton eventId={eventData.event_id} eventName={typedEvent.event_name} />
+          <JoinEventButton
+            eventId={eventData.event_id}
+            eventName={typedEvent.event_name}
+          />
         </div>
       )}
 
@@ -161,7 +176,9 @@ export default async function EventOverviewPage({ params }: PageProps) {
                         <span className="font-medium text-gray-800">
                           {event.name}
                         </span>
-                        <span className="text-gray-500 whitespace-nowrap">{event.time}</span>
+                        <span className="text-gray-500 whitespace-nowrap">
+                          {event.time}
+                        </span>
                       </div>
                     ))}
                   </div>

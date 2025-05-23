@@ -4,6 +4,7 @@ import { ProjectSubmissionFormComponent } from "@/components/projects/ProjectSub
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 // Project Submission Page
 export default function ProjectSubmissionPage() {
@@ -15,11 +16,19 @@ export default function ProjectSubmissionPage() {
 
   useEffect(() => {
     const resolveEventId = async () => {
-      const { data } = await supabase
-        .from("events")
-        .select("event_id")
-        .or(`slug.eq.${slug},event_id.eq.${slug}`)
-        .maybeSingle();
+      const isUUID = isValidUUID(slug);
+
+      let query = supabase.from("events").select("event_id");
+
+      if (isUUID) {
+        // If it's a UUID, check both slug and event_id
+        query = query.or(`slug.eq.${slug},event_id.eq.${slug}`);
+      } else {
+        // If it's not a UUID, only check slug
+        query = query.eq("slug", slug);
+      }
+
+      const { data } = await query.maybeSingle();
       if (data) setEventId(data.event_id);
     };
     resolveEventId();

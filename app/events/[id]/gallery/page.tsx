@@ -11,6 +11,7 @@ import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext, Project } from "@/lib/types";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 export default function GalleryPage() {
   const params = useParams();
@@ -23,11 +24,19 @@ export default function GalleryPage() {
 
   useEffect(() => {
     const resolveEventId = async () => {
-      const { data } = await supabase
-        .from("events")
-        .select("event_id")
-        .or(`slug.eq.${slug},event_id.eq.${slug}`)
-        .maybeSingle();
+      const isUUID = isValidUUID(slug);
+
+      let query = supabase.from("events").select("event_id");
+
+      if (isUUID) {
+        // If it's a UUID, check both slug and event_id
+        query = query.or(`slug.eq.${slug},event_id.eq.${slug}`);
+      } else {
+        // If it's not a UUID, only check slug
+        query = query.eq("slug", slug);
+      }
+
+      const { data } = await query.maybeSingle();
       if (data) setEventId(data.event_id);
     };
     resolveEventId();
