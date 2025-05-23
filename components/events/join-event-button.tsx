@@ -45,11 +45,32 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
   const router = useRouter();
 
   useEffect(() => {
-    async function checkIfJoined() {
+    async function init() {
       try {
+        // Fetch the event details and role labels regardless of auth state
+        const { data: eventData, error: eventError } = await supabase
+          .from("events")
+          .select("*")
+          .eq("event_id", eventId)
+          .maybeSingle();
+
+        if (eventError) {
+          console.error("Error fetching event:", eventError);
+          throw eventError;
+        }
+
+        setEvent(eventData);
+        setRoleLabels(eventData?.role_labels || null);
+
+        // Set initial password visibility based on event settings
+        if (eventData?.visibility === EventVisibility.Private) {
+          setShowPasswordInput(true);
+        }
+
         const {
           data: { session },
         } = await supabase.auth.getSession();
+
         if (!session) return;
 
         const userId = session.user.id;
@@ -63,31 +84,13 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
 
         if (roleData) {
           setHasJoined(true);
-        } else {
-          const { data: eventData, error: eventError } = await supabase
-            .from("events")
-            .select("*")
-            .eq("event_id", eventId)
-            .maybeSingle();
-
-          if (eventError) {
-            console.error("Error fetching event:", eventError);
-            throw eventError;
-          }
-          setEvent(eventData);
-          setRoleLabels(eventData?.role_labels || null);
-
-          // Set initial password visibility based on the default role
-          if (eventData?.visibility === EventVisibility.Private) {
-            setShowPasswordInput(true);
-          }
         }
       } catch (error) {
         console.error("Error checking event status:", error);
       }
     }
 
-    checkIfJoined();
+    init();
   }, [eventId]);
 
   const handleRoleSelect = (value: EventRole) => {
