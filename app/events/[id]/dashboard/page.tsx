@@ -29,10 +29,6 @@ export default function DashboardPage() {
     resolveEventId();
   }, [slug]);
 
-  if (!eventId) {
-    return <div>Loading...</div>;
-  }
-
   useEffect(() => {
     // Simulate loading time for the dashboard, give time for the data to load
     const timer = setTimeout(() => {
@@ -41,6 +37,10 @@ export default function DashboardPage() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   const renderDashboard = () => {
     switch (userRole) {
