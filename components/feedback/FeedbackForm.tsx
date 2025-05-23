@@ -428,6 +428,7 @@ export default function FeedbackForm({
 
       console.log("Feedback submitted successfully:", data);
 
+      // TODO: Re-enable email notifications once email system is stable
       // Send email notification
       // const emailResponse = await fetch("/api/email", {
       //   method: "POST",

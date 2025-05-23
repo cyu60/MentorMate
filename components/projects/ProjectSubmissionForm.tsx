@@ -339,6 +339,7 @@ export function ProjectSubmissionFormComponent({
         });
       }
 
+      // TODO: Re-enable email notifications once email system is stable
       // Send confirmation email
       // const emailResponse = await fetch("/api/email", {
       //   method: "POST",

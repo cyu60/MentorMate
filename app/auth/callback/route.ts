@@ -13,7 +13,6 @@ export async function GET(request: Request) {
   }
 
   console.log("Starting auth callback with code");
-  console.log("Starting auth callback with code");
   const supabase = await createSupabaseClient();
 
   // Exchange code for session
@@ -82,9 +81,8 @@ export async function GET(request: Request) {
   // Default redirect for non-mentor users
   const returnUrl = searchParams.get("returnUrl");
   console.log("Return URL:", returnUrl);
-  const participantRedirectUrl = `${baseUrl}${
-    returnUrl ? returnUrl : ""
-  }`;
+  const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : `/${returnUrl || ''}`;
+  const participantRedirectUrl = `${baseUrl}${cleanReturnUrl}`;
   console.log("Redirecting to:", participantRedirectUrl);
   return NextResponse.redirect(participantRedirectUrl);
 }

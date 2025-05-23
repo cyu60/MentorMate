@@ -89,7 +89,8 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push(`${baseUrl}/${returnUrl ? returnUrl : ""}`);
+      const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
+      router.push(`${baseUrl}/${cleanReturnUrl || ""}`);
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -104,7 +105,8 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push(`${baseUrl}/${returnUrl ? returnUrl : ""}`);
+      const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
+      router.push(`${baseUrl}/${cleanReturnUrl || ""}`);
     }
   };
 
