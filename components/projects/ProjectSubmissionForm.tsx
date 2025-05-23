@@ -340,20 +340,20 @@ export function ProjectSubmissionFormComponent({
       }
 
       // Send confirmation email
-      const emailResponse = await fetch("/api/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "project_submission",
-          to: values.leadEmail,
-          projectName: values.projectName,
-          leadName: values.leadName,
-          teammates: values.teammates || [],
-        }),
-      });
-      if (!emailResponse.ok) {
-        console.error("Failed to send confirmation email");
-      }
+      // const emailResponse = await fetch("/api/email", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     type: "project_submission",
+      //     to: values.leadEmail,
+      //     projectName: values.projectName,
+      //     leadName: values.leadName,
+      //     teammates: values.teammates || [],
+      //   }),
+      // });
+      // if (!emailResponse.ok) {
+      //   console.error("Failed to send confirmation email");
+      // }
       toast({
         title: "Project Submitted",
         description: "Your project has been submitted for feedback.",

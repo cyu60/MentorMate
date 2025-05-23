@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       "/login",
       "/login",
       "/auth/callback",
+      "/auth/auth-code-error",
       "/about",
       "/teams",
     ];

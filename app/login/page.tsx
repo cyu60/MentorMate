@@ -18,6 +18,8 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+
   useEffect(() => {
     const mode = searchParams.get("mode");
     if (mode === "signup") {
@@ -46,6 +48,7 @@ function LoginContent() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    const returnUrl = localStorage.getItem("returnUrl");
 
     if (isSignUp) {
       if (password.length < 6) {
@@ -68,10 +71,13 @@ function LoginContent() {
         return;
       }
 
+      console.log("data", data);
+
       if (data?.user) {
         const { error: profileError } = await supabase
           .from("user_profiles")
           .upsert({
+            uid: data.user.id,
             email: data.user.email,
             display_name: data.user.email?.split("@")[0],
             created_at: new Date().toISOString(),
@@ -83,7 +89,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      router.push("/login");
+      router.push(`${baseUrl}/${returnUrl ? returnUrl : ""}`);
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -98,7 +104,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      router.push("/login");
+      router.push(`${baseUrl}/${returnUrl ? returnUrl : ""}`);
     }
   };
 
@@ -120,11 +126,12 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const options = {
       provider,
       options: {
-        redirectTo: `${baseUrl}/auth/callback`,
+        redirectTo: `${baseUrl}/auth/callback?returnUrl=${localStorage.getItem(
+          "returnUrl"
+        )}`,
       },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);
@@ -263,7 +270,7 @@ function LoginContent() {
             </div>
 
             {/* Social Providers */}
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 gap-4">
               <button
                 onClick={() => handleOAuthSignIn("google")}
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none"
@@ -288,7 +295,7 @@ function LoginContent() {
                 </svg>
                 <span className="text-sm font-semibold">Google</span>
               </button>
-              <button
+              {/* <button
                 onClick={() => handleOAuthSignIn("github")}
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none"
               >
@@ -305,7 +312,7 @@ function LoginContent() {
                   />
                 </svg>
                 <span className="text-sm font-semibold">GitHub</span>
-              </button>
+              </button> */}
             </div>
           </div>
 
