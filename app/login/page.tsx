@@ -19,6 +19,7 @@ function LoginContent() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -49,6 +50,7 @@ function LoginContent() {
     setLoading(true);
     setError("");
     const returnUrl = localStorage.getItem("returnUrl");
+    const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
 
     if (isSignUp) {
       if (password.length < 6) {
@@ -89,8 +91,7 @@ function LoginContent() {
       }
 
       setLoading(false);
-      const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
-      router.push(`${baseUrl}/${cleanReturnUrl || ""}`);
+      router.push(`${cleanBaseUrl}/${cleanReturnUrl || ""}`);
       return;
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -105,8 +106,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
-      router.push(`${baseUrl}/${cleanReturnUrl || ""}`);
+      router.push(`${cleanBaseUrl}/${cleanReturnUrl || ""}`);
     }
   };
 
@@ -131,7 +131,7 @@ function LoginContent() {
     const options = {
       provider,
       options: {
-        redirectTo: `${baseUrl}/auth/callback?returnUrl=${localStorage.getItem(
+        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${localStorage.getItem(
           "returnUrl"
         )}`,
       },

@@ -7,9 +7,10 @@ export async function GET(request: Request) {
 
   // Use environment variable for base URL, fallback to request origin
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
   if (!code) {
-    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+    return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   console.log("Starting auth callback with code");
@@ -23,12 +24,12 @@ export async function GET(request: Request) {
 
   if (codeError) {
     console.error("Error exchanging code for session:", codeError);
-    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+    return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   if (!session) {
     console.error("No session found after code exchange");
-    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+    return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   // Log the session after code exchange
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
   const user = session.user;
   if (!user?.email) {
     console.error("No email found in session user data");
-    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+    return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   // Try to check user profile first
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
 
   if (profileCheckError && profileCheckError.code !== "PGRST116") {
     console.error("Error checking user profile:", profileCheckError);
-    return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+    return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   if (!existingProfile) {
@@ -74,15 +75,16 @@ export async function GET(request: Request) {
 
     if (profileError) {
       console.log("Profile creation error:", profileError);
-      return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
+      return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
     }
   }
 
   // Default redirect for non-mentor users
-  const returnUrl = searchParams.get("returnUrl");
+  const returnUrl = searchParams.get("returnUrl") || '';
   console.log("Return URL:", returnUrl);
-  const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : `/${returnUrl || ''}`;
-  const participantRedirectUrl = `${baseUrl}${cleanReturnUrl}`;
+  const cleanReturnUrl = returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
+
+  const participantRedirectUrl = `${cleanBaseUrl}/${cleanReturnUrl}`;
   console.log("Redirecting to:", participantRedirectUrl);
   return NextResponse.redirect(participantRedirectUrl);
 }
