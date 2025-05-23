@@ -23,7 +23,7 @@ export default function MyProjectsPage() {
         error,
       } = await supabase.auth.getSession();
       if (error || !session) {
-        router.push("/project_dashboard");
+        router.push("/");
         return;
       }
       setSession(session);

@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
 
       // Only redirect if not authenticated and not on a public path
-      if (!session && !isPublicPath(pathname)) {
+      if (!isAuthenticated && !isPublicPath(pathname)) {
         router.push("/");
       }
     };
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
-      if (!session && !isPublicPath(pathname)) {
+      if (isAuthenticated && !isPublicPath(pathname)) {
         router.push("/");
       }
     });
