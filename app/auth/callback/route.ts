@@ -6,8 +6,9 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   // Use environment variable for base URL, fallback to request origin
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
-  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const cleanBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 
   if (!code) {
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
@@ -80,8 +81,10 @@ export async function GET(request: Request) {
   }
 
   // Default redirect for non-mentor users
-  const returnUrl = searchParams.get("returnUrl") || '';
-  const cleanReturnUrl = returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
+  const returnUrl = searchParams.get("returnUrl") || "";
+  const cleanReturnUrl = returnUrl.startsWith("/")
+    ? returnUrl.slice(1)
+    : returnUrl;
 
   const participantRedirectUrl = `${cleanBaseUrl}/${cleanReturnUrl}`;
   console.log("Redirecting to:", participantRedirectUrl);

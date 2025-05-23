@@ -50,6 +50,9 @@ function LoginContent() {
     setLoading(true);
     setError("");
     const returnUrl = localStorage.getItem("returnUrl");
+    if (returnUrl) {
+      localStorage.removeItem("returnUrl");
+    }
     const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
 
     if (isSignUp) {
@@ -126,12 +129,14 @@ function LoginContent() {
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
     setLoading(true);
+    const returnUrl = localStorage.getItem("returnUrl");
+    if (returnUrl) {
+      localStorage.removeItem("returnUrl");
+    }
     const options = {
       provider,
       options: {
-        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${localStorage.getItem(
-          "returnUrl"
-        )}`,
+        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${returnUrl}`,
       },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);
