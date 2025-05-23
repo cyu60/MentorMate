@@ -22,6 +22,9 @@ import { ProjectScoringForm } from "@/components/project-scoring/project-scoring
 function ProjectPageContent(): JSX.Element {
   const { id: projectId } = useParams();
   const [projectData, setProjectData] = useState<Project | null>(null);
+  const [projectTracks, setProjectTracks] = useState<
+    { track_id: string; name: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedbackOpen, setFeedbackOpen] = useState(true);
   const [criteria, setCriteria] = useState<ScoringCriterion[]>(defaultCriteria);
@@ -56,6 +59,22 @@ function ProjectPageContent(): JSX.Element {
           console.error("Error fetching event scoring config:", eventError);
         } else if (eventData?.scoring_config?.criteria) {
           setCriteria(eventData.scoring_config.criteria);
+        }
+
+        // Fetch tracks for the project
+        const { data: tracks, error: tracksError } = await supabase
+          .from("project_tracks")
+          .select("track_id, tracks(name)")
+          .eq("project_id", projectId);
+        if (tracksError) {
+          console.error("Error fetching project tracks:", tracksError);
+        } else if (tracks) {
+          setProjectTracks(
+            tracks.map((track: { track_id: string; tracks: { name: string }[] }) => ({
+              track_id: track.track_id,
+              name: track.tracks[0].name,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error loading project:", error);
@@ -249,6 +268,23 @@ function ProjectPageContent(): JSX.Element {
               </p>
             </section>
 
+            {/* Track Display for All Users */}
+            <section className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Track
+                {projectTracks && projectTracks.length > 1 ? "s" : ""}
+              </h2>
+              {projectTracks && projectTracks.length > 0 ? (
+                <ul className="list-disc list-inside text-gray-700 ml-2">
+                  {projectTracks.map((track) => (
+                    <li key={track.track_id}>{track.name}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">No tracks assigned.</p>
+              )}
+            </section>
+
             {/* Scoring Section for Judges */}
             {(userRole === EventRole.Judge || userRole === EventRole.Admin) && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -276,7 +312,7 @@ function ProjectPageContent(): JSX.Element {
                         className="w-full p-2 border rounded-md mb-4"
                       >
                         <option value="">Select a track</option>
-                        {projectData?.tracks?.map((track) => (
+                        {projectTracks.map((track) => (
                           <option key={track.track_id} value={track.track_id}>
                             {track.name}
                           </option>
@@ -289,6 +325,16 @@ function ProjectPageContent(): JSX.Element {
                       )}
                       {selectedTrackId && (
                         <>
+                          <div className="mb-4 p-3 bg-blue-50 rounded-md">
+                            <p className="text-blue-900 font-medium">
+                              Selected Track:{" "}
+                              {
+                                projectTracks.find(
+                                  (track) => track.track_id === selectedTrackId
+                                )?.name
+                              }
+                            </p>
+                          </div>
                           <h3 className="text-lg font-semibold mb-3">
                             Scoring Criteria
                           </h3>

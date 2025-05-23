@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ScoringConfigForm } from "@/components/dashboard/organizer/tracks/scoring-config-form";
-import {
-  EventDetails,
-  EventScoringConfig,
-  EventTrack,
-} from "@/lib/types";
+import { EventDetails, EventScoringConfig, EventTrack } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
 interface TracksTabProps {
@@ -59,7 +55,7 @@ export function TracksTab({
 
   useEffect(() => {
     fetchTracks();
-  }, [eventId, toast]);
+  }, [eventId, toast, fetchTracks]);
 
   const handleScoreUpdate = async (config: EventScoringConfig) => {
     try {

@@ -61,45 +61,141 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/mentormate.png" 
+              src="/mentormate.png"
               alt="Mentor Mate Logo"
               width={32}
               height={32}
-              className="object-contain"
+              className="object-contain pl-2"
             />
             <span className="font-bold text-lg text-blue-900">MentorMates</span>
           </Link>
 
+          {/* Desktop Menu */}
+          <div className="hidden md:flex flex-1 justify-center items-center gap-8">
+            <Link
+              href="/about"
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              About Us
+            </Link>
+            <Link
+              href="/teams"
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              Team
+            </Link>
+            <Link
+              href="mailto:chinat@stanford.edu"
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              Contact
+            </Link>
+            <Link
+              href="/events"
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              Events
+            </Link>
+          </div>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center gap-4">
+            {session ? (
+              <>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={session.user.user_metadata?.avatar_url} />
+                  <AvatarFallback>
+                    {session.user.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handleSignOutClick}
+                  className="px-4 py-2 text-base font-medium text-red-600 hover:bg-red-50 rounded-full"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Button
+                variant="logIn"
+                className="bg-black text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800"
+                onClick={handleLoginClick}
+              >
+                Log in
+              </Button>
+            )}
+          </div>
+
           {/* Mobile Menu Button */}
-          <button onClick={toggleMenu} className="text-gray-600 hover:text-gray-900">
+          <button
+            onClick={toggleMenu}
+            className="text-gray-600 hover:text-gray-900 flex md:hidden"
+          >
             {isOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`${isOpen ? 'block' : 'hidden'} bg-white border-t border-gray-100`}>
+        <div
+          className={`${
+            isOpen ? "block" : "hidden"
+          } bg-white border-t border-gray-100 md:hidden`}
+        >
           <div className="px-4 pt-2 pb-4 space-y-3">
-            <Link href="/about" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
+            <Link
+              href="/about"
+              className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600"
+            >
               About Us
             </Link>
-            <Link href="/teams" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
+            <Link
+              href="/teams"
+              className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600"
+            >
               Team
             </Link>
-            <Link href="mailto:chinat@stanford.edu" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
+            <Link
+              href="mailto:chinat@stanford.edu"
+              className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600"
+            >
               Contact
             </Link>
-            <Link href="/events" className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600">
+            <Link
+              href="/events"
+              className="block py-2 text-base font-medium text-gray-700 hover:text-blue-600"
+            >
               Events
             </Link>
-            
             {session ? (
               <div className="pt-2 border-t border-gray-100">
                 <div className="flex items-center gap-3 px-2 py-3">

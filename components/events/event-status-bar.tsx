@@ -17,7 +17,10 @@ export function EventStatusBar({ eventId }: EventStatusBarProps) {
   const roleDisplay = userRole ? getRoleLabel(userRole, roleLabels) : "Member";
 
   return (
-    <div className="w-full rounded-md shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4">
+    <div
+      className="w-full rounded-md shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 min-h-[64px] relative z-20 mb-4"
+      style={{ backgroundImage: "linear-gradient(to right, #22c55e, #16a34a)" }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <CheckCircle className="w-6 h-6" />
