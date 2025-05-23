@@ -7,14 +7,6 @@ import { StagewiseToolbarWrapper } from "@/components/StagewiseToolbarWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const stagewiseConfig = {
-  plugins: [],
-  onRequest: async (request: { type: string; payload: any }) => {
-    console.log("Received request:", request);
-    return { success: true };
-  },
-};
-
 export const metadata: Metadata = {
   title: "MentorMate",
   description: "Connecting mentors and students in hackathons",

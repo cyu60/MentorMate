@@ -2,9 +2,14 @@
 
 import { StagewiseToolbar } from "@stagewise/toolbar-next";
 
+interface StagewiseRequest {
+  type: string;
+  payload: unknown;
+}
+
 const stagewiseConfig = {
   plugins: [],
-  onRequest: async (request: { type: string; payload: any }) => {
+  onRequest: async (request: StagewiseRequest) => {
     console.log("Received request:", request);
     return { success: true };
   },
