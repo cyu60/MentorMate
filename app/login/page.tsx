@@ -73,8 +73,6 @@ function LoginContent() {
         return;
       }
 
-      console.log("data", data);
-
       if (data?.user) {
         const { error: profileError } = await supabase
           .from("user_profiles")

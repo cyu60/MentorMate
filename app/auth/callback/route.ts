@@ -81,7 +81,6 @@ export async function GET(request: Request) {
 
   // Default redirect for non-mentor users
   const returnUrl = searchParams.get("returnUrl") || '';
-  console.log("Return URL:", returnUrl);
   const cleanReturnUrl = returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
 
   const participantRedirectUrl = `${cleanBaseUrl}/${cleanReturnUrl}`;
