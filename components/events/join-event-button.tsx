@@ -114,7 +114,7 @@ export function JoinEventButton({ eventId, eventName }: JoinEventButtonProps) {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) {
-        localStorage.setItem("returnUrl", `/events/${eventId}/overview`);
+        localStorage.setItem("returnUrl", window.location.pathname);
         router.push("/login");
         return;
       }
