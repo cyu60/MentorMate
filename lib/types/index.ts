@@ -22,6 +22,7 @@ export interface UserProfile {
 
 export type EventItem = {
   event_id: string;
+  slug?: string;
   event_name: string;
   slug: string;
   event_date: string;

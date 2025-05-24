@@ -9,6 +9,7 @@ import { EventRole } from "@/lib/types";
 
 interface Event {
   event_id: string;
+  slug?: string;
   event_name: string;
   event_date: string;
   location: string;
@@ -91,7 +92,7 @@ export function EventsList({ events }: EventsListProps) {
 
         return (
           <Link
-            href={`/events/${event.event_id}/overview`}
+            href={`/events/${event.slug || event.event_id}/overview`}
             key={event.event_id}
             className="block h-full"
           >

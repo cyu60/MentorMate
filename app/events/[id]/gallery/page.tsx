@@ -11,17 +11,40 @@ import ProjectBoard from "@/features/projects/components/displays/ProjectBoard/P
 import { ProjectBoardContext, Project } from "@/lib/types";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 export default function GalleryPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const slug = params.id as string;
+  const [eventId, setEventId] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { isRegistered, userRole } = useEventRegistration();
 
+  useEffect(() => {
+    const resolveEventId = async () => {
+      const isUUID = isValidUUID(slug);
+
+      let query = supabase.from("events").select("event_id");
+
+      if (isUUID) {
+        // If it's a UUID, check both slug and event_id
+        query = query.or(`slug.eq.${slug},event_id.eq.${slug}`);
+      } else {
+        // If it's not a UUID, only check slug
+        query = query.eq("slug", slug);
+      }
+
+      const { data } = await query.maybeSingle();
+      if (data) setEventId(data.event_id);
+    };
+    resolveEventId();
+  }, [slug]);
+
   // Sets 'projects' state to a list of projects the event_id is associated with
   useEffect(() => {
+    if (!eventId) return;
     const fetchProjects = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -40,6 +63,10 @@ export default function GalleryPage() {
 
     fetchProjects();
   }, [eventId]);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   const filteredProjects = projects.filter(
     (project) =>

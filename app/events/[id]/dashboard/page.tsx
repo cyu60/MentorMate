@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";
 import { ParticipantDashboard } from "@/features/user/dashboards/dashboard/participant-dashboard";
@@ -8,12 +9,34 @@ import { JudgeDashboard } from "@/features/user/dashboards/dashboard/judge-dashb
 import { MentorDashboard } from "@/features/user/dashboards/dashboard/mentor-dashboard";
 import { OrganizerDashboard } from "@/features/user/dashboards/dashboard/organizer";
 import { useState, useEffect } from "react";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 export default function DashboardPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const slug = params.id as string;
+  const [eventId, setEventId] = useState<string | null>(null);
   const { userRole } = useEventRegistration();
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const resolveEventId = async () => {
+      const isUUID = isValidUUID(slug);
+
+      let query = supabase.from("events").select("event_id");
+
+      if (isUUID) {
+        // If it's a UUID, check both slug and event_id
+        query = query.or(`slug.eq.${slug},event_id.eq.${slug}`);
+      } else {
+        // If it's not a UUID, only check slug
+        query = query.eq("slug", slug);
+      }
+
+      const { data } = await query.maybeSingle();
+      if (data) setEventId(data.event_id);
+    };
+    resolveEventId();
+  }, [slug]);
 
   useEffect(() => {
     // Simulate loading time for the dashboard, give time for the data to load
@@ -23,6 +46,10 @@ export default function DashboardPage() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (!eventId) {
+    return <div>Loading...</div>;
+  }
 
   const renderDashboard = () => {
     switch (userRole) {

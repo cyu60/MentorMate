@@ -13,6 +13,7 @@ import {
   EventTrack,
 } from "@/lib/types";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
+import { isValidUUID } from "@/app/utils/supabase/queries";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -42,59 +43,75 @@ export default async function EventOverviewPage({ params }: PageProps) {
   const { id } = await Promise.resolve(params);
   const supabase = await createSupabaseClient();
 
-  // Update the Promise.all to use a join
-  const [eventResult, tracksResult] = await Promise.all([
-    supabase.from("events").select("*").eq("event_id", id).single(),
-    supabase
-      .from("event_tracks")
-      .select(
-        `
-        *,
-        prizes (
-          prize_amount,
-          prize_description
-        )
-      `
-      )
-      .eq("event_id", id),
-  ]);
+  const isUUID = isValidUUID(id);
 
-  if (eventResult.error) {
+  let query = supabase.from("events").select("*");
+
+  if (isUUID) {
+    // If it's a UUID, check both slug and event_id
+    query = query.or(`slug.eq.${id},event_id.eq.${id}`);
+  } else {
+    // If it's not a UUID, only check slug
+    query = query.eq("slug", id);
+  }
+
+  const { data: eventData, error: eventError } = await query.single();
+
+  if (eventError || !eventData) {
     notFound();
   }
 
-  const typedEvent = eventResult.data as EventDetails;
-  const tracks = (tracksResult.data || []) as EventTrack[];
+  const { data: tracksData } = await supabase
+    .from("event_tracks")
+    .select(
+      `
+      *,
+      prizes (
+        prize_amount,
+        prize_description
+      )
+    `
+    )
+    .eq("event_id", eventData.event_id);
+
+  const typedEvent = eventData as EventDetails;
+  const tracks = (tracksData || []) as EventTrack[];
 
   // Check if user has joined
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   let hasJoined = false;
 
   if (user) {
-    if (!user.email) return;
+    if (!user.email) {
+      // Skip join check if user has no email
+    } else {
+      const { data: userEventRoles } = await supabase
+        .from("user_event_roles")
+        .select("event_id")
+        .in("uid", [user.id]);
 
-    const { data: userEventRoles } = await supabase
-      .from("user_event_roles")
-      .select("event_id")
-      .in("uid", [user.id]);
-
-    if (userEventRoles) {
-      const events = userEventRoles.map((role) => role.event_id);
-      hasJoined = events.includes(id);
+      if (userEventRoles) {
+        const events = userEventRoles.map((role) => role.event_id);
+        hasJoined = events.includes(eventData.event_id);
+      }
     }
   }
 
   return (
     <div className="container mx-auto py-4">
       {/* Status Bar */}
-      <EventStatusBar eventId={id} />
+      <EventStatusBar eventId={eventData.event_id} />
 
       {/* Join Button */}
       {!hasJoined && (
         <div className="flex justify-center mb-8">
-          <JoinEventButton eventId={id} eventName={typedEvent.event_name} />
+          <JoinEventButton
+            eventId={eventData.event_id}
+            eventName={typedEvent.event_name}
+          />
         </div>
       )}
 
@@ -159,7 +176,9 @@ export default async function EventOverviewPage({ params }: PageProps) {
                         <span className="font-medium text-gray-800">
                           {event.name}
                         </span>
-                        <span className="text-gray-500 whitespace-nowrap">{event.time}</span>
+                        <span className="text-gray-500 whitespace-nowrap">
+                          {event.time}
+                        </span>
                       </div>
                     ))}
                   </div>
