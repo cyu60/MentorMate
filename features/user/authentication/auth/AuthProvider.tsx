@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [pathname, router, isPublicPath, isAuthenticated]);
+  }, [pathname, router, isPublicPath]);
 
   if (isLoading) {
     return null; // Or a loading spinner
