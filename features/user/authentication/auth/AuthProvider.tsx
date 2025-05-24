@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
-      if (isAuthenticated && !isPublicPath(pathname)) {
+      if (!isAuthenticated && !isPublicPath(pathname)) {
         router.push("/");
       }
     });
