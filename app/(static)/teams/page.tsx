@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Navbar } from '@/components/layout/navbar';
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 
@@ -85,7 +84,6 @@ const ProfileImage = ({
 export default function TeamGrid() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-50 to-white">
-      <Navbar />
       <div className="container mx-auto pt-16">
         <h1 className="mb-8 text-3xl sm:text-4xl md:text-5xl font-bold text-center text-blue-900">
           Our Team

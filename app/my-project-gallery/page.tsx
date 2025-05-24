@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { ReturnUrlHandler } from "@/features/user/authentication/auth/ReturnUrlHandler";
-import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import ProjectBoard from "@/features/projects/components/displays/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext, Project, EventTrack } from "@/lib/types";
@@ -131,7 +130,6 @@ export default function MyProjectsPage() {
 
   return (
     <div className="min-h-full bg-gray-50 pt-10">
-      <AuthNavbar />
       <ReturnUrlHandler />
       <div className="container mx-auto px-4 pb-16">
         {/* Hero Section */}

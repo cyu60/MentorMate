@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/utils/Providers";
 import { AuthProvider } from "@/features/user/authentication/auth/AuthProvider";
 import { StagewiseToolbarWrapper } from "@/components/StagewiseToolbarWrapper";
+import { ConditionalNavbar } from "@/components/layout/ConditionalNavbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
+          <ConditionalNavbar />
           <div className="min-h-screen flex flex-col">
             <div className="flex flex-1 pt-16">
               <AuthProvider>

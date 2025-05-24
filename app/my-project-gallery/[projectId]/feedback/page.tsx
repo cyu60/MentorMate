@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/lib/hooks/use-toast";
 import { Project, FeedbackItem } from "@/lib/types";
@@ -132,7 +131,6 @@ export default function FeedbackPage() {
 
   return (
     <div className="container m-0 p-0 sm:p-10 bg-gradient-to-b min-w-full min-h-screen from-white to-blue-100/80">
-      <Navbar />
       <h1 className="text-3xl font-bold mb-8 text-center">
         Feedback for {projectData.project_name}
       </h1>

@@ -60,6 +60,12 @@ export function AuthNavbar() {
           {/* Desktop Menu */}
           <div className="hidden md:flex flex-1 justify-center items-center gap-8">
             <Link
+              href={`/profile/${session?.user.id}`}
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              My Profile
+            </Link>
+            <Link
               href="/events"
               className="text-base font-medium text-gray-700 hover:text-blue-600"
             >

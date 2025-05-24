@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Navbar } from '@/components/layout/navbar';
 import { ReturnUrlHandler } from '@/features/user/authentication/auth/ReturnUrlHandler';
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
@@ -22,7 +21,6 @@ export default function MentorPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white to-blue-100/80">
-      <Navbar />
       <ReturnUrlHandler />
       <div className="relative z-10 container mx-auto py-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center">

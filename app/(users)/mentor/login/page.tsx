@@ -3,14 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// import { createClient } from "@supabase/supabase-js";
 import { createClient } from "@/app/utils/supabase/client";
-import { Navbar } from '@/components/layout/navbar';
 import Link from "next/link";
-
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-// );
 
 export default function MentorLoginPage() {
   const supabase = createClient();
@@ -90,7 +84,6 @@ export default function MentorLoginPage() {
 
   return (
     <div className="bg-gradient-to-b from-white to-blue-100/80 items-center">
-      <Navbar />
       <div className="overflow-auto flex flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image

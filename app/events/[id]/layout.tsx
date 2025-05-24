@@ -4,8 +4,6 @@ import { notFound } from "next/navigation";
 import { EventRegistrationWrapper } from "@/components/event-registration-wrapper";
 import { EventHeader } from "@/components/events/event-header";
 import type { Metadata } from "next";
-import { AuthNavbar } from "@/components/layout/authNavbar";
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { isValidUUID } from "@/app/utils/supabase/queries";
 
@@ -22,11 +20,6 @@ export default async function Layout({
   const supabase = await createSupabaseClient();
 
   // Check if user is authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isAuthenticated = !!user;
-
   const isUUID = isValidUUID(id);
 
   let query = supabase.from("events").select(`
@@ -56,7 +49,6 @@ export default async function Layout({
 
   return (
     <div className="min-h-screen flex flex-col">
-      {isAuthenticated ? <AuthNavbar /> : <Navbar />}
       <EventRegistrationWrapper eventId={event.event_id}>
         <main className="flex-1 overflow-auto">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full">

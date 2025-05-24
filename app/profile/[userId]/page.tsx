@@ -1,8 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { AuthNavbar } from "@/components/layout/authNavbar";
-import { Navbar } from "@/components/layout/navbar";
 import { useState, useEffect } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -265,7 +263,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {session ? <AuthNavbar /> : <Navbar />}
       <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">

@@ -1,13 +1,11 @@
 import type React from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 
 const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-2">
-      <Navbar />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-16">
         {/* Hero Section */}
         <div className="text-center">
