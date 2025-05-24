@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 type PathPattern = string | RegExp;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -46,11 +45,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { session },
         error,
       } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session && !error);
       setIsLoading(false);
 
-      // Only redirect if not authenticated and not on a public path
-      if (!isAuthenticated && !isPublicPath(pathname)) {
+      // Only redirect if (not authenticated or error) and not on a public path
+      if ((!session || error) && !isPublicPath(pathname)) {
         router.push("/");
       }
     };
@@ -60,8 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-      if (!isAuthenticated && !isPublicPath(pathname)) {
+      if (!session && !isPublicPath(pathname)) {
         router.push("/");
       }
     });
@@ -75,9 +72,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null; // Or a loading spinner
   }
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
