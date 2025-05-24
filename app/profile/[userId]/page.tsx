@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Pencil, Globe } from "lucide-react";
 import { FaLinkedin, FaGithub, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
-import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
+import ProjectBoard from "@/features/projects/components/displays/ProjectBoard/ProjectBoard";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import Image from "next/image";
 

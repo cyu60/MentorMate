@@ -13,7 +13,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import { Calendar, Folder, MessageSquare } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 
 export default function HomePage() {
   const [session, setSession] = useState<Session | null>(null);

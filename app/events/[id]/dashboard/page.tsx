@@ -4,10 +4,10 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";
-import { ParticipantDashboard } from "@/components/dashboard/participant-dashboard";
-import { JudgeDashboard } from "@/components/dashboard/judge-dashboard";
-import { MentorDashboard } from "@/components/dashboard/mentor-dashboard";
-import { OrganizerDashboard } from "@/components/dashboard/organizer";
+import { ParticipantDashboard } from "@/features/user/dashboards/dashboard/participant-dashboard";
+import { JudgeDashboard } from "@/features/user/dashboards/dashboard/judge-dashboard";
+import { MentorDashboard } from "@/features/user/dashboards/dashboard/mentor-dashboard";
+import { OrganizerDashboard } from "@/features/user/dashboards/dashboard/organizer";
 import { useState, useEffect } from "react";
 import { isValidUUID } from "@/app/utils/supabase/queries";
 

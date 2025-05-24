@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ERROR_MESSAGES } from "@/lib/constants";
+import { ERROR_MESSAGES } from "@/lib/config/constants";
 import { EventRole } from "@/lib/types";
 
 const EventRegistrationContext =

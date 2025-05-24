@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { EventRole, EventVisibility } from "@/lib/types";
 import { createSupabaseClient } from "@/app/utils/supabase/server";
-import { ADMIN_USER_IDS } from "@/lib/constants";
+import { ADMIN_USER_IDS } from "@/lib/config/constants";
 
 export async function GET() {
   const supabase = await createSupabaseClient();

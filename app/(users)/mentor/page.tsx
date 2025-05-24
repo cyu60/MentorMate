@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from '@/components/layout/navbar';
-import { ReturnUrlHandler } from '@/components/auth/ReturnUrlHandler';
+import { ReturnUrlHandler } from '@/features/user/authentication/auth/ReturnUrlHandler';
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
 

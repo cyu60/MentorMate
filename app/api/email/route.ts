@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { getProjectSubmissionEmailTemplate } from '@/app/email-templates/project-submission';
-import { getProjectTeammateEmailTemplate } from '@/app/email-templates/project-teammate';
-import { getFeedbackNotificationEmailTemplate } from '@/app/email-templates/feedback-notification';
+import { getProjectSubmissionEmailTemplate } from '@/lib/templates/project-submission';
+import { getProjectTeammateEmailTemplate } from '@/lib/templates/project-teammate';
+import { getFeedbackNotificationEmailTemplate } from '@/lib/templates/feedback-notification';
 import { createSupabaseClient } from '@/app/utils/supabase/server';
 
 const transporter = nodemailer.createTransport({
@@ -23,7 +23,6 @@ async function getTeammateEmails(emails: string[]) {
     .in('email', emails);
 
   if (error) {
-    console.error('Error fetching teammate emails:', error);
     return [];
   }
 
@@ -97,7 +96,6 @@ export async function POST(request: Request) {
         .single();
 
       if (projectError) {
-        console.error('Error fetching project teammates:', projectError);
         return NextResponse.json(
           { error: 'Failed to fetch project teammates' },
           { status: 500 }

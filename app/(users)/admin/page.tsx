@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ADMIN_USER_IDS } from "@/lib/constants";
+import { ADMIN_USER_IDS } from "@/lib/config/constants";
 import { supabase } from "@/lib/supabase";
-import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
+import { AdminDashboard } from "@/features/user/dashboards/dashboard/admin-dashboard";
 
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);

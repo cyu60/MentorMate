@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { ReturnUrlHandler } from "@/components/auth/ReturnUrlHandler";
+import { ReturnUrlHandler } from "@/features/user/authentication/auth/ReturnUrlHandler";
 import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
-import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
+import ProjectBoard from "@/features/projects/components/displays/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext, Project, EventTrack } from "@/lib/types";
 
 export default function MyProjectsPage() {

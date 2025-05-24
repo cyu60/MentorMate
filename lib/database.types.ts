@@ -9,6 +9,53 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      events: {
+        Row: {
+          event_id: string
+          event_name: string
+          event_description: string | null
+          slug: string
+          event_start_date: string | null
+          event_end_date: string | null
+          submission_deadline: string | null
+          cover_image_url: string | null
+          password: string | null
+          is_public: boolean | null
+          submission_time_blurb: string | null
+          role_labels: Json | null
+          created_at: string
+        }
+        Insert: {
+          event_id?: string
+          event_name: string
+          event_description?: string | null
+          slug: string
+          event_start_date?: string | null
+          event_end_date?: string | null
+          submission_deadline?: string | null
+          cover_image_url?: string | null
+          password?: string | null
+          is_public?: boolean | null
+          submission_time_blurb?: string | null
+          role_labels?: Json | null
+          created_at?: string
+        }
+        Update: {
+          event_id?: string
+          event_name?: string
+          event_description?: string | null
+          slug?: string
+          event_start_date?: string | null
+          event_end_date?: string | null
+          submission_deadline?: string | null
+          cover_image_url?: string | null
+          password?: string | null
+          is_public?: boolean | null
+          submission_time_blurb?: string | null
+          role_labels?: Json | null
+          created_at?: string
+        }
+      }
       user_event_roles: {
         Row: {
           user_id: string
