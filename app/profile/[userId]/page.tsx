@@ -21,7 +21,6 @@ import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import Image from "next/image";
 
 interface EventWithRole extends EventItem {
   user_event_roles: {
@@ -391,18 +390,27 @@ export default function ProfilePage() {
                     >
                       {event.cover_image_url && (
                         <div className="relative h-48 w-full">
-                          <Image
-                            width={400}
-                            height={200}
-                            src={event.cover_image_url}
-                            alt={event.event_name}
-                            className="rounded-t-lg object-cover"
+                          <div
+                            className="w-full h-[200px] bg-gradient-to-br from-primary/20 to-primary/10"
+                            style={
+                              event.cover_image_url
+                                ? {
+                                    backgroundImage: `url(${event.cover_image_url})`,
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                  }
+                                : undefined
+                            }
                           />
                         </div>
                       )}
                       <CardHeader>
                         <CardTitle className="text-xl hover:text-blue-600">
-                          <Link href={`/events/${event.slug || event.event_id}/overview`}>
+                          <Link
+                            href={`/events/${
+                              event.slug || event.event_id
+                            }/overview`}
+                          >
                             {event.event_name}
                           </Link>
                         </CardTitle>
