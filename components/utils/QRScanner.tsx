@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 
 export default function QRScanner() {
   const router = useRouter();

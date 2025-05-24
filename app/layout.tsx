@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/utils/Providers";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AuthProvider } from "@/features/user/authentication/auth/AuthProvider";
 import { StagewiseToolbarWrapper } from "@/components/StagewiseToolbarWrapper";
 
 const inter = Inter({ subsets: ["latin"] });

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { Project, FeedbackItem } from "@/lib/types";
 
 export default function FeedbackPage() {

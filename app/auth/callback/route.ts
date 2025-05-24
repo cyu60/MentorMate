@@ -14,7 +14,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
-  console.log("Starting auth callback with code");
   const supabase = await createSupabaseClient();
 
   // Exchange code for session
@@ -24,24 +23,15 @@ export async function GET(request: Request) {
   } = await supabase.auth.exchangeCodeForSession(code);
 
   if (codeError) {
-    console.error("Error exchanging code for session:", codeError);
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
   if (!session) {
-    console.error("No session found after code exchange");
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
-  // Log the session after code exchange
-  console.log(
-    "ROOT: Session after code exchange:",
-    JSON.stringify(session, null, 2)
-  );
-
   const user = session.user;
   if (!user?.email) {
-    console.error("No email found in session user data");
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
@@ -53,7 +43,6 @@ export async function GET(request: Request) {
     .single();
 
   if (profileCheckError && profileCheckError.code !== "PGRST116") {
-    console.error("Error checking user profile:", profileCheckError);
     return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
   }
 
@@ -65,17 +54,11 @@ export async function GET(request: Request) {
       created_at: new Date().toISOString(),
     };
 
-    console.log(
-      "Attempting to create user profile with data:",
-      JSON.stringify(profileData, null, 2)
-    );
-
     const { error: profileError } = await supabase
       .from("user_profiles")
       .insert(profileData);
 
     if (profileError) {
-      console.log("Profile creation error:", profileError);
       return NextResponse.redirect(`${cleanBaseUrl}/auth/auth-code-error`);
     }
   }
@@ -87,6 +70,5 @@ export async function GET(request: Request) {
     : returnUrl;
 
   const participantRedirectUrl = `${cleanBaseUrl}/${cleanReturnUrl}`;
-  console.log("Redirecting to:", participantRedirectUrl);
   return NextResponse.redirect(participantRedirectUrl);
 }

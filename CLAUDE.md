@@ -70,12 +70,54 @@ Essential commands for development:
 - Project sharing via QR codes using `qrcode.react`
 - QR scanning with `@yudiel/react-qr-scanner`
 
+## Project Structure
+
+**Feature-Based Architecture (Newly Implemented):**
+```
+features/
+├── projects/                    # Project management feature
+│   ├── components/
+│   │   ├── forms/              # ProjectSubmissionForm, SubmissionConfirmation
+│   │   ├── displays/           # ProjectBoard, my-project-section
+│   │   ├── feedback/           # FeedbackForm
+│   │   └── management/         # project-dashboard
+│   ├── hooks/                  # use-project
+│   └── utils/                  # projects helpers
+└── user/                       # User management feature  
+    ├── authentication/         # AuthProvider, AuthRedirectProvider
+    ├── dashboards/            # Role-specific dashboards
+    ├── profiles/              # Profile management
+    └── roles/                 # Role utilities
+
+lib/
+├── config/          # Configuration and constants
+├── templates/       # Email templates  
+├── hooks/          # Shared React hooks
+├── utils/          # Shared utility functions
+└── types/          # TypeScript type definitions
+
+app/
+├── (auth)/         # Authentication pages
+├── (users)/        # User-specific pages  
+├── api/           # API routes
+└── utils/supabase/ # Next.js specific Supabase utilities
+```
+
 ## Development Guidelines
 
 **File Naming:**
 - Components use PascalCase: `AuthProvider.tsx`
 - Pages use kebab-case: `page.tsx`
 - Utilities use camelCase: `invite-links.ts`
+
+**Import Paths:**
+- Project Components: `@/features/projects/components/{forms,displays,feedback,management}/*`
+- User Components: `@/features/user/{authentication,dashboards,profiles,roles}/*`  
+- Project Hooks: `@/features/projects/hooks/*`
+- Shared Hooks: `@/lib/hooks/*`
+- Templates: `@/lib/templates/*`
+- Config: `@/lib/config/*`
+- Types: `@/lib/types/*`
 
 **Database Operations:**
 - Use TypeScript types from `lib/database.types.ts`

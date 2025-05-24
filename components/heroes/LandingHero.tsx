@@ -16,10 +16,8 @@ export function LandingHero() {
       {/* Hero Section */}
       <div className="relative z-10 px-4 pt-12 pb-20 sm:px-6 lg:px-8 lg:pt-20">
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-400">
-              Mentor Mates
-            </span>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 flex items-center justify-center text-blue-900">
+            Mentor Mates
           </h1>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-700 max-w-3xl mx-auto leading-relaxed">
             All-in-One Platform for{" "}
@@ -157,24 +155,19 @@ export function LandingHero() {
       {/* Word Slide Animation */}
       <style jsx>{`
         @keyframes slideWords {
-          0%,
-          16% {
+          0%, 18% {
             transform: translateY(0%);
           }
-          20%,
-          36% {
+          20%, 38% {
             transform: translateY(-20%);
           }
-          40%,
-          56% {
+          40%, 58% {
             transform: translateY(-40%);
           }
-          60%,
-          76% {
+          60%, 78% {
             transform: translateY(-60%);
           }
-          80%,
-          96% {
+          80%, 98% {
             transform: translateY(-80%);
           }
           100% {
@@ -183,7 +176,8 @@ export function LandingHero() {
         }
 
         .animate-word-slide {
-          animation: slideWords 8s infinite;
+          animation: slideWords 10s infinite;
+          will-change: transform;
         }
 
         .animate-word-slide span {
@@ -191,6 +185,7 @@ export function LandingHero() {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
         /* Cloned first item for a seamless loop */
@@ -211,6 +206,7 @@ export function LandingHero() {
           color: rgb(30, 58, 138);
           font-weight: 700;
           padding: 0.25rem 0.5rem;
+          height: 40px;
         }
       `}</style>
     </div>

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/app/utils/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, CheckCircle2 } from "lucide-react";
 import VoiceInput from "@/components/utils/VoiceInput";

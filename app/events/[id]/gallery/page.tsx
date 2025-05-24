@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import ProjectBoard from "@/components/projects/ProjectBoard/ProjectBoard";
+import ProjectBoard from "@/features/projects/components/displays/ProjectBoard/ProjectBoard";
 import { ProjectBoardContext, Project } from "@/lib/types";
 import { useEventRegistration } from "@/components/event-registration-provider";
 import { EventRole } from "@/lib/types";

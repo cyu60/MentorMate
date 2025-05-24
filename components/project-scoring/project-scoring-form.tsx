@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScoreFormData, ScoringCriterion } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 import { PostgrestError } from "@supabase/supabase-js";
 import VoiceInput from "@/components/utils/VoiceInput";
 
