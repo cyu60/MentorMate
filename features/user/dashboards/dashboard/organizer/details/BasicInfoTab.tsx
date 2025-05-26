@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { EventDetails } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { toast as ToastType } from "@/lib/hooks/use-toast";
-import Image from "next/image";
 
 interface BasicInfoTabProps {
   event: EventDetails;
@@ -259,12 +258,10 @@ export function BasicInfoTab({
 
         {(previewUrl || event.cover_image_url) && (
           <div className="mt-2">
-            <Image
-              width={400}
-              height={200}
+            <img
               src={previewUrl || event.cover_image_url || ""}
               alt="Cover preview"
-              className="rounded-md object-cover"
+              className="rounded-md object-cover w-[400px] h-[200px]"
             />
           </div>
         )}

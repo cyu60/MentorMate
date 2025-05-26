@@ -132,10 +132,11 @@ function LoginContent() {
     if (returnUrl) {
       localStorage.removeItem("returnUrl");
     }
+    const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
     const options = {
       provider,
       options: {
-        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${returnUrl}`,
+        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${cleanReturnUrl || ""}`,
       },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);

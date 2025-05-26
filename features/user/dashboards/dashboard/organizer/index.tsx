@@ -176,7 +176,7 @@ export function OrganizerDashboard({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-6 gap-4 mb-6">
+        <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 w-full h-auto">
           <TabsTrigger value="details" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Event Details
