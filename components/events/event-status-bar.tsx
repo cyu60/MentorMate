@@ -1,6 +1,6 @@
 "use client";
 
-import { getRoleLabel } from "@/lib/utils/roles";
+import { getRoleLabel } from "@/features/user/roles/roles";
 import { CancelRegistration } from "@/components/events/cancel-registration";
 import { CheckCircle } from "lucide-react";
 import { useEventRegistration } from "@/components/event-registration-provider";

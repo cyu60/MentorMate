@@ -60,13 +60,19 @@ export function AuthNavbar() {
           {/* Desktop Menu */}
           <div className="hidden md:flex flex-1 justify-center items-center gap-8">
             <Link
+              href={`/profile/${session?.user.id}`}
+              className="text-base font-medium text-gray-700 hover:text-blue-600"
+            >
+              My Profile
+            </Link>
+            <Link
               href="/events"
               className="text-base font-medium text-gray-700 hover:text-blue-600"
             >
               Events
             </Link>
             <Link
-              href="/my-project-gallery"
+              href="/projects"
               className="text-base font-medium text-gray-700 hover:text-blue-600"
             >
               My Projects
@@ -156,7 +162,7 @@ export function AuthNavbar() {
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-4">
           <Link
-            href={session ? `/profile/${session.user.id}` : "/login"}
+            href={`/profile/${session?.user.id}`}
             className="block text-gray-700 font-medium hover:text-blue-600"
             onClick={() => setIsOpen(false)}
           >
@@ -170,7 +176,7 @@ export function AuthNavbar() {
             Events
           </Link>
           <Link
-            href="/my-project-gallery"
+            href="/projects"
             className="block text-gray-700 font-medium hover:text-blue-600"
             onClick={() => setIsOpen(false)}
           >

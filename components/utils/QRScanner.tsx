@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 
 export default function QRScanner() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function QRScanner() {
           title: "QR Code Scanned",
           description: "Redirecting to project page...",
         });
-        router.push(`/my-project-gallery/${projectId}`);
+        router.push(`/projects/${projectId}`);
       } catch (error) {
         console.error("Error parsing QR code:", error);
         setScanError("Invalid QR code format. Please try scanning again.");

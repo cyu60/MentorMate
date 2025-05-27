@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { ScoringCriterion, Project } from "@/lib/types";
 import { QuestionFactory } from "./question-types/question-factory";
 import { Button } from "@/components/ui/button";

@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EventRole, EventItem, EventVisibility } from "@/lib/types";
-import { toast } from "@/hooks/use-toast";
-import { getRoleLabel } from "@/lib/utils/roles";
+import { toast } from "@/lib/hooks/use-toast";
+import { getRoleLabel } from "@/features/user/roles/roles";
 
 export interface JoinEventButtonProps {
   eventId: string;

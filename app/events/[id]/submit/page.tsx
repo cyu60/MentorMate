@@ -1,6 +1,6 @@
 "use client";
 
-import { ProjectSubmissionFormComponent } from "@/components/projects/ProjectSubmissionForm";
+import { ProjectSubmissionFormComponent } from "@/features/projects/components/forms/ProjectSubmissionForm";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";

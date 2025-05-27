@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/app/utils/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { Pencil, Plus, X, Loader2 } from "lucide-react";
 import VoiceInput from "../utils/VoiceInput";

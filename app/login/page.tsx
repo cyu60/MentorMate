@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import Image from "next/image";
 
@@ -133,10 +132,11 @@ function LoginContent() {
     if (returnUrl) {
       localStorage.removeItem("returnUrl");
     }
+    const cleanReturnUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl.slice(1) : returnUrl;
     const options = {
       provider,
       options: {
-        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${returnUrl}`,
+        redirectTo: `${cleanBaseUrl}/auth/callback?returnUrl=${cleanReturnUrl || ""}`,
       },
     };
     const { error } = await supabase.auth.signInWithOAuth(options);
@@ -344,7 +344,6 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen pb-10 bg-gradient-to-b from-white to-blue-100/80 flex flex-col items-center">
-      <Navbar />
       <Suspense fallback={<div>Loading...</div>}>
         <LoginContent />
       </Suspense>

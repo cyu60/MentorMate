@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from '@/components/layout/navbar';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface FeedbackWithProject {
@@ -101,7 +100,6 @@ export default function GivenFeedbackPage() {
 
   return (
     <div className="container m-0 p-0 sm:p-10 bg-blue-50 min-w-full min-h-screen">
-      <Navbar />
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center text-blue-900">
         Feedback You&apos;ve Given
       </h1>
@@ -145,7 +143,7 @@ export default function GivenFeedbackPage() {
                         {item.feedback_text}
                       </p>
                       <div className="mt-4">
-                        <Link href={`/public-project-details/${item.project_id}`}>
+                        <Link href={`/projects/public/${item.project_id}`}>
                           <Button
                             variant="outline"
                             size="sm"

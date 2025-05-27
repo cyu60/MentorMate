@@ -9,11 +9,9 @@ import { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { Navbar } from "@/components/layout/navbar";
-import { AuthNavbar } from "@/components/layout/authNavbar";
 import { Footer } from "@/components/layout/footer";
 import { Calendar, Folder, MessageSquare } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 
 export default function HomePage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -147,7 +145,6 @@ export default function HomePage() {
   if (!session) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-b from-white to-blue-50 pb-4">
-        <Navbar />
         <LandingHero />
         <ServiceWorkerRegistration />
         <div className="pt-10">
@@ -159,7 +156,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-gray-50">
-      <AuthNavbar />
       <div className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           <motion.div
@@ -241,7 +237,7 @@ export default function HomePage() {
                   <p className="text-gray-600 text-sm sm:text-base mb-4">
                   Track and update your project progress.
                   </p>
-                  <Link href="/my-project-gallery" className="mt-auto">
+                  <Link href="/projects" className="mt-auto">
                   <Button className="bg-blue-900 text-white w-full sm:w-auto">
                     View Projects
                   </Button>

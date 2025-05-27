@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { EventsList } from "@/components/events/events-list";
 import { Input } from "@/components/ui/input";
 import { EventItem } from "@/lib/types";
-import { UI_TEXT, DEFAULT_VALUES } from "@/lib/constants";
+import { UI_TEXT, DEFAULT_VALUES } from "@/lib/config/constants";
 
 export function EventsPageClient({ eventsList }: { eventsList: EventItem[] }) {
   const [searchTerm, setSearchTerm] = useState(DEFAULT_VALUES.SEARCH_TERM);
