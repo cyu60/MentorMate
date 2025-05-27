@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     // Validate role is allowed to have a password
-    const validRoles = [EventRole.Judge, EventRole.Organizer, 'event'];
+    const validRoles = [EventRole.Judge, EventRole.Organizer, EventRole.Participant, EventRole.Mentor];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
         { error: 'Invalid role' },

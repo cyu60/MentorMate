@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +11,17 @@ import {
   Users, 
   Calendar, 
   ExternalLink, 
-  ArrowLeft 
+  ArrowLeft,
+  MessageSquare,
+  QrCode,
+  Copy
 } from "lucide-react";
+import FeedbackDisplay from "@/features/projects/components/feedback/FeedbackDisplay";
+import FeedbackForm from "@/features/projects/components/feedback/FeedbackForm";
+import { QRCodeSection } from "@/features/projects/components/management/project-dashboard/components/QRCodeSection";
+import { useQRCodeActions } from "@/features/projects/components/management/project-dashboard/hooks/useQRCodeActions";
+import { toast } from "@/lib/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 interface Project {
   id: string;
@@ -35,6 +43,13 @@ export default function PublicProjectPage() {
   
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // QR Code functionality
+  const { handleCopyQR, handleDownloadQR } = useQRCodeActions(
+    project?.event_id || "",
+    projectId,
+    project?.project_name
+  );
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -81,9 +96,11 @@ export default function PublicProjectPage() {
   }
 
   const totalMembers = (project.teammates?.length || 0) + 1;
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
@@ -98,25 +115,23 @@ export default function PublicProjectPage() {
 
         {/* Project Showcase */}
         <div className="max-w-4xl mx-auto">
-          {/* Cover Image */}
-          {project.cover_image_url && (
-            <div className="mb-8 relative w-full h-64">
-              <Image
-                src={project.cover_image_url} 
-                alt={`${project.project_name} cover`}
-                fill
-                className="object-cover rounded-lg shadow-lg"
-              />
-            </div>
-          )}
+          {/* Header Image */}
+          <div className="w-full h-64 mb-8 rounded-lg overflow-hidden shadow-lg">
+            <div 
+              className="w-full h-full bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${project.cover_image_url || '/img/placeholder.png'})`
+              }}
+            ></div>
+          </div>
 
-          {/* Project Header */}
+          {/* Project Information */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               {project.project_name}
             </h1>
             
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-600 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600 mb-6">
               <div className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 <span>{totalMembers} team members</span>
@@ -128,15 +143,15 @@ export default function PublicProjectPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               {project.project_url && (
                 <a 
                   href={project.project_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
-                  <Button size="lg" className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4" />
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    <ExternalLink className="h-4 w-4 mr-2" />
                     View Live Project
                   </Button>
                 </a>
@@ -147,8 +162,8 @@ export default function PublicProjectPage() {
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
-                  <Button variant="outline" size="lg" className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4" />
+                  <Button variant="outline" size="lg" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+                    <ExternalLink className="h-4 w-4 mr-2" />
                     Additional Materials
                   </Button>
                 </a>
@@ -192,6 +207,126 @@ export default function PublicProjectPage() {
                     <Badge variant="secondary">Member</Badge>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feedback Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Project Feedback
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                See what mentors and peers have said about this project.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <FeedbackDisplay
+                projectId={project.id}
+                showTitle={false}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Submit Feedback Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Share Your Feedback
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Help this project improve by sharing your thoughts, suggestions, and ideas.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <FeedbackForm
+                projectId={project.id}
+                projectName={project.project_name}
+                projectDescription={project.project_description}
+                projectLeadEmail={project.lead_email}
+                projectLeadName={project.lead_name}
+                project_url={project.project_url}
+                additional_materials_url={project.additional_materials_url}
+                eventId={project.event_id}
+                noBorder={true}
+                showMetadata={false}
+              />
+            </CardContent>
+          </Card>
+
+          {/* QR Code Sharing Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <QrCode className="h-5 w-5" />
+                Share This Project
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Share this project with others using the QR code or direct link.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="flex flex-col items-center md:w-64">
+                  <QRCodeSection
+                    fullUrl={currentUrl}
+                    onCopyQR={handleCopyQR}
+                    onDownloadQR={handleDownloadQR}
+                  />
+                </div>
+                
+                <div className="flex-1 md:flex-2">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Direct Link:
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={currentUrl}
+                          readOnly
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(currentUrl);
+                            toast({
+                              title: "Copied!",
+                              description: "Project URL copied to clipboard",
+                            });
+                          }}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <h5 className="font-medium text-green-900 mb-2">🚀 Share & Get Feedback:</h5>
+                      <div className="text-sm text-green-800 space-y-1">
+                        <p>• Use this QR code or link to share your project with mentors, peers, or anyone who can provide valuable feedback</p>
+                        <p>• Perfect for networking events, presentations, or social media sharing</p>
+                        <p>• Scan with any smartphone camera - no special app required</p>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <h5 className="font-medium text-blue-900 mb-2">💡 Sharing Tips:</h5>
+                      <div className="text-sm text-blue-800 space-y-1">
+                        <p>• Save the QR code image to share digitally</p>
+                        <p>• Print it on business cards or project handouts</p>
+                        <p>• Include it in your portfolio or resume</p>
+                        <p>• Add it to your LinkedIn or GitHub profile</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

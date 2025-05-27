@@ -25,7 +25,6 @@ export function PasswordTab({ eventId, roleLabels }: PasswordTabProps) {
   const [rolePasswords, setRolePasswords] = useState<Record<string, string>>(
     {}
   );
-  const [eventPassword, setEventPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [visibility, setVisibility] = useState<EventVisibility | null>(null);
 
@@ -107,52 +106,6 @@ export function PasswordTab({ eventId, roleLabels }: PasswordTabProps) {
     }
   };
 
-  const handleSetEventPassword = async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await fetch("/api/roles/set-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          eventId,
-          role: "event", // Special role type for event password
-          password: eventPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to set event password",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Event password updated successfully",
-      });
-
-      // Clear password input
-      setEventPassword("");
-    } catch (error) {
-      console.error("Error setting event password:", error);
-      toast({
-        title: "Error",
-        description: "Failed to set event password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleVisibilityChange = async (value: EventVisibility) => {
     try {
       setIsLoading(true);
@@ -218,31 +171,6 @@ export function PasswordTab({ eventId, roleLabels }: PasswordTabProps) {
                 </SelectContent>
               </Select>
             </div>
-
-            {visibility === EventVisibility.Private && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Event Password (for Private events)
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    type="password"
-                    value={eventPassword}
-                    onChange={(e) => setEventPassword(e.target.value)}
-                    placeholder="Set event password"
-                  />
-                  <Button
-                    onClick={handleSetEventPassword}
-                    disabled={isLoading || !eventPassword}
-                  >
-                    Save
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500">
-                  This password will be required for anyone to join the event.
-                </p>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

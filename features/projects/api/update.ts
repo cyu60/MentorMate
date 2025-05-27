@@ -1,7 +1,8 @@
 import { createSupabaseClient } from '@/app/utils/supabase/server';
+import { Project } from '@/lib/types';
 import { NextResponse } from 'next/server';
 
-export async function updateProject(projectId: string, updateData: any) {
+export async function updateProject(projectId: string, updateData: Partial<Project>) {
   const supabase = await createSupabaseClient();
   
   const { data, error } = await supabase

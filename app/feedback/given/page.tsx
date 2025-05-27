@@ -143,7 +143,7 @@ export default function GivenFeedbackPage() {
                         {item.feedback_text}
                       </p>
                       <div className="mt-4">
-                        <Link href={`/public-project-details/${item.project_id}`}>
+                        <Link href={`/projects/public/${item.project_id}`}>
                           <Button
                             variant="outline"
                             size="sm"

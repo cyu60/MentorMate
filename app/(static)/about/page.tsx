@@ -11,7 +11,7 @@ const AboutPage: React.FC = () => {
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">
             About{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-blue-300">
+            <span className="bg-clip-text text-blue-900 bg-gradient-to-r from-blue-900 to-blue-300">
               MentorMates
             </span>
           </h1>

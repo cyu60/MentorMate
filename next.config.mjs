@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     domains: [
       "clinicalmindai.stanford.edu",
+      
     ],
   },
 };

@@ -583,10 +583,10 @@ export default function FeedbackForm({
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <label
                   htmlFor="feedback"
-                  className="block text-sm font-medium text-blue-900"
+                  className="text-sm font-medium text-blue-900"
                 >
                   Leave Your Feedback
                 </label>

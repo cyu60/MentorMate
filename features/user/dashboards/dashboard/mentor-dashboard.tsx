@@ -50,7 +50,7 @@ export function MentorDashboard({ eventId }: MentorDashboardProps) {
                 {projects.slice(0, 5).map((project) => (
                   <li key={project.id} className="border-b pb-2">
                     <Link
-                      href={`/public-project-details/${project.id}`}
+                      href={`/projects/public/${project.id}`}
                       className="hover:text-blue-500"
                     >
                       <h3 className="font-semibold">{project.project_name}</h3>

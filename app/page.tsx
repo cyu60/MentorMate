@@ -237,7 +237,7 @@ export default function HomePage() {
                   <p className="text-gray-600 text-sm sm:text-base mb-4">
                   Track and update your project progress.
                   </p>
-                  <Link href="/my-project-gallery" className="mt-auto">
+                  <Link href="/projects" className="mt-auto">
                   <Button className="bg-blue-900 text-white w-full sm:w-auto">
                     View Projects
                   </Button>

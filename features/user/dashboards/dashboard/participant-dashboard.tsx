@@ -31,14 +31,7 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (!session) return;
-
-      // const { data, error } = await supabase
-      //   .from("projects")
-      //   .select("*")
-      //   .eq("event_id", eventId)
-      //   .eq("user_id", session.user.id)
-      //   .order("created_at", { ascending: false });
+      if (!session) return
 
       const { data: leadProjects, error: leadProjectsError } = await supabase
         .from("projects")
@@ -101,7 +94,7 @@ export function ParticipantDashboard({ eventId }: ParticipantDashboardProps) {
                 {myProjects.map((project) => (
                   <li key={project.id} className="border-b pb-2">
                     <Link
-                      href={`/my-project-gallery/${project.id}/dashboard`}
+                      href={`/projects/${project.id}`}
                       className="hover:text-blue-500"
                     >
                       <h3 className="font-semibold">{project.project_name}</h3>

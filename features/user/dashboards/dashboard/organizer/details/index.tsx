@@ -39,7 +39,7 @@ export function EventDetailsTab({
       </CardHeader>
       <CardContent>
         <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6 w-full h-auto">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6 gap-4 w-full h-auto">
             <TabsTrigger value="basic-info" className="flex-1">Basic Information</TabsTrigger>
             <TabsTrigger value="schedule" className="flex-1">Schedule</TabsTrigger>
             <TabsTrigger value="resources" className="flex-1">Resources</TabsTrigger>

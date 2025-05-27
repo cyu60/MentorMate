@@ -218,10 +218,10 @@ export function SubmissionsTab({ eventId }: SubmissionsTabProps) {
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/public-project-details/${project.id}`}
+                        href={`/projects/public/${project.id}`}
                         passHref
                       >
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="text-xs">
                           View Details
                         </Button>
                       </Link>

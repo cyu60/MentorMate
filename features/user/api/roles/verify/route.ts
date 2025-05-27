@@ -44,30 +44,30 @@ export async function POST(request: Request) {
         );
       }
 
-      // Verify event password
-      const { data: eventPassword, error: eventPassError } = await supabase
+      // Verify role password
+      const { data: rolePassword, error: rolePassError } = await supabase
         .from("role_passwords")
         .select("password_hash")
         .eq("event_id", eventId)
-        .eq("role", "event")
+        .eq("role", role)
         .single();
 
-      if (eventPassError || !eventPassword) {
+      if (rolePassError || !rolePassword) {
         return NextResponse.json(
-          { error: "No password set for this event" },
+          { error: "No password set for this role" },
           { status: 404 }
         );
       }
 
       // Verify password
-      const isValidEventPass = await bcrypt.compare(
+      const isValidRolePass = await bcrypt.compare(
         password,
-        eventPassword.password_hash
+        rolePassword.password_hash
       );
 
-      if (!isValidEventPass) {
+      if (!isValidRolePass) {
         return NextResponse.json(
-          { error: "Invalid event password" },
+          { error: "Invalid role password" },
           { status: 401 }
         );
       }
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     }
 
     // At this point, either:
-    // 1. It's a private event and the event password was verified
+    // 1. It's a private event and the role password was verified
     // 2. It's a protected role and the role password was verified
     // 3. It's a non-protected role
     // So we can proceed with role assignment

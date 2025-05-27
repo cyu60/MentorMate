@@ -64,7 +64,7 @@ export default function ProjectDashboardSection({
 
       // Only redirect if we're on the project page
       if (!window.location.pathname.includes("/events/")) {
-        router.push(`/my-project-gallery`);
+        router.push(`/projects`);
       }
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -365,7 +365,7 @@ export default function ProjectDashboardSection({
     );
   }
 
-  const fullUrl = `${window.location.origin}/public-project-details/${projectId}`;
+  const fullUrl = `${window.location.origin}/projects/public/${projectId}`;
 
   return (
     <Card className="p-0 overflow-hidden">

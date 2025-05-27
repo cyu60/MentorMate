@@ -24,7 +24,7 @@ export default function QRScanner() {
           title: "QR Code Scanned",
           description: "Redirecting to project page...",
         });
-        router.push(`/my-project-gallery/${projectId}`);
+        router.push(`/projects/${projectId}`);
       } catch (error) {
         console.error("Error parsing QR code:", error);
         setScanError("Invalid QR code format. Please try scanning again.");

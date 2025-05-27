@@ -72,7 +72,7 @@ export function AuthNavbar() {
               Events
             </Link>
             <Link
-              href="/my-project-gallery"
+              href="/projects"
               className="text-base font-medium text-gray-700 hover:text-blue-600"
             >
               My Projects
@@ -176,7 +176,7 @@ export function AuthNavbar() {
             Events
           </Link>
           <Link
-            href="/my-project-gallery"
+            href="/projects"
             className="block text-gray-700 font-medium hover:text-blue-600"
             onClick={() => setIsOpen(false)}
           >
