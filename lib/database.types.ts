@@ -108,6 +108,13 @@ export interface Database {
           updated_at: string
         }
       }
+      project_tracks: {
+        Row: {
+          project_id: string;
+          track_id: string;
+          created_at: string
+        }
+      }
     }
   }
 }

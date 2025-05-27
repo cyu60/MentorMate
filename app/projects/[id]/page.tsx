@@ -14,7 +14,8 @@ import {
   Calendar,
   ArrowLeft,
   QrCode,
-  Copy
+  Copy,
+  Tag
 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import FeedbackDisplay from "@/features/projects/components/feedback/FeedbackDisplay";
@@ -25,6 +26,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Project } from "@/lib/types";
 import { EditableField } from "@/components/ui/editable-field";
 import { updateProjectClient } from "@/features/projects/client-actions/client-update";
+import { TrackSelector } from "@/features/projects/components/tracks/TrackSelector";
 
 export default function ProjectPage() {
   const params = useParams();
@@ -262,11 +264,15 @@ export default function ProjectPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 h-auto gap-4 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="team">
             <Users className="h-4 w-4 mr-2" />
             Team ({totalMembers})
+          </TabsTrigger>
+          <TabsTrigger value="tracks">
+            <Tag className="h-4 w-4 mr-2" />
+            Tracks
           </TabsTrigger>
           <TabsTrigger value="feedback">
             <MessageSquare className="h-4 w-4 mr-2" />
@@ -337,6 +343,15 @@ export default function ProjectPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="tracks">
+          <TrackSelector
+            projectId={project.id}
+            eventId={project.event_id}
+            canEdit={canEdit}
+            isLoading={isUpdating}
+          />
         </TabsContent>
 
         <TabsContent value="feedback">

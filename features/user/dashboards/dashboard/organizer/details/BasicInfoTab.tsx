@@ -32,6 +32,7 @@ export function BasicInfoTab({
   );
   const [useImageUrl, setUseImageUrl] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [updateSlug, setUpdateSlug] = useState(false);
 
   const handleBasicInfoUpdate = async () => {
     if (!event) return;
@@ -85,6 +86,11 @@ export function BasicInfoTab({
       // Refresh the page to update the overview
       router.refresh();
 
+      if (updateSlug) {
+        setUpdateSlug(false);
+        router.push(`/events/${event.slug}/dashboard`);
+      }
+
       toast({
         title: "Success",
         description: "Changes saved successfully",
@@ -119,9 +125,10 @@ export function BasicInfoTab({
         <Input
           id="slug"
           value={event.slug}
-          onChange={(e) =>
-            setEvent({ ...event, slug: e.target.value })
-          }
+          onChange={(e) => {
+            setEvent({ ...event, slug: e.target.value });
+            setUpdateSlug(true);
+          }}
           placeholder="url-friendly-event-name"
           className="font-mono text-sm"
         />
