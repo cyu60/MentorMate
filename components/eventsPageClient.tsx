@@ -16,8 +16,8 @@ export function EventsPageClient({ eventsList }: { eventsList: EventItem[] }) {
   }, [eventsList, searchTerm]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="relative w-full mb-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-8">
+      <div className="relative w-full mb-6 sm:mb-8">
         <Input
           type="text"
           placeholder={UI_TEXT.SEARCH_PLACEHOLDER}
@@ -41,9 +41,7 @@ export function EventsPageClient({ eventsList }: { eventsList: EventItem[] }) {
       </div>
 
       {filteredEvents.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <EventsList events={filteredEvents} />
-        </div>
+        <EventsList events={filteredEvents} />
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <svg
