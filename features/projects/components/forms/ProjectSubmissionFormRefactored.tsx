@@ -38,7 +38,7 @@ export function ProjectSubmissionFormComponent({
   
   // Custom hooks
   const { allUsers, availableTracks, isLoading } = useProjectSubmissionData(eventId);
-  const { currentStep, totalSteps, goToNext, goToPrevious, isLastStep } = useStepNavigation(3);
+  const { currentStep, totalSteps, goToNext, goToPrevious } = useStepNavigation(3);
   
   // Form setup
   const form = useForm<ProjectSubmissionFormData>({
