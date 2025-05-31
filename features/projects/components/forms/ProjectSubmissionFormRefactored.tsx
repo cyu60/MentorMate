@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,11 +50,37 @@ export function ProjectSubmissionFormComponent({
       projectDescription: "",
       teammates: [],
       projectUrl: "",
+      videoUrl: "",
       trackIds: [],
     },
   });
   
-  const { validateStep } = useStepValidation(form);
+  const { validateStep, getStepValidationMessages } = useStepValidation(form);
+
+  // Watch form fields that affect validation to trigger re-renders
+  const projectNameValue = form.watch("projectName");
+  const projectDescriptionValue = form.watch("projectDescription");
+  const trackIdsValue = form.watch("trackIds");
+  const leadNameValue = form.watch("leadName");
+  const leadEmailValue = form.watch("leadEmail");
+  const videoUrlValue = form.watch("videoUrl");
+
+  // Determine if we can proceed to next step and get validation messages
+  // Using useMemo with form values as dependencies to ensure re-calculation when form changes
+  const getValidationState = useMemo(() => {
+    const validationMessages = getStepValidationMessages(currentStep);
+    const canGoNext = validationMessages.length === 0;
+    return { canGoNext, validationMessages };
+  }, [
+    currentStep,
+    getStepValidationMessages,
+    projectNameValue,
+    projectDescriptionValue,
+    trackIdsValue,
+    leadNameValue,
+    leadEmailValue,
+    videoUrlValue
+  ]);
 
   // Auto-fill form when props change
   useEffect(() => {
@@ -170,6 +196,7 @@ export function ProjectSubmissionFormComponent({
           additionalMaterialsUrl,
           eventId,
           trackIds: values.trackIds,
+          videoUrl: values.videoUrl,
         }),
       });
 
@@ -228,27 +255,11 @@ export function ProjectSubmissionFormComponent({
     setIsSubmitting(false);
   };
 
-  // Determine if we can proceed to next step
-  const canGoNext = () => {
-    const values = form.getValues();
-    switch (currentStep) {
-      case 1:
-        return values.projectName.trim().length >= 2 && 
-               values.projectDescription.trim().length >= 10 && 
-               values.trackIds.length > 0;
-      case 2:
-        return true; // Documentation step is optional
-      case 3:
-        return values.leadName.trim().length >= 2 && 
-               values.leadEmail.trim().length > 0;
-      default:
-        return true;
-    }
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  const { canGoNext, validationMessages } = getValidationState;
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-8 bg-white rounded-xl shadow-xl">
@@ -278,7 +289,8 @@ export function ProjectSubmissionFormComponent({
             currentStep={currentStep}
             totalSteps={totalSteps}
             isSubmitting={isSubmitting}
-            canGoNext={canGoNext()}
+            canGoNext={canGoNext}
+            validationMessages={validationMessages}
             onPrevious={handlePrevious}
             onNext={handleNext}
             onSubmit={() => form.handleSubmit(onSubmit)()}

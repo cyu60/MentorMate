@@ -26,6 +26,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { ProjectScoringForm } from "@/components/project-scoring/project-scoring-form";
 import { EventTrack, TrackScoringConfig } from "@/lib/types";
 
+
+//REFACTOR this to use the Project type from the lib/types.ts file
 interface Project {
   id: string;
   project_name: string;
@@ -34,6 +36,7 @@ interface Project {
   lead_email: string;
   teammates: string[];
   project_url: string | null;
+  video_url: string | null;
   additional_materials_url: string | null;
   cover_image_url: string | null;
   created_at: string;
@@ -276,6 +279,18 @@ export default function PublicProjectPage() {
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View Live Project
+                  </Button>
+                </a>
+              )}
+              {project.video_url && (
+                <a
+                  href={project.video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button size="lg" className="bg-red-600 hover:bg-red-700">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Watch Video
                   </Button>
                 </a>
               )}

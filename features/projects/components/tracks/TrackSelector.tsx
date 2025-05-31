@@ -9,7 +9,7 @@ import {
   fetchEventTracks, 
   fetchProjectTracks, 
   updateProjectTracks 
-} from "@/features/projects/client-actions/track-update";
+} from "@/features/projects/client-actions/client-track-update";
 import { toast } from "@/lib/hooks/use-toast";
 
 interface TrackSelectorProps {

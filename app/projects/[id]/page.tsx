@@ -1,7 +1,9 @@
+// refactor these components out
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,8 +17,20 @@ import {
   ArrowLeft,
   QrCode,
   Copy,
-  Tag
+  Tag,
+  ExternalLink,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Session } from "@supabase/supabase-js";
 import FeedbackDisplay from "@/features/projects/components/feedback/FeedbackDisplay";
 import { QRCodeSection } from "@/features/projects/components/management/project-dashboard/components/QRCodeSection";
@@ -26,19 +40,28 @@ import { Toaster } from "@/components/ui/toaster";
 import { Project } from "@/lib/types";
 import { EditableField } from "@/components/ui/editable-field";
 import { updateProjectClient } from "@/features/projects/client-actions/client-update";
+import { deleteProjectClient } from "@/features/projects/client-actions/client-delete";
 import { TrackSelector } from "@/features/projects/components/tracks/TrackSelector";
 
 export default function ProjectPage() {
   const params = useParams();
+  const router = useRouter();
   const projectId = params.id as string;
   
   const [session, setSession] = useState<Session | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [canEdit, setCanEdit] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Loading state for updates
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Selected file for cover image upload
+  const [selectedCoverImageFile, setSelectedCoverImageFile] = useState<File | null>(null);
+
+  // Selected file for additional materials upload
+  const [selectedAdditionalMaterialsFile, setSelectedAdditionalMaterialsFile] = useState<File | null>(null);
 
   // QR Code functionality
   const { handleCopyQR, handleDownloadQR } = useQRCodeActions(
@@ -162,6 +185,419 @@ export default function ProjectPage() {
     }
   };
 
+  const handleUpdateProjectUrl = async (newUrl: string): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Basic URL validation
+      if (newUrl.trim() !== "") {
+        try {
+          // This will throw if the URL is invalid
+          new URL(newUrl);
+          
+          // Check if URL starts with http:// or https://
+          if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+            toast({
+              title: "Invalid URL",
+              description: "URL must start with http:// or https://",
+              variant: "destructive",
+            });
+            return false;
+          }
+        } catch {
+          toast({
+            title: "Invalid URL",
+            description: "Please enter a valid URL (e.g., https://example.com)",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+
+      const { data, error } = await updateProjectClient(projectId, { 
+        project_url: newUrl.trim() || undefined 
+      });
+
+      if (error) {
+        console.error("Error updating project URL:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update project URL",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: newUrl.trim() ? "Project URL updated successfully" : "Project URL cleared successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating project URL:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update project URL",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdateCoverImage = async (newUrl: string): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Basic URL validation
+      if (newUrl.trim() !== "") {
+        try {
+          // This will throw if the URL is invalid
+          new URL(newUrl);
+          
+          // Check if URL starts with http:// or https://
+          if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+            toast({
+              title: "Invalid URL",
+              description: "URL must start with http:// or https://",
+              variant: "destructive",
+            });
+            return false;
+          }
+        } catch {
+          toast({
+            title: "Invalid URL",
+            description: "Please enter a valid image URL (e.g., https://example.com/image.jpg)",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+
+      const { data, error } = await updateProjectClient(projectId, { 
+        cover_image_url: newUrl.trim() || undefined 
+      });
+
+      if (error) {
+        console.error("Error updating cover image:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update cover image",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: newUrl.trim() ? "Cover image updated successfully" : "Cover image cleared successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating cover image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update cover image",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCoverImageFileUpload = async (file: File): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()
+        .toString(36)
+        .substring(2)}.${fileExt}`;
+      const filePath = `project-covers/${fileName}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from("project-materials")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Error uploading cover image:", uploadError);
+        toast({
+          title: "Upload Error",
+          description: "Failed to upload image file",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("project-materials").getPublicUrl(filePath);
+
+      // Update project with new URL
+      const { data, error } = await updateProjectClient(projectId, { 
+        cover_image_url: publicUrl 
+      });
+
+      if (error) {
+        console.error("Error updating cover image:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update cover image",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: "Cover image uploaded and updated successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error uploading cover image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload cover image",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdateAdditionalMaterials = async (newUrl: string): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Basic URL validation
+      if (newUrl.trim() !== "") {
+        try {
+          // This will throw if the URL is invalid
+          new URL(newUrl);
+          
+          // Check if URL starts with http:// or https://
+          if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+            toast({
+              title: "Invalid URL",
+              description: "URL must start with http:// or https://",
+              variant: "destructive",
+            });
+            return false;
+          }
+        } catch {
+          toast({
+            title: "Invalid URL",
+            description: "Please enter a valid URL (e.g., https://example.com)",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+
+      const { data, error } = await updateProjectClient(projectId, { 
+        additional_materials_url: newUrl.trim() || undefined 
+      });
+
+      if (error) {
+        console.error("Error updating additional materials URL:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update additional materials URL",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: newUrl.trim() ? "Additional materials URL updated successfully" : "Additional materials URL cleared successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating additional materials URL:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update additional materials URL",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdateVideoUrl = async (newUrl: string): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Basic URL validation
+      if (newUrl.trim() !== "") {
+        try {
+          // This will throw if the URL is invalid
+          new URL(newUrl);
+          
+          // Check if URL starts with http:// or https://
+          if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+            toast({
+              title: "Invalid URL",
+              description: "URL must start with http:// or https://",
+              variant: "destructive",
+            });
+            return false;
+          }
+        } catch {
+          toast({
+            title: "Invalid URL",
+            description: "Please enter a valid video URL (e.g., https://youtube.com/watch?v=...)",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+
+      const { data, error } = await updateProjectClient(projectId, { 
+        video_url: newUrl.trim() || undefined 
+      });
+
+      if (error) {
+        console.error("Error updating video URL:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update video URL",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: newUrl.trim() ? "Video URL updated successfully" : "Video URL cleared successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating video URL:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update video URL",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleAdditionalMaterialsFileUpload = async (file: File): Promise<boolean> => {
+    setIsUpdating(true);
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()
+        .toString(36)
+        .substring(2)}.${fileExt}`;
+      const filePath = `project-materials/${fileName}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from("project-materials")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Error uploading additional materials:", uploadError);
+        toast({
+          title: "Upload Error",
+          description: "Failed to upload file",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("project-materials").getPublicUrl(filePath);
+
+      // Update project with new URL
+      const { data, error } = await updateProjectClient(projectId, { 
+        additional_materials_url: publicUrl 
+      });
+
+      if (error) {
+        console.error("Error updating additional materials URL:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update additional materials URL",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Success",
+        description: "Additional materials uploaded and updated successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error uploading additional materials:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload additional materials",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    setIsUpdating(true);
+    try {
+      const { success, error } = await deleteProjectClient(projectId);
+
+      if (!success || error) {
+        console.error("Error deleting project:", error);
+        toast({
+          title: "Error",
+          description: "Failed to delete project",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Project deleted",
+        description: "Your project has been successfully deleted",
+      });
+
+      // Redirect to projects list
+      router.push("/projects");
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete project",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -198,6 +634,21 @@ export default function ProjectPage() {
             Back to Projects
           </Button>
         </Link>
+        
+        {/* Delete Button - Only show for project lead */}
+        {isLead && (
+          <div className="ml-auto">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isUpdating}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Project
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Project Info */}
@@ -244,20 +695,338 @@ export default function ProjectPage() {
           ></div>
         </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            {/* Editable Description */}
+        {/* Project Description Card */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>About This Project</CardTitle>
+          </CardHeader>
+          <CardContent>
             <EditableField
               value={project.project_description}
               onSave={handleUpdateDescription}
               canEdit={canEdit}
               isLoading={isUpdating}
               multiline={true}
-              displayClassName="text-gray-700 mb-4"
+              displayClassName="text-gray-700"
               renderDisplay={(value) => (
-                <p className="text-gray-700 mb-4 hover:text-blue-600">{value}</p>
+                <p className="text-gray-700 hover:text-blue-600">{value}</p>
               )}
             />
+          </CardContent>
+        </Card>
+
+        {/* Project Links Card */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Project Links</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Cover Image URL - Only show for editors */}
+            {canEdit && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <ExternalLink className="h-4 w-4 text-gray-500" />
+                  <label className="text-sm font-medium text-gray-700">Cover Image:</label>
+                </div>
+                
+                {/* URL Input */}
+                <div className="mb-4">
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">Image URL:</label>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <EditableField
+                        value={project.cover_image_url || ""}
+                        onSave={handleUpdateCoverImage}
+                        canEdit={canEdit}
+                        isLoading={isUpdating}
+                        placeholder="https://example.com/image.jpg"
+                        displayClassName="text-blue-600 underline"
+                        renderDisplay={(value) => (
+                          value ? (
+                            <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                              {value}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 italic">No cover image URL set</span>
+                          )
+                        )}
+                      />
+                    </div>
+                    {project.cover_image_url && (
+                      <a
+                        href={project.cover_image_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        <Button variant="outline" size="sm">
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* File Upload */}
+                <div className="mb-2">
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">Or upload an image file:</label>
+                  
+                  {!selectedCoverImageFile ? (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setSelectedCoverImageFile(file);
+                        }
+                      }}
+                      disabled={isUpdating}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+                    />
+                  ) : (
+                    <div className="space-y-3">
+                      {/* File Preview */}
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{selectedCoverImageFile.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {(selectedCoverImageFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              const success = await handleCoverImageFileUpload(selectedCoverImageFile);
+                              if (success) {
+                                setSelectedCoverImageFile(null);
+                              }
+                            }}
+                            disabled={isUpdating}
+                          >
+                            {isUpdating ? "Uploading..." : "Upload"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedCoverImageFile(null)}
+                            disabled={isUpdating}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Image Preview */}
+                      <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-100">
+                        <img
+                          src={URL.createObjectURL(selectedCoverImageFile)}
+                          alt="Cover image preview"
+                          className="w-full h-full object-cover"
+                          onLoad={(e) => {
+                            // Clean up the object URL to prevent memory leaks
+                            URL.revokeObjectURL((e.target as HTMLImageElement).src);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-xs text-gray-500">
+                  Note: Changes to the cover image will be reflected in the header image above.
+                </p>
+              </div>
+            )}
+
+            {/* Project URL */}
+            <div className={canEdit ? "border-t pt-4" : ""}>
+              <div className="flex items-center gap-2 mb-2">
+                <ExternalLink className="h-4 w-4 text-gray-500" />
+                <label className="text-sm font-medium text-gray-700">Project URL:</label>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <EditableField
+                    value={project.project_url || ""}
+                    onSave={handleUpdateProjectUrl}
+                    canEdit={canEdit}
+                    isLoading={isUpdating}
+                    placeholder="https://your-project-url.com"
+                    displayClassName="text-blue-600 underline"
+                    renderDisplay={(value) => (
+                      value ? (
+                        <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                          {value}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">No project URL set</span>
+                      )
+                    )}
+                  />
+                </div>
+                {project.project_url && (
+                  <a
+                    href={project.project_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0"
+                  >
+                    <Button variant="outline" size="sm">
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Visit
+                    </Button>
+                  </a>
+                )}
+              </div>
+            </div>
+            
+            {/* Video URL */}
+            <div className="border-t pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <ExternalLink className="h-4 w-4 text-gray-500" />
+                <label className="text-sm font-medium text-gray-700">Video URL:</label>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <EditableField
+                    value={project.video_url || ""}
+                    onSave={handleUpdateVideoUrl}
+                    canEdit={canEdit}
+                    isLoading={isUpdating}
+                    placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                    displayClassName="text-blue-600 underline"
+                    renderDisplay={(value) => (
+                      value ? (
+                        <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                          {value}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">No video URL set</span>
+                      )
+                    )}
+                  />
+                </div>
+                {project.video_url && (
+                  <a
+                    href={project.video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0"
+                  >
+                    <Button variant="outline" size="sm">
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Watch
+                    </Button>
+                  </a>
+                )}
+              </div>
+            </div>
+            
+            {/* Additional Materials URL */}
+            <div className="border-t pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <ExternalLink className="h-4 w-4 text-gray-500" />
+                <label className="text-sm font-medium text-gray-700">Additional Materials:</label>
+              </div>
+              
+              {/* URL Input */}
+              <div className="mb-4">
+                <label className="text-xs font-medium text-gray-600 mb-1 block">Materials URL:</label>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <EditableField
+                      value={project.additional_materials_url || ""}
+                      onSave={handleUpdateAdditionalMaterials}
+                      canEdit={canEdit}
+                      isLoading={isUpdating}
+                      placeholder="https://github.com/your-repo or https://docs.google.com/..."
+                      displayClassName="text-blue-600 underline"
+                      renderDisplay={(value) => (
+                        value ? (
+                          <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                            {value}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 italic">No additional materials URL set</span>
+                        )
+                      )}
+                    />
+                  </div>
+                  {project.additional_materials_url && (
+                    <a
+                      href={project.additional_materials_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <Button variant="outline" size="sm">
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* File Upload - Only show for editors */}
+              {canEdit && (
+                <div className="mb-2">
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">Or upload a file:</label>
+                  
+                  {!selectedAdditionalMaterialsFile ? (
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setSelectedAdditionalMaterialsFile(file);
+                        }
+                      }}
+                      disabled={isUpdating}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{selectedAdditionalMaterialsFile.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {(selectedAdditionalMaterialsFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            const success = await handleAdditionalMaterialsFileUpload(selectedAdditionalMaterialsFile);
+                            if (success) {
+                              setSelectedAdditionalMaterialsFile(null);
+                            }
+                          }}
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Uploading..." : "Upload"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedAdditionalMaterialsFile(null)}
+                          disabled={isUpdating}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500">
+                Examples: GitHub repository, documentation, slides, design files, PDFs, etc.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -454,6 +1223,39 @@ export default function ProjectPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the project
+              <strong> &quot;{project?.project_name}&quot;</strong> and all associated data including:
+              <br /><br />
+              • Project details and description
+              <br />
+              • Team member assignments
+              <br />
+              • Track selections
+              <br />
+              • All feedback received
+              <br />
+              • Uploaded materials
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isUpdating}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteProject}
+              disabled={isUpdating}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isUpdating ? "Deleting..." : "Delete Project"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
