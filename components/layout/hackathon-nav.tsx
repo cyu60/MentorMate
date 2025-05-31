@@ -83,8 +83,8 @@ export function HackathonNav({ id }: { id: string }) {
 
   return (
     <nav className="w-full">
-      <div className="overflow-x-auto py-10">
-        <ul className="flex space-x-6 px-4 border-gray-200/30">
+      <div className="overflow-x-auto py-4 sm:py-10">
+        <ul className="flex space-x-3 sm:space-x-6 px-2 sm:px-4 border-gray-200/30">
           {visibleNavItems.map((item) => {
             const isActive = pathname === `${basePath}${item.href}`;
             return (
@@ -96,7 +96,7 @@ export function HackathonNav({ id }: { id: string }) {
                 <Link
                   href={`${basePath}${item.href}`}
                   className={cn(
-                    "py-3 text-base font-medium transition-all duration-200",
+                    "py-2 sm:py-3 text-sm sm:text-base font-medium transition-all duration-200",
                     isActive
                       ? "border-b-2 border-blue-500 text-white"
                       : "border-b-2 border-transparent text-gray-300 hover:text-white hover:border-gray-200"

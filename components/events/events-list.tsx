@@ -86,7 +86,7 @@ export function EventsList({ events }: EventsListProps) {
   };
 
   return (
-    <>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4 sm:px-6 lg:px-8">
       {events.map((event) => {
         const userRole = getUserRoleForEvent(event.event_id);
 
@@ -98,7 +98,7 @@ export function EventsList({ events }: EventsListProps) {
           >
             <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 overflow-hidden border-2 hover:border-primary/50">
               <div
-                className="w-full h-[200px] bg-gradient-to-br from-primary/20 to-primary/10"
+                className="w-full h-[150px] sm:h-[200px] bg-gradient-to-br from-primary/20 to-primary/10"
                 style={
                   event.cover_image_url
                     ? {
@@ -109,22 +109,22 @@ export function EventsList({ events }: EventsListProps) {
                     : undefined
                 }
               />
-              <div className="p-4 space-y-3 flex-grow">
-                <CardTitle className="text-xl font-semibold line-clamp-2">
+              <div className="p-3 sm:p-4 space-y-2 sm:space-y-3 flex-grow">
+                <CardTitle className="text-lg sm:text-xl font-semibold line-clamp-2">
                   {event.event_name}
                 </CardTitle>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="text-sm">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     {event.event_date}
                   </Badge>
-                  <Badge variant="outline" className="text-sm">
+                  <Badge variant="outline" className="text-xs sm:text-sm">
                     {event.location}
                   </Badge>
                 </div>
                 {userRole && (
                   <Badge
                     variant={getRoleBadgeVariant(userRole)}
-                    className="capitalize text-sm mt-2"
+                    className="capitalize text-xs sm:text-sm mt-1 sm:mt-2"
                   >
                     {userRole}
                   </Badge>
@@ -134,6 +134,6 @@ export function EventsList({ events }: EventsListProps) {
           </Link>
         );
       })}
-    </>
+    </div>
   );
 }

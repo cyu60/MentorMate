@@ -77,8 +77,8 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Toaster />
-      <div className="flex justify-between items-center mb-8">
-        <div>
+      <div className="justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Projects</h1>
           <p className="text-gray-600">Manage and track your project portfolio</p>
         </div>
