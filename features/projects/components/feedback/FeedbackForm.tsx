@@ -721,7 +721,8 @@ export default function FeedbackForm({
             {showSubmitButton && !isSubmitting && (
               <Button
                 type="submit"
-                className="w-full bg-green-700 hover:bg-green-900 text-white py-2 px-4 rounded-full shadow-lg mt-4"
+                variant="success"
+                className="w-full py-2 px-4 rounded-full shadow-lg mt-4"
               >
                 Submit Feedback
               </Button>
