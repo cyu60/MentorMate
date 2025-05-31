@@ -88,6 +88,11 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
 
     // Export each track separately
     Object.entries(trackGroups).forEach(([trackName, trackData]) => {
+      // Find the track config for this track
+      const trackConfig = Object.values(scoringConfig.tracks).find(
+        (t) => t.name === trackName
+      );
+
       // Flatten the raw data for CSV export
       const csvData = trackData.map((score) => {
         const baseData: Record<string, string | number | null> = {
@@ -97,8 +102,17 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
           "Lead Email": score.projects.lead_email || "",
         };
 
-        // Add individual criterion scores
-        if (score.scores) {
+        // Add individual criterion scores with proper names
+        if (score.scores && trackConfig) {
+          Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
+            const criterion = trackConfig.criteria.find(c => c.id === criterionId);
+            const criterionName = criterion 
+              ? criterion.name
+              : criterionId;
+            baseData[criterionName] = scoreValue as string | number | null;
+          });
+        } else if (score.scores) {
+          // Fallback if no track config found
           Object.entries(score.scores).forEach(([criterionId, scoreValue]) => {
             baseData[`Score_${criterionId}`] = scoreValue as string | number | null;
           });
@@ -483,85 +497,101 @@ export function ScoresTab({ eventId, scoringConfig }: ScoresTabProps) {
                           </h3>
                         </div>
                         <CardContent className="p-0">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Rank</TableHead>
-                                <TableHead>Project</TableHead>
-                                <TableHead>Lead</TableHead>
-                                <TableHead className="text-right">
-                                  Total Average
-                                </TableHead>
-                                {numericCriteria.map((c) => (
-                                  <TableHead key={c.id} className="text-right">
-                                    {c.name}
-                                    {c.weight && c.weight !== 1 && (
-                                      <span className="text-xs text-muted-foreground ml-1">
-                                        (×{c.weight})
-                                      </span>
-                                    )}
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-16 text-center">Rank</TableHead>
+                                  <TableHead className="min-w-[150px] max-w-[200px]">Project</TableHead>
+                                  <TableHead className="min-w-[120px] max-w-[150px]">Lead</TableHead>
+                                  <TableHead className="text-right min-w-[100px] px-4">
+                                    Total Average
                                   </TableHead>
-                                ))}
-                                {choiceCriteria.map((c) => (
-                                  <TableHead key={c.id} className="text-right">
-                                    {c.name}
-                                  </TableHead>
-                                ))}
-                                <TableHead className="text-right">
-                                  Judges
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {scores.map((score, index) => (
-                                <TableRow key={score.projectId}>
-                                  <TableCell className="font-medium">
-                                    {index + 1}
-                                  </TableCell>
-                                  <TableCell>{score.projectName}</TableCell>
-                                  <TableCell>{score.leadName}</TableCell>
-                                  <TableCell className="text-right font-medium">
-                                    {score.averageScore.toFixed(2)}
-                                  </TableCell>
-                                  {numericCriteria.map((c) => {
-                                    const criterionScore = score.criterionScores[c.id];
-                                    return (
-                                      <TableCell key={c.id} className="text-right">
-                                        {criterionScore ? criterionScore.average.toFixed(2) : "—"}
-                                      </TableCell>
-                                    );
-                                  })}
-                                  {choiceCriteria.map((c) => {
-                                    const counts =
-                                      score.choiceCounts?.[c.id] || {};
-                                    return (
-                                      <TableCell
-                                        key={c.id}
-                                        className="text-right"
-                                      >
-                                        {(c.options || []).map(
-                                          (opt, i) => (
-                                            (
-                                              <span key={opt}>
-                                                {i > 0 && ", "}
-                                                <span className="text-blue-500">
-                                                  {opt}
-                                                </span>
-                                                : {counts[opt] || 0}
-                                              </span>
-                                            )
-                                          )
+                                  {numericCriteria.map((c) => (
+                                    <TableHead key={c.id} className="text-right min-w-[100px] max-w-[120px] px-4">
+                                      <div className="break-words">
+                                        {c.name}
+                                        {c.weight && c.weight !== 1 && (
+                                          <span className="text-xs text-muted-foreground ml-1">
+                                            (×{c.weight})
+                                          </span>
                                         )}
-                                      </TableCell>
-                                    );
-                                  })}
-                                  <TableCell className="text-right">
-                                    {score.numberOfJudges}
-                                  </TableCell>
+                                      </div>
+                                    </TableHead>
+                                  ))}
+                                  {choiceCriteria.map((c) => (
+                                    <TableHead key={c.id} className="text-right min-w-[120px] max-w-[150px] px-4">
+                                      <div className="break-words">
+                                        {c.name}
+                                      </div>
+                                    </TableHead>
+                                  ))}
+                                  <TableHead className="text-center w-20 px-4">
+                                    Judges
+                                  </TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                              </TableHeader>
+                              <TableBody>
+                                {scores.map((score, index) => (
+                                  <TableRow key={score.projectId}>
+                                    <TableCell className="font-medium w-16 text-center">
+                                      {index + 1}
+                                    </TableCell>
+                                    <TableCell className="min-w-[150px] max-w-[200px]">
+                                      <div className="break-words">
+                                        {score.projectName}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="min-w-[120px] max-w-[150px]">
+                                      <div className="break-words">
+                                        {score.leadName}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium min-w-[100px] px-4 tabular-nums">
+                                      {score.averageScore.toFixed(2)}
+                                    </TableCell>
+                                    {numericCriteria.map((c) => {
+                                      const criterionScore = score.criterionScores[c.id];
+                                      return (
+                                        <TableCell key={c.id} className="text-right min-w-[100px] max-w-[120px] px-4 tabular-nums">
+                                          {criterionScore ? criterionScore.average.toFixed(2) : "—"}
+                                        </TableCell>
+                                      );
+                                    })}
+                                    {choiceCriteria.map((c) => {
+                                      const counts =
+                                        score.choiceCounts?.[c.id] || {};
+                                      return (
+                                        <TableCell
+                                          key={c.id}
+                                          className="text-right min-w-[120px] max-w-[150px] px-4"
+                                        >
+                                          <div className="break-words text-sm tabular-nums">
+                                            {(c.options || []).map(
+                                              (opt, i) => (
+                                                (
+                                                  <span key={opt}>
+                                                    {i > 0 && ", "}
+                                                    <span className="text-blue-500">
+                                                      {opt}
+                                                    </span>
+                                                    : {counts[opt] || 0}
+                                                  </span>
+                                                )
+                                              )
+                                            )}
+                                          </div>
+                                        </TableCell>
+                                      );
+                                    })}
+                                    <TableCell className="text-center w-20 px-4 tabular-nums">
+                                      {score.numberOfJudges}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
                         </CardContent>
                       </Card>
                     );
