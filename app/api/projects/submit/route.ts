@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       additionalMaterialsUrl,
       eventId,
       trackIds,
+      videoUrl,
     } = body;
 
     // First, check if the event exists and get its submission time window
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
         cover_image_url: coverImageUrl || null,
         additional_materials_url: additionalMaterialsUrl || null,
         event_id: eventId,
+        video_url: videoUrl || null,
       })
       .select()
       .single();

@@ -82,7 +82,7 @@ export function ProjectInfoStep({ form, availableTracks }: ProjectInfoStepProps)
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-base">
-              GitHub Repository (Optional)
+              GitHub Repository or Live Website Link (Optional)
             </FormLabel>
             <FormControl>
               <Input
@@ -94,6 +94,30 @@ export function ProjectInfoStep({ form, availableTracks }: ProjectInfoStepProps)
             </FormControl>
             <FormDescription className="text-sm">
               Link to your project&apos;s repository.
+            </FormDescription>
+            <FormMessage className="text-sm" />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="videoUrl"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base">
+              Video Submission
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="url"
+                placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                {...field}
+                className="text-base p-3"
+              />
+            </FormControl>
+            <FormDescription className="text-sm">
+              Link to a video demonstration or presentation of your project.
             </FormDescription>
             <FormMessage className="text-sm" />
           </FormItem>
