@@ -33,6 +33,8 @@ interface SocialLinks {
   portfolio?: string;
 }
 
+//changes to the profile page are causing the projectboard to not load properly. Need to investigate.
+
 export default function ProfilePage() {
   const { userId } = useParams();
   const [session, setSession] = useState<Session | null>(null);
@@ -264,16 +266,16 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="mb-4 sm:mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
           <div className="group relative inline-block">
             {isEditing ? (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <div className="flex items-center gap-2">
                 <Input
                   type="text"
                   value={newDisplayName}
                   onChange={(e) => setNewDisplayName(e.target.value)}
-                  className="text-xl sm:text-3xl font-bold text-gray-900 w-full sm:w-auto"
+                  className="text-3xl font-bold text-gray-900"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleUpdateDisplayName();
@@ -283,38 +285,47 @@ export default function ProfilePage() {
                   }}
                   autoFocus
                 />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleUpdateDisplayName}
-                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <button
+                  onClick={handleUpdateDisplayName}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <>
-                <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-gray-900">
                   {userProfile?.display_name || "User Profile"}
                 </h1>
+                {/* {session?.user?.id === userId && (
+                  <button
+                    onClick={() => {
+                      setIsEditing(true);
+                      setNewDisplayName(userProfile?.display_name || "");
+                    }}
+                    className="absolute -right-8 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded-full transition-all"
+                  >
+                    <Pencil className="w-5 h-5 text-gray-600" />
+                  </button>
+                )} */}
               </>
             )}
           </div>
-          <p className="mt-2 text-sm sm:text-base text-gray-600">{userProfile?.email}</p>
+          <p className="mt-2 text-gray-600">{userProfile?.email}</p>
         </div>
 
-        <div className="flex justify-start sm:justify-center overflow-x-auto border-b">
+        <div className="flex justify-center space-x-8 border-b">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`py-2 sm:py-4 px-4 sm:px-6 text-base sm:text-lg font-medium focus:outline-none transition whitespace-nowrap
+              className={`py-4 px-6 text-lg font-medium focus:outline-none transition
                 ${
                   activeTab === tab.key
                     ? "border-b-2 border-gray-900 text-gray-900"
@@ -327,7 +338,7 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        <div className="mt-4 sm:mt-8">
+        <div className="mt-8">
           {activeTab === "projects" && (
             <div>
               {isLoading ? (
@@ -369,7 +380,7 @@ export default function ProfilePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
                   {events.map((event) => (
                     <Card
@@ -377,9 +388,9 @@ export default function ProfilePage() {
                       className="hover:shadow-lg transition-shadow"
                     >
                       {event.cover_image_url && (
-                        <div className="relative h-32 sm:h-48 w-full">
+                        <div className="relative h-48 w-full">
                           <div
-                            className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10"
+                            className="w-full h-[200px] bg-gradient-to-br from-primary/20 to-primary/10"
                             style={
                               event.cover_image_url
                                 ? {
@@ -393,7 +404,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                       <CardHeader>
-                        <CardTitle className="text-lg sm:text-xl hover:text-blue-600">
+                        <CardTitle className="text-xl hover:text-blue-600">
                           <Link
                             href={`/events/${
                               event.slug || event.event_id
@@ -406,11 +417,11 @@ export default function ProfilePage() {
                       <CardContent>
                         <div className="space-y-4">
                           <div>
-                            <p className="text-xs sm:text-sm text-gray-600">
+                            <p className="text-sm text-gray-600">
                               Date: {event.event_date}
                             </p>
                             {event.location && (
-                              <p className="text-xs sm:text-sm text-gray-600">
+                              <p className="text-sm text-gray-600">
                                 Location: {event.location}
                               </p>
                             )}
@@ -427,7 +438,7 @@ export default function ProfilePage() {
             </div>
           )}
           {activeTab === "personal" && (
-            <div className="px-2 sm:px-0">
+            <div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -448,7 +459,7 @@ export default function ProfilePage() {
                 <CardContent>
                   {isEditingLinks ? (
                     <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <FaLinkedin className="w-5 h-5 text-gray-600" />
                         <Input
                           type="url"
@@ -460,10 +471,9 @@ export default function ProfilePage() {
                               linkedin: e.target.value || undefined,
                             }))
                           }
-                          className="w-full"
                         />
                       </div>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <FaGithub className="w-5 h-5 text-gray-600" />
                         <Input
                           type="url"
@@ -475,10 +485,9 @@ export default function ProfilePage() {
                               github: e.target.value || undefined,
                             }))
                           }
-                          className="w-full"
                         />
                       </div>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <FaXTwitter className="w-5 h-5 text-gray-600" />
                         <Input
                           type="url"
@@ -490,10 +499,9 @@ export default function ProfilePage() {
                               twitter: e.target.value || undefined,
                             }))
                           }
-                          className="w-full"
                         />
                       </div>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <Globe className="w-5 h-5 text-gray-600" />
                         <Input
                           type="url"
@@ -505,7 +513,6 @@ export default function ProfilePage() {
                               portfolio: e.target.value || undefined,
                             }))
                           }
-                          className="w-full"
                         />
                       </div>
                       <div className="flex justify-end gap-2 mt-4">
@@ -533,7 +540,7 @@ export default function ProfilePage() {
                           className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
                         >
                           <FaLinkedin className="w-5 h-5" />
-                          <span className="text-sm sm:text-base">LinkedIn Profile</span>
+                          <span>LinkedIn Profile</span>
                         </a>
                       )}
                       {userProfile?.links?.github && (
@@ -544,7 +551,7 @@ export default function ProfilePage() {
                           className="flex items-center gap-2 text-gray-900 hover:text-gray-700"
                         >
                           <FaGithub className="w-5 h-5" />
-                          <span className="text-sm sm:text-base">GitHub Profile</span>
+                          <span>GitHub Profile</span>
                         </a>
                       )}
                       {userProfile?.links?.twitter && (
@@ -555,7 +562,7 @@ export default function ProfilePage() {
                           className="flex items-center gap-2 text-blue-400 hover:text-blue-600"
                         >
                           <FaXTwitter className="w-5 h-5" />
-                          <span className="text-sm sm:text-base">Twitter Profile</span>
+                          <span>Twitter Profile</span>
                         </a>
                       )}
                       {userProfile?.links?.portfolio && (
@@ -566,14 +573,14 @@ export default function ProfilePage() {
                           className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
                         >
                           <Globe className="w-5 h-5" />
-                          <span className="text-sm sm:text-base">Portfolio Website</span>
+                          <span>Portfolio Website</span>
                         </a>
                       )}
                       {!userProfile?.links?.linkedin &&
                         !userProfile?.links?.github &&
                         !userProfile?.links?.twitter &&
                         !userProfile?.links?.portfolio && (
-                          <p className="text-gray-500 italic text-sm sm:text-base">
+                          <p className="text-gray-500 italic">
                             No social links added yet
                           </p>
                         )}
