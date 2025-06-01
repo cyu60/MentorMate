@@ -1,5 +1,3 @@
-// refactor these components out
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,6 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { 
   Users, 
   MessageSquare, 
@@ -19,7 +31,12 @@ import {
   Copy,
   Tag,
   ExternalLink,
-  Trash2
+  Trash2,
+  Plus,
+  X,
+  UserPlus,
+  Check,
+  ChevronsUpDown
 } from "lucide-react";
 import {
   AlertDialog,
@@ -40,8 +57,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Project } from "@/lib/types";
 import { EditableField } from "@/components/ui/editable-field";
 import { updateProjectClient } from "@/features/projects/client-actions/client-update";
+import { updateProjectTeamClient } from "@/features/projects/client-actions/client-update";
 import { deleteProjectClient } from "@/features/projects/client-actions/client-delete";
 import { TrackSelector } from "@/features/projects/components/tracks/TrackSelector";
+
+interface EventParticipant {
+  user_id: string;
+  display_name: string;
+  email: string;
+}
 
 export default function ProjectPage() {
   const params = useParams();
@@ -56,6 +80,16 @@ export default function ProjectPage() {
   
   // Loading state for updates
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Team management state
+  const [newTeammateEmail, setNewTeammateEmail] = useState("");
+  const [isAddingTeammate, setIsAddingTeammate] = useState(false);
+
+  // Participant search state
+  const [participants, setParticipants] = useState<EventParticipant[]>([]);
+  const [isLoadingParticipants, setIsLoadingParticipants] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   // Selected file for cover image upload
   const [selectedCoverImageFile, setSelectedCoverImageFile] = useState<File | null>(null);
@@ -598,6 +632,175 @@ export default function ProjectPage() {
     }
   };
 
+  const fetchEventParticipants = async () => {
+    if (!project?.event_id) return;
+    
+    setIsLoadingParticipants(true);
+    try {
+      const { data, error } = await supabase
+        .from("user_event_roles")
+        .select(`
+          user_id,
+          profiles:user_id (
+            display_name,
+            email
+          )
+        `)
+        .eq("event_id", project.event_id)
+        .overrideTypes<
+          Array<{
+            user_id: string,
+            profiles: {
+              display_name: string | null,
+              email: string | null
+            }
+          }>
+        >();
+
+      if (error) {
+        console.error("Error fetching participants:", error);
+        return;
+      }
+
+      const participantList: EventParticipant[] = (data || [])
+        .filter((role) => role.profiles?.email) // Filter out entries without email
+        .map((role) => ({
+          user_id: role.user_id,
+          display_name: role.profiles?.display_name || role.profiles?.email || "",
+          email: role.profiles?.email || "",
+        }));
+
+      setParticipants(participantList);
+    } catch (error) {
+      console.error("Error fetching participants:", error);
+    } finally {
+      setIsLoadingParticipants(false);
+    }
+  };
+
+  useEffect(() => {
+    if (project?.event_id) {
+      fetchEventParticipants();
+    }
+  }, [project?.event_id]);
+
+  const handleAddTeammate = async (email?: string) => {
+    const emailToAdd = email || newTeammateEmail.trim();
+    
+    if (!emailToAdd) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailToAdd)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const normalizedEmail = emailToAdd.toLowerCase();
+
+    // Check if email is already the project lead
+    if (normalizedEmail === project?.lead_email?.toLowerCase()) {
+      toast({
+        title: "Cannot add lead",
+        description: "The project lead is already part of the team",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if email is already a teammate
+    const currentTeammates = project?.teammates || [];
+    if (currentTeammates.some(teammate => teammate.toLowerCase() === normalizedEmail)) {
+      toast({
+        title: "Already a teammate",
+        description: "This person is already a member of the team",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAddingTeammate(true);
+    try {
+      const updatedTeammates = [...currentTeammates, normalizedEmail];
+      const { data, error } = await updateProjectTeamClient(projectId, updatedTeammates);
+
+      if (error) {
+        console.error("Error adding teammate:", error);
+        toast({
+          title: "Error",
+          description: "Failed to add team member",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local state
+      setProject(data);
+      setNewTeammateEmail("");
+      setSearchValue("");
+      setSearchOpen(false);
+      toast({
+        title: "Team member added",
+        description: `${normalizedEmail} has been successfully added to the team`,
+      });
+    } catch (error) {
+      console.error("Error adding teammate:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add team member",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingTeammate(false);
+    }
+  };
+
+  const handleRemoveTeammate = async (teammateEmail: string) => {
+    setIsUpdating(true);
+    try {
+      const currentTeammates = project?.teammates || [];
+      const updatedTeammates = currentTeammates.filter(email => email !== teammateEmail);
+      const { data, error } = await updateProjectTeamClient(projectId, updatedTeammates);
+
+      if (error) {
+        console.error("Error removing teammate:", error);
+        toast({
+          title: "Error",
+          description: "Failed to remove team member",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local state
+      setProject(data);
+      toast({
+        title: "Team member removed",
+        description: `${teammateEmail} has been removed from the team`,
+      });
+    } catch (error) {
+      console.error("Error removing teammate:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove team member",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -1098,16 +1301,144 @@ export default function ProjectPage() {
                       <p className="font-medium">{teammate}</p>
                       <p className="text-sm text-gray-500">Team Member</p>
                     </div>
-                    <Badge variant="secondary">Member</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">Member</Badge>
+                      {canEdit && isLead && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveTeammate(teammate)}
+                          disabled={isUpdating}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
               
-              {canEdit && (
-                <div className="mt-4 pt-4 border-t">
-                  <Link href={`/projects/${project.id}/team`}>
-                    <Button>Manage Team</Button>
-                  </Link>
+              {canEdit && isLead && (
+                <div className="mt-6 pt-4 border-t">
+                  <div className="flex items-center gap-2 mb-3">
+                    <UserPlus className="h-4 w-4 text-gray-500" />
+                    <h4 className="font-medium text-gray-900">Add Team Member</h4>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {/* Search through event participants */}
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">
+                        Search Event Participants:
+                      </label>
+                      <div className="flex gap-2">
+                        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={searchOpen}
+                              className="flex-1 justify-between text-left font-normal"
+                              disabled={isAddingTeammate}
+                            >
+                              {searchValue
+                                ? participants.find((participant) => participant.email === searchValue)?.display_name || searchValue
+                                : "Search participants..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0" align="start">
+                            <Command>
+                              <CommandInput 
+                                placeholder="Search participants..." 
+                                disabled={isLoadingParticipants}
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                  {isLoadingParticipants ? "Loading..." : "No participants found."}
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {participants.map((participant) => {
+                                    const isAlreadyTeammate = [
+                                      project?.lead_email?.toLowerCase(),
+                                      ...(project?.teammates || []).map(t => t.toLowerCase())
+                                    ].includes(participant.email.toLowerCase());
+
+                                    return (
+                                      <CommandItem
+                                        key={participant.user_id}
+                                        value={participant.email}
+                                        onSelect={(currentValue) => {
+                                          if (!isAlreadyTeammate) {
+                                            setSearchValue(currentValue);
+                                            setSearchOpen(false);
+                                            handleAddTeammate(currentValue);
+                                          }
+                                        }}
+                                        disabled={isAlreadyTeammate}
+                                      >
+                                        <div className="flex flex-col flex-1">
+                                          <span className="font-medium">
+                                            {participant.display_name || participant.email}
+                                          </span>
+                                          <span className="text-sm text-gray-500">
+                                            {participant.email}
+                                          </span>
+                                        </div>
+                                        {isAlreadyTeammate && (
+                                          <Badge variant="secondary" className="ml-2">
+                                            Team Member
+                                          </Badge>
+                                        )}
+                                        {searchValue === participant.email && (
+                                          <Check className="ml-2 h-4 w-4" />
+                                        )}
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+
+                    {/* Manual email input as fallback */}
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">
+                        Or enter email manually:
+                      </label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="email"
+                          placeholder="Enter team member's email"
+                          value={newTeammateEmail}
+                          onChange={(e) => setNewTeammateEmail(e.target.value)}
+                          disabled={isAddingTeammate}
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={() => handleAddTeammate()}
+                          disabled={isAddingTeammate || !newTeammateEmail.trim()}
+                        >
+                          {isAddingTeammate ? (
+                            "Adding..."
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4 mr-1" />
+                              Add
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mt-3">
+                    Team members will be able to edit this project and receive notifications.
+                  </p>
                 </div>
               )}
             </CardContent>
