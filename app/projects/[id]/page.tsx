@@ -1369,7 +1369,7 @@ export default function ProjectPage() {
                                       <CommandItem
                                         key={participant.user_id}
                                         value={participant.email}
-                                        onSelect={(currentValue) => {
+                                        onSelect={(currentValue: string) => {
                                           if (!isAlreadyTeammate) {
                                             setSearchValue(currentValue);
                                             setSearchOpen(false);
