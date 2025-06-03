@@ -94,8 +94,10 @@ const ProjectBoard = ({
                       <p className="text-sm text-gray-500">
                         Lead: {project.lead_name}
                       </p>
-                      <CardDescription className="text-gray-600 text-sm flex-grow overflow-hidden">
-                          {project.project_description}
+                      <CardDescription
+                        className="text-gray-600 text-sm line-clamp-3 overflow-hidden min-h-[3.75rem]"
+                      >
+                        {project.project_description}
                       </CardDescription>
 
                       {/* QR Code Section */}
